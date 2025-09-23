@@ -8,7 +8,7 @@ from typing import Any
 
 from PySide6.QtCore import QPointF, QRectF, Qt
 from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen, QPaintEvent
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QApplication, QWidget
 
 
 class ChartType(Enum):
@@ -70,85 +70,60 @@ class ChartWidget(QWidget):
         colors = self.get_data_colors()
         return colors[index % len(colors)]
 
-    def is_dark_theme(self) -> bool:
-        """Check if dark theme is active."""
-        # Compare background luminance
-        bg = self.palette().color(self.palette().ColorRole.Window)
-        luminance = (0.299 * bg.red() + 0.587 * bg.green() + 0.114 * bg.blue()) / 255
-        return luminance < 0.5
-
-    def get_theme_name(self) -> str:
-        """Get current theme name by analyzing colors."""
-        bg = self.palette().color(self.palette().ColorRole.Window)
-        # Check for monokai's specific background color
-        if abs(bg.red() - 39) < 5 and abs(bg.green() - 40) < 5 and abs(bg.blue() - 34) < 5:
-            return "monokai"
-        elif self.is_dark_theme():
-            return "dark"
-        else:
-            return "light"
 
     def get_theme_colors(self) -> dict:
-        """Get colors based on current theme."""
-        if self.is_dark_theme():
-            return {
-                'background': QColor("#2b2b2b"),
-                'text': QColor("#ffffff"),
-                'grid': QColor("#404040"),
-                'axis': QColor("#808080"),
-            }
-        else:
-            return {
-                'background': QColor("#f8f9fa"),
-                'text': QColor("#2c3e50"),
-                'grid': QColor("#e0e0e0"),
-                'axis': QColor("#2c3e50"),
-            }
+        """Get colors from the current theme."""
+        # Get theme from application
+        app = QApplication.instance()
+        if hasattr(app, 'theme_manager'):
+            theme = app.theme_manager.get_theme()
+            if theme and theme.colors:
+                colors = theme.colors
+                return {
+                    'background': QColor(colors.background),
+                    'text': QColor(colors.text_primary),
+                    'grid': QColor(colors.chart_grid),
+                    'axis': QColor(colors.chart_axis),
+                }
+
+        # Fallback to defaults
+        return {
+            'background': QColor("#f8f9fa"),
+            'text': QColor("#2c3e50"),
+            'grid': QColor("#e0e0e0"),
+            'axis': QColor("#2c3e50"),
+        }
 
     def get_data_colors(self) -> list[QColor]:
-        """Get data series colors based on current theme."""
+        """Get data series colors from the current theme."""
         # Return custom colors if set
         if self._colors is not None:
             return self._colors
 
-        theme_name = self.get_theme_name()
+        # Get theme from application
+        app = QApplication.instance()
+        if hasattr(app, 'theme_manager'):
+            theme = app.theme_manager.get_theme()
+            if theme and theme.colors:
+                colors = theme.colors
+                return [
+                    QColor(colors.chart_data_1),
+                    QColor(colors.chart_data_2),
+                    QColor(colors.chart_data_3),
+                    QColor(colors.chart_data_4),
+                    QColor(colors.chart_data_5),
+                    QColor(colors.chart_data_6),
+                ]
 
-        if theme_name == "monokai":
-            # Monokai-inspired colors
-            return [
-                QColor("#66d9ef"),  # Cyan (Monokai blue)
-                QColor("#a6e22e"),  # Green (Monokai green)
-                QColor("#fd971f"),  # Orange
-                QColor("#f92672"),  # Pink/Magenta (Monokai red)
-                QColor("#ae81ff"),  # Purple
-                QColor("#e6db74"),  # Yellow
-                QColor("#75715e"),  # Brown/Gray
-                QColor("#f8f8f2"),  # Light gray
-            ]
-        elif theme_name == "dark":
-            # Brighter, more vibrant colors for dark theme
-            return [
-                QColor("#5dade2"),  # Bright blue
-                QColor("#58d68d"),  # Bright green
-                QColor("#f5b041"),  # Bright orange
-                QColor("#ec7063"),  # Bright red
-                QColor("#af7ac5"),  # Bright purple
-                QColor("#48c9b0"),  # Bright turquoise
-                QColor("#f4d03f"),  # Bright yellow
-                QColor("#85929e"),  # Light gray
-            ]
-        else:
-            # Deeper, richer colors for light theme
-            return [
-                QColor("#2874a6"),  # Deep blue
-                QColor("#239b56"),  # Deep green
-                QColor("#d68910"),  # Deep orange
-                QColor("#cb4335"),  # Deep red
-                QColor("#7d3c98"),  # Deep purple
-                QColor("#17a589"),  # Deep turquoise
-                QColor("#d4ac0d"),  # Deep yellow
-                QColor("#566573"),  # Dark gray
-            ]
+        # Fallback to defaults
+        return [
+            QColor("#2196f3"),  # Blue
+            QColor("#4caf50"),  # Green
+            QColor("#ff9800"),  # Orange
+            QColor("#f44336"),  # Red
+            QColor("#9c27b0"),  # Purple
+            QColor("#00bcd4"),  # Cyan
+        ]
 
 
 class LineChart(ChartWidget):

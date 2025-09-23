@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-import json
+import importlib.util
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -25,19 +26,50 @@ class ThemeManager(QObject):
         super().__init__()
         self._themes: dict[str, Theme] = {}
         self._current_theme: str = "light"
-        self._custom_theme_dir: Path | None = None
 
         self._load_default_themes()
 
     def _load_default_themes(self) -> None:
         """Load default built-in themes."""
-        from qtframework.themes.presets import MonokaiTheme
-
         self.register_theme(LightTheme())
         self.register_theme(DarkTheme())
-        self.register_theme(MonokaiTheme())
 
-        logger.info(f"Loaded {len(self._themes)} default themes")
+        # Load third-party themes from resources/themes
+        self._load_third_party_themes()
+
+        logger.info(f"Loaded {len(self._themes)} themes")
+
+    def _load_third_party_themes(self) -> None:
+        """Load third-party themes from resources/themes directory."""
+        themes_dir = Path("resources/themes")
+        if not themes_dir.exists():
+            return
+
+        for theme_file in themes_dir.glob("*.py"):
+            if theme_file.name == "__init__.py":
+                continue
+
+            try:
+                # Load the module
+                module_name = f"theme_{theme_file.stem}"
+                spec = importlib.util.spec_from_file_location(module_name, theme_file)
+                if spec and spec.loader:
+                    module = importlib.util.module_from_spec(spec)
+                    sys.modules[module_name] = module
+                    spec.loader.exec_module(module)
+
+                    # Find and register theme classes
+                    for attr_name in dir(module):
+                        attr = getattr(module, attr_name)
+                        if (isinstance(attr, type) and
+                            issubclass(attr, Theme) and
+                            attr not in (Theme, StandardTheme)):
+                            theme_instance = attr()
+                            self.register_theme(theme_instance)
+                            logger.info(f"Loaded third-party theme: {theme_instance.display_name}")
+
+            except Exception as e:
+                logger.error(f"Failed to load theme from {theme_file}: {e}")
 
     def register_theme(self, theme: Theme) -> None:
         """Register a theme.
@@ -138,89 +170,3 @@ class ThemeManager(QObject):
             }
         return None
 
-    def load_theme_from_file(self, file_path: Path | str) -> bool:
-        """Load a theme from a JSON file.
-
-        Args:
-            file_path: Path to theme file
-
-        Returns:
-            True if theme was loaded successfully
-        """
-        file_path = Path(file_path)
-        if not file_path.exists():
-            logger.error(f"Theme file not found: {file_path}")
-            return False
-
-        try:
-            with open(file_path, encoding="utf-8") as f:
-                data = json.load(f)
-
-            # Use JsonTheme for JSON-loaded themes
-            from qtframework.themes.json_theme import JsonTheme
-            theme = JsonTheme.from_dict(data)
-            self.register_theme(theme)
-            logger.info(f"Loaded theme from: {file_path}")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to load theme from {file_path}: {e}")
-            return False
-
-    def save_theme_to_file(self, theme_name: str, file_path: Path | str) -> bool:
-        """Save a theme to a JSON file.
-
-        Args:
-            theme_name: Name of theme to save
-            file_path: Path to save file
-
-        Returns:
-            True if theme was saved successfully
-        """
-        theme = self.get_theme(theme_name)
-        if not theme:
-            logger.error(f"Theme not found: {theme_name}")
-            return False
-
-        file_path = Path(file_path)
-        try:
-            file_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(file_path, "w", encoding="utf-8") as f:
-                json.dump(theme.to_dict(), f, indent=2)
-
-            logger.info(f"Saved theme to: {file_path}")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to save theme to {file_path}: {e}")
-            return False
-
-    def load_themes_from_directory(self, directory: Path | str) -> int:
-        """Load all theme files from a directory.
-
-        Args:
-            directory: Directory path
-
-        Returns:
-            Number of themes loaded
-        """
-        directory = Path(directory)
-        if not directory.exists():
-            logger.error(f"Directory not found: {directory}")
-            return 0
-
-        count = 0
-        for file_path in directory.glob("*.json"):
-            if self.load_theme_from_file(file_path):
-                count += 1
-
-        logger.info(f"Loaded {count} themes from {directory}")
-        return count
-
-    def set_custom_theme_directory(self, directory: Path | str) -> None:
-        """Set custom theme directory.
-
-        Args:
-            directory: Directory path
-        """
-        self._custom_theme_dir = Path(directory)
-        if self._custom_theme_dir.exists():
-            self.load_themes_from_directory(self._custom_theme_dir)

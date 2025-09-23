@@ -31,6 +31,23 @@ class ColorPalette(BaseModel):
     hover: str = Field(default="#F5F5F5")
     selected: str = Field(default="#E3F2FD")
 
+    # Chart colors
+    chart_grid: str = Field(default="#E0E0E0")
+    chart_axis: str = Field(default="#757575")
+    chart_data_1: str = Field(default="#2196F3")
+    chart_data_2: str = Field(default="#4CAF50")
+    chart_data_3: str = Field(default="#FF9800")
+    chart_data_4: str = Field(default="#F44336")
+    chart_data_5: str = Field(default="#9C27B0")
+    chart_data_6: str = Field(default="#00BCD4")
+
+    # Table colors
+    table_header_bg: str = Field(default="#F5F5F5")
+    table_row_bg_alt: str = Field(default="#FAFAFA")  # Alternating row color
+    table_row_hover: str = Field(default="#F0F0F0")
+    table_row_selected: str = Field(default="#E3F2FD")
+    table_grid: str = Field(default="#E0E0E0")
+
 
 class Typography(BaseModel):
     """Typography settings."""

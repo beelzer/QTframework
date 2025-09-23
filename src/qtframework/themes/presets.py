@@ -83,6 +83,21 @@ class DarkTheme(StandardTheme):
                 border="#404040",
                 hover="#3A3A3A",
                 selected="#1A237E",
+                # Chart colors
+                chart_grid="#404040",
+                chart_axis="#808080",
+                chart_data_1="#42A5F5",
+                chart_data_2="#66BB6A",
+                chart_data_3="#FFA726",
+                chart_data_4="#EF5350",
+                chart_data_5="#AB47BC",
+                chart_data_6="#26C6DA",
+                # Table colors
+                table_header_bg="#3A3A3A",
+                table_row_bg_alt="#323232",
+                table_row_hover="#404040",
+                table_row_selected="#1A237E",
+                table_grid="#404040",
             ),
             typography=Typography(
                 font_family="Segoe UI, -apple-system, BlinkMacSystemFont, Arial, sans-serif",
@@ -95,51 +110,5 @@ class DarkTheme(StandardTheme):
                 md="0 3px 6px rgba(0,0,0,0.4)",
                 lg="0 10px 20px rgba(0,0,0,0.5)",
                 xl="0 14px 28px rgba(0,0,0,0.6)",
-            ),
-        )
-
-
-class MonokaiTheme(StandardTheme):
-    """Monokai-inspired theme based on the popular text editor theme."""
-
-    def __init__(self) -> None:
-        """Initialize Monokai theme."""
-        super().__init__(
-            name="monokai",
-            display_name="Monokai Theme",
-            description="Dark theme inspired by the Monokai color scheme",
-            author="Qt Framework",
-            version="1.0.0",
-            colors=ColorPalette(
-                primary="#66D9EF",  # Cyan (Monokai blue)
-                primary_dark="#49B8CC",
-                primary_light="#83E0F2",
-                secondary="#A6E22E",  # Green (Monokai green)
-                secondary_dark="#85C21F",
-                secondary_light="#B7E94E",
-                background="#272822",  # Monokai background
-                surface="#3E3D32",  # Slightly lighter surface
-                error="#F92672",  # Pink/Magenta (Monokai red)
-                warning="#FD971F",  # Orange
-                info="#66D9EF",  # Cyan
-                success="#A6E22E",  # Green
-                text_primary="#F8F8F2",  # Monokai foreground
-                text_secondary="#75715E",  # Brown/Gray (comments)
-                text_disabled="#49483E",
-                border="#75715E",
-                hover="#49483E",
-                selected="#49483E",
-            ),
-            typography=Typography(
-                font_family="Consolas, 'Courier New', monospace",
-                font_size_base=14,
-            ),
-            spacing=Spacing(),
-            borders=BorderRadius(),
-            shadows=Shadows(
-                sm="0 1px 3px rgba(0,0,0,0.4)",
-                md="0 3px 6px rgba(0,0,0,0.5)",
-                lg="0 10px 20px rgba(0,0,0,0.6)",
-                xl="0 14px 28px rgba(0,0,0,0.7)",
             ),
         )
