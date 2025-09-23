@@ -5,7 +5,7 @@ from __future__ import annotations
 import sys
 from typing import TYPE_CHECKING, Any, override
 
-from PySide6.QtCore import QSettings, Signal
+from PySide6.QtCore import QSettings, Signal, QtMsgType, qInstallMessageHandler
 from PySide6.QtGui import QGuiApplication, QPalette
 from PySide6.QtWidgets import QApplication
 
@@ -17,6 +17,15 @@ if TYPE_CHECKING:
     from qtframework.core.window import BaseWindow
 
 logger = get_logger(__name__)
+
+
+_original_qt_message_handler = None
+
+def _qt_message_filter(mode, context, message):
+    if message == "Could not parse application stylesheet":
+        return
+    if _original_qt_message_handler is not None:
+        _original_qt_message_handler(mode, context, message)
 
 
 class Application(QApplication):
@@ -49,14 +58,21 @@ class Application(QApplication):
 
         self._context = Context()
         self._theme_manager = ThemeManager()
+        self._current_stylesheet: str = ""
         self._settings = QSettings()
         self._windows: list[BaseWindow] = []
 
         self._initialize()
 
+    def _install_stylesheet_warning_filter(self) -> None:
+        global _original_qt_message_handler
+        if _original_qt_message_handler is None:
+            _original_qt_message_handler = qInstallMessageHandler(_qt_message_filter)
+
     def _initialize(self) -> None:
         """Initialize application components."""
         logger.info(f"Initializing {self.applicationName()}")
+        self._install_stylesheet_warning_filter()
 
         self._load_settings()
         self._setup_theme()
@@ -79,7 +95,16 @@ class Application(QApplication):
         """Setup initial theme."""
         theme_name = self._context.get("theme", "light")
         self._theme_manager.set_theme(theme_name)
-        self.setStyleSheet(self._theme_manager.get_stylesheet())
+        self._apply_stylesheet(self._theme_manager.get_stylesheet())
+
+    def _apply_stylesheet(self, stylesheet: str) -> None:
+        """Apply stylesheet if it changed to avoid redundant parsing."""
+        if stylesheet is None:
+            stylesheet = ""
+        if stylesheet == self._current_stylesheet:
+            return
+        self.setStyleSheet(stylesheet)
+        self._current_stylesheet = self.styleSheet()
 
     def _connect_signals(self) -> None:
         """Connect internal signals."""
@@ -94,7 +119,7 @@ class Application(QApplication):
         """
         logger.info(f"Changing theme to: {theme_name}")
         self._context.set("theme", theme_name)
-        self.setStyleSheet(self._theme_manager.get_stylesheet())
+        self._apply_stylesheet(self._theme_manager.get_stylesheet())
         self.theme_changed.emit(theme_name)
 
     def _on_about_to_quit(self) -> None:

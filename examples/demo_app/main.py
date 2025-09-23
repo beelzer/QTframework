@@ -11,6 +11,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QComboBox,
     QHBoxLayout,
@@ -998,7 +999,7 @@ class DemoWindow(BaseWindow):
         """Handle configuration value changes from tabs."""
         try:
             self.config_manager.set(key, value)
-            if key == 'ui.theme':
+            if key in ('ui.theme', 'ui.font_size'):
                 self._apply_runtime_config()
             if hasattr(self, 'config_viewer'):
                 self._update_config_viewer()
@@ -1379,7 +1380,7 @@ class DemoWindow(BaseWindow):
                 parsed_value = value
 
             self.config_manager.set(key, parsed_value)
-            if key == 'ui.theme':
+            if key in ('ui.theme', 'ui.font_size'):
                 self._apply_runtime_config()
             self._show_notification(f"Configuration updated: {key} = {parsed_value}")
 
@@ -1457,6 +1458,8 @@ class DemoWindow(BaseWindow):
                 current_theme = theme_manager.get_current_theme_name()
                 if current_theme != theme_name:
                     theme_manager.set_theme(theme_name)
+            font_size = self.config_manager.get('ui.font_size')
+            self._apply_font_settings(theme_manager, font_size)
 
     def _create_app_config_tab(self) -> QWidget:
         """Create the application configuration tab."""
@@ -1698,7 +1701,7 @@ class DemoWindow(BaseWindow):
                     current_value = self.config_manager.get(key)
                     if current_value != new_value:
                         self.config_manager.set(key, new_value)
-                        if key == 'ui.theme':
+                        if key in ('ui.theme', 'ui.font_size'):
                             self._apply_runtime_config()
                         changes_made = True
 
@@ -1746,6 +1749,46 @@ class DemoWindow(BaseWindow):
         """Check whether a Qt widget pointer is still valid."""
         return widget is not None and isValid(widget)
 
+    def _apply_font_settings(self, theme_manager: Any, font_size: Any) -> None:
+        """Apply font size configuration to the theme and application."""
+        try:
+            size = int(font_size) if font_size is not None else None
+        except (TypeError, ValueError):
+            size = None
+        if not size or size <= 0:
+            return
+
+        app_font = self._app.font()
+        if app_font.pointSize() != size:
+            app_font.setPointSize(size)
+            self._app.setFont(app_font)
+
+        theme = theme_manager.get_theme()
+        if not theme:
+            return
+
+        current_base = theme.typography.font_size_base
+        if current_base == size:
+            return
+
+        delta = size - current_base
+        typography = theme.typography
+        typography.font_size_base = size
+        typography.font_size_small = max(6, typography.font_size_small + delta)
+        typography.font_size_large = max(6, typography.font_size_large + delta)
+        typography.font_size_h1 = max(6, typography.font_size_h1 + delta)
+        typography.font_size_h2 = max(6, typography.font_size_h2 + delta)
+        typography.font_size_h3 = max(6, typography.font_size_h3 + delta)
+        typography.font_size_h4 = max(6, typography.font_size_h4 + delta)
+        typography.font_size_h5 = max(6, typography.font_size_h5 + delta)
+        typography.font_size_h6 = max(6, typography.font_size_h6 + delta)
+
+        new_stylesheet = theme_manager.get_stylesheet()
+        if hasattr(self._app, '_apply_stylesheet'):
+            self._app._apply_stylesheet(new_stylesheet)
+        elif new_stylesheet != self._app.styleSheet():
+            self._app.setStyleSheet(new_stylesheet)
+
     def _flatten_dict(self, d: dict, parent_key: str = '', sep: str = '.') -> dict:
         """Flatten nested dictionary with dot notation keys."""
         items = []
@@ -1761,6 +1804,8 @@ class DemoWindow(BaseWindow):
         """Set configuration value."""
         if key and value:
             self.config_manager.set(key, value)
+            if key in ('ui.theme', 'ui.font_size'):
+                self._apply_runtime_config()
             self._show_notification(f"Configuration updated: {key} = {value}")
 
     def _on_route_changed(self, path: str, params: dict) -> None:
