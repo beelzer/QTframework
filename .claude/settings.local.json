@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv pip install:*)",
+      "Bash(ruff check:*)",
+      "Bash(mypy:*)",
+      "Bash(python test:*)",
+      "Bash(uv sync:*)",
+      "Bash(python:*)",
+      "Bash(uv pip:*)",
+      "Bash(uv run:*)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(del \"C:\\dev\\python\\QTframework\\test_theme_consistency.py\")",
+      "Bash(del:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
