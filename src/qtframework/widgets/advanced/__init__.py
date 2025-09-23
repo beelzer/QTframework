@@ -11,6 +11,7 @@ from qtframework.widgets.advanced.dialogs import (
 )
 from qtframework.widgets.advanced.notifications import Notification, NotificationManager
 from qtframework.widgets.advanced.tables import DataTable, TreeTable
+from qtframework.widgets.advanced.tabs import BaseTabPage, TabWidget
 
 __all__ = [
     "ChartWidget",
@@ -25,4 +26,6 @@ __all__ = [
     "ConfirmDialog",
     "ProgressDialog",
     "FormDialog",
+    "TabWidget",
+    "BaseTabPage",
 ]

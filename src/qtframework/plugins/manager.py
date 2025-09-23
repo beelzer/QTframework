@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any, Callable
 from PySide6.QtCore import QObject, Signal
 
 from qtframework.plugins.base import Plugin, PluginMetadata, PluginState
+from qtframework.utils.exceptions import PluginError, SecurityError
 from qtframework.utils.logger import get_logger
 
 if TYPE_CHECKING:
@@ -88,7 +89,7 @@ class PluginManager(QObject):
         return None
 
     def load_plugin(self, plugin_id: str, plugin_path: Path | None = None) -> bool:
-        """Load a plugin.
+        """Load a plugin with security validation.
 
         Args:
             plugin_id: Plugin ID
@@ -96,18 +97,35 @@ class PluginManager(QObject):
 
         Returns:
             True if plugin loaded successfully
+
+        Raises:
+            PluginError: If plugin loading fails
+            SecurityError: If security validation fails
         """
+        if not isinstance(plugin_id, str) or not plugin_id:
+            raise PluginError("Plugin ID must be a non-empty string", plugin_id=plugin_id)
+
         if plugin_id in self._plugins:
             logger.warning(f"Plugin {plugin_id} already loaded")
             return True
 
         try:
             if plugin_path:
+                # Validate plugin path security
+                if not self._validate_plugin_path_security(plugin_path):
+                    raise SecurityError(
+                        f"Plugin path failed security validation: {plugin_path}",
+                        security_context="plugin_loading",
+                        attempted_action="load_plugin"
+                    )
                 plugin = self._load_plugin_from_path(plugin_path)
             else:
                 plugin = self._find_and_load_plugin(plugin_id)
 
             if plugin:
+                # Validate plugin instance
+                self._validate_plugin_instance(plugin, plugin_id)
+
                 self._plugins[plugin_id] = plugin
                 plugin.set_application(self._app)
                 plugin.set_state(PluginState.LOADED)
@@ -119,12 +137,29 @@ class PluginManager(QObject):
                 else:
                     plugin.set_state(PluginState.ERROR)
                     del self._plugins[plugin_id]
-                    return False
-        except Exception as e:
-            logger.error(f"Failed to load plugin {plugin_id}: {e}")
-            self.plugin_error.emit(plugin_id, str(e))
+                    raise PluginError(
+                        f"Plugin {plugin_id} initialization failed",
+                        plugin_id=plugin_id,
+                        operation="initialize"
+                    )
+            else:
+                raise PluginError(
+                    f"Failed to load plugin {plugin_id}",
+                    plugin_id=plugin_id,
+                    operation="load"
+                )
 
-        return False
+        except (PluginError, SecurityError) as e:
+            self.plugin_error.emit(plugin_id, str(e))
+            raise
+        except Exception as e:
+            error = PluginError(
+                f"Unexpected error loading plugin {plugin_id}: {e}",
+                plugin_id=plugin_id,
+                operation="load"
+            )
+            self.plugin_error.emit(plugin_id, str(error))
+            raise error
 
     def _load_plugin_from_path(self, path: Path) -> Plugin | None:
         """Load plugin from specific path.
@@ -310,3 +345,132 @@ class PluginManager(QObject):
                 except Exception as e:
                     logger.error(f"Hook error in {plugin_id}.{hook_name}: {e}")
         return results
+
+    def _validate_plugin_path_security(self, path: Path) -> bool:
+        """Validate plugin path for security concerns.
+
+        Args:
+            path: Plugin path to validate
+
+        Returns:
+            True if path passes security validation
+        """
+        try:
+            # Ensure path exists and is a directory
+            if not path.exists() or not path.is_dir():
+                logger.warning(f"Plugin path does not exist or is not a directory: {path}")
+                return False
+
+            # Check for restricted directories
+            restricted_paths = [
+                Path.home(),
+                Path("/"),
+                Path("C:\\"),
+                Path("/usr"),
+                Path("/bin"),
+                Path("/sys"),
+                Path("C:\\Windows"),
+                Path("C:\\Program Files"),
+            ]
+
+            for restricted in restricted_paths:
+                try:
+                    if path.is_relative_to(restricted):
+                        logger.warning(f"Plugin path in restricted directory: {path}")
+                        return False
+                except (ValueError, TypeError):
+                    continue
+
+            # Check plugin directory size (prevent loading huge plugins)
+            total_size = sum(f.stat().st_size for f in path.rglob('*') if f.is_file())
+            if total_size > 50 * 1024 * 1024:  # 50MB limit
+                logger.warning(f"Plugin directory too large: {path} ({total_size} bytes)")
+                return False
+
+            # Check for main.py file
+            main_file = path / "main.py"
+            if not main_file.exists():
+                logger.warning(f"Plugin missing main.py file: {path}")
+                return False
+
+            # Basic security scan of main.py
+            return self._validate_plugin_file_content(main_file)
+
+        except Exception as e:
+            logger.error(f"Error validating plugin path security: {e}")
+            return False
+
+    def _validate_plugin_file_content(self, file_path: Path) -> bool:
+        """Validate plugin file content for security.
+
+        Args:
+            file_path: Path to plugin file
+
+        Returns:
+            True if file content is safe
+        """
+        try:
+            content = file_path.read_text(encoding="utf-8")
+
+            # Check for suspicious imports/operations
+            suspicious_patterns = [
+                "import os",
+                "import sys",
+                "import subprocess",
+                "import shutil",
+                "exec(",
+                "eval(",
+                "__import__",
+                "open(",
+                "file(",
+                "urllib",
+                "requests",
+                "socket",
+                "tempfile",
+            ]
+
+            for pattern in suspicious_patterns:
+                if pattern in content:
+                    logger.warning(f"Suspicious pattern '{pattern}' found in plugin file: {file_path}")
+                    return False
+
+            return True
+
+        except Exception as e:
+            logger.error(f"Error reading plugin file for security validation: {e}")
+            return False
+
+    def _validate_plugin_instance(self, plugin: Plugin, plugin_id: str) -> None:
+        """Validate plugin instance.
+
+        Args:
+            plugin: Plugin instance to validate
+            plugin_id: Plugin ID
+
+        Raises:
+            PluginError: If plugin validation fails
+        """
+        # Check if plugin is actually a Plugin instance
+        if not isinstance(plugin, Plugin):
+            raise PluginError(
+                f"Plugin {plugin_id} is not a valid Plugin instance",
+                plugin_id=plugin_id
+            )
+
+        # Check required methods
+        required_methods = ["initialize", "activate", "deactivate", "cleanup"]
+        for method in required_methods:
+            if not hasattr(plugin, method) or not callable(getattr(plugin, method)):
+                raise PluginError(
+                    f"Plugin {plugin_id} missing required method: {method}",
+                    plugin_id=plugin_id
+                )
+
+        # Check plugin metadata if available
+        if hasattr(plugin, "metadata"):
+            metadata = plugin.metadata
+            if metadata and hasattr(metadata, "id") and metadata.id != plugin_id:
+                raise PluginError(
+                    f"Plugin metadata ID mismatch: expected {plugin_id}, got {metadata.id}",
+                    plugin_id=plugin_id
+                )

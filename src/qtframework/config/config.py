@@ -8,6 +8,10 @@ from typing import Any, Callable
 from pydantic import BaseModel, Field
 from PySide6.QtCore import QObject, Signal
 
+from qtframework.utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 class Config(QObject):
     """Configuration container with dot notation access."""
@@ -140,7 +144,7 @@ class Config(QObject):
                 try:
                     callback(value)
                 except Exception as e:
-                    print(f"Watcher error for {key}: {e}")
+                    logger.error(f"Watcher error for {key}: {e}")
 
         # Parent watchers (watch entire sections)
         parts = key.split(".")
@@ -152,7 +156,7 @@ class Config(QObject):
                     try:
                         callback(parent_value)
                     except Exception as e:
-                        print(f"Parent watcher error for {parent_key}: {e}")
+                        logger.error(f"Parent watcher error for {parent_key}: {e}")
 
     def merge(self, data: dict[str, Any], deep: bool = True) -> None:
         """Merge configuration data.

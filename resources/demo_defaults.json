@@ -1,0 +1,47 @@
+{
+  "$schema_version": "1.0.0",
+  "app": {
+    "name": "Qt Framework Complete Demo",
+    "version": "1.0.0",
+    "debug": false,
+    "organization": "Qt Framework Team"
+  },
+  "ui": {
+    "theme": "monokai",
+    "language": "en",
+    "font_size": 12,
+    "window": {
+      "width": 1400,
+      "height": 900,
+      "remember_size": true,
+      "center_on_startup": true
+    },
+    "animations": {
+      "enabled": true,
+      "duration": 250
+    }
+  },
+  "features": {
+    "charts": true,
+    "tables": true,
+    "notifications": true,
+    "state_management": true,
+    "routing": true,
+    "plugins": true,
+    "themes": true,
+    "auto_save": true,
+    "developer_mode": false
+  },
+  "performance": {
+    "cache_size": 100,
+    "max_threads": 4,
+    "lazy_loading": true,
+    "prefetch_data": false
+  },
+  "demo": {
+    "show_welcome": true,
+    "sample_data_size": 1000,
+    "enable_tooltips": true,
+    "highlight_new_features": true
+  }
+}

@@ -25,8 +25,16 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QPushButton,
     QGroupBox,
+    QTabWidget,
+    QFormLayout,
+    QSlider,
+    QDoubleSpinBox,
+    QLineEdit,
+    QGridLayout,
+    QFrame,
 )
 
+from shiboken6 import isValid
 from qtframework import Application, BaseWindow
 from qtframework.layouts import Card, FlexLayout, SidebarLayout
 from qtframework.layouts.sidebar import SidebarPosition
@@ -53,6 +61,8 @@ from qtframework.widgets.advanced import (
     ConfirmDialog,
     ProgressDialog,
     FormDialog,
+    TabWidget,
+    BaseTabPage,
 )
 from qtframework.widgets.advanced.notifications import NotificationType
 from qtframework.state import Store, Action
@@ -64,13 +74,144 @@ from qtframework.utils.logger import get_logger
 logger = get_logger(__name__)
 
 
+# Configuration Tab Classes for Demo
+class ApplicationConfigTab(BaseTabPage):
+    """Configuration tab for application settings."""
+
+    def _setup_ui(self) -> None:
+        """Setup application settings UI."""
+        # Application Info Group
+        app_group = self._create_group("Application Information")
+
+        # App name
+        name_edit = QLineEdit()
+        name_edit.setPlaceholderText("Enter application name")
+        self._add_control_to_group(app_group, "Name:", name_edit, "app.name")
+
+        # Version
+        version_edit = QLineEdit()
+        version_edit.setPlaceholderText("e.g., 1.0.0")
+        self._add_control_to_group(app_group, "Version:", version_edit, "app.version")
+
+        # Organization
+        org_edit = QLineEdit()
+        org_edit.setPlaceholderText("Organization name")
+        self._add_control_to_group(app_group, "Organization:", org_edit, "app.organization")
+
+        # Debug mode
+        debug_check = QCheckBox()
+        debug_check.setText("Enable debug logging and developer features")
+        self._add_control_to_group(app_group, "Debug Mode:", debug_check, "app.debug")
+
+        self._layout.addWidget(app_group)
+        self._layout.addStretch()
+
+    def _connect_signals(self) -> None:
+        """Connect application settings signals."""
+        for key, control in self._controls.items():
+            if isinstance(control, QLineEdit):
+                control.textChanged.connect(
+                    lambda text, k=key: self.value_changed.emit(k, text)
+                )
+            elif isinstance(control, QCheckBox):
+                control.toggled.connect(
+                    lambda checked, k=key: self.value_changed.emit(k, checked)
+                )
+
+
+class UIConfigTab(BaseTabPage):
+    """Configuration tab for UI settings."""
+
+    def _setup_ui(self) -> None:
+        """Setup UI settings."""
+        # Theme Group
+        theme_group = self._create_group("Theme & Appearance")
+
+        # Theme selection
+        theme_combo = QComboBox()
+        theme_combo.addItems(["monokai", "dark", "light", "blue", "purple"])
+        self._add_control_to_group(theme_group, "Theme:", theme_combo, "ui.theme")
+
+        # Language
+        lang_combo = QComboBox()
+        lang_combo.addItems(["en", "es", "fr", "de", "zh"])
+        self._add_control_to_group(theme_group, "Language:", lang_combo, "ui.language")
+
+        # Font size
+        font_spin = QSpinBox()
+        font_spin.setMinimum(8)
+        font_spin.setMaximum(24)
+        font_spin.setSuffix(" pt")
+        self._add_control_to_group(theme_group, "Font Size:", font_spin, "ui.font_size")
+
+        self._layout.addWidget(theme_group)
+        self._layout.addStretch()
+
+    def _connect_signals(self) -> None:
+        """Connect UI settings signals."""
+        for key, control in self._controls.items():
+            if isinstance(control, QComboBox):
+                control.currentTextChanged.connect(
+                    lambda text, k=key: self.value_changed.emit(k, text)
+                )
+            elif isinstance(control, QSpinBox):
+                control.valueChanged.connect(
+                    lambda value, k=key: self.value_changed.emit(k, value)
+                )
+
+
+class FeaturesConfigTab(BaseTabPage):
+    """Configuration tab for feature toggles."""
+
+    def _setup_ui(self) -> None:
+        """Setup feature settings."""
+        # Core Features Group
+        core_group = self._create_group("Core Features")
+
+        features = [
+            ("charts", "Charts & Graphs"),
+            ("tables", "Data Tables"),
+            ("notifications", "Notifications"),
+            ("state_management", "State Management"),
+            ("routing", "Navigation Routing"),
+            ("plugins", "Plugin System"),
+            ("themes", "Theme System"),
+            ("auto_save", "Auto Save"),
+            ("developer_mode", "Developer Mode"),
+        ]
+
+        for key, title in features:
+            check = QCheckBox()
+            check.setText(title)
+            self._add_control_to_group(core_group, title + ":", check, f"features.{key}")
+
+        self._layout.addWidget(core_group)
+        self._layout.addStretch()
+
+    def _connect_signals(self) -> None:
+        """Connect feature settings signals."""
+        for key, control in self._controls.items():
+            if isinstance(control, QCheckBox):
+                control.toggled.connect(
+                    lambda checked, k=key: self.value_changed.emit(k, checked)
+                )
+
+
 class DemoWindow(BaseWindow):
     """Demo window showcasing framework features."""
+
+    # Centralized path configuration
+    RESOURCES_DIR = Path(__file__).parent.parent.parent / "resources"
+    CONFIG_FILE = RESOURCES_DIR / "settings.json"
+    DEFAULTS_FILE = RESOURCES_DIR / "demo_defaults.json"
 
     def __init__(self, application: Application | None = None) -> None:
         """Initialize demo window."""
         super().__init__(application, title="Qt Framework Complete Demo")
         self.notification_manager = NotificationManager(self)
+
+        # Initialize config controls dictionary
+        self.config_controls = {}
 
         # Setup store with root reducer
         def root_reducer(state: dict, action: Action) -> dict:
@@ -199,8 +340,16 @@ class DemoWindow(BaseWindow):
             Route(path="/inputs", component=create_inputs_widget, name="inputs"),
             Route(path="/charts", component=create_charts_widget, name="charts"),
             Route(path="/tables", component=create_tables_widget, name="tables"),
-            Route(path="/state", component=lambda: QLabel("<h2>State Management Page</h2>\nRedux-style state management with actions and reducers"), name="state"),
-            Route(path="/config", component=lambda: QLabel("<h2>Configuration Page</h2>\nFlexible configuration management system"), name="config"),
+            Route(
+                path="/state",
+                component=lambda: QLabel("<h2>State Management Page</h2>\nRedux-style state management with actions and reducers"),
+                name="state",
+            ),
+            Route(
+                path="/config",
+                component=lambda: QLabel("<h2>Configuration Page</h2>\nFlexible configuration management system"),
+                name="config",
+            ),
         ]
 
         for route in routes:
@@ -211,18 +360,88 @@ class DemoWindow(BaseWindow):
         self.router.navigation_blocked.connect(self._on_navigation_blocked)
 
     def _setup_config(self) -> None:
-        """Setup configuration management."""
-        # Try to load config from file if it exists
-        config_file = Path("demo_config.json")
-        if config_file.exists():
-            self.config_manager.load_file(config_file)
+        """Setup configuration management using standardized config system."""
+        defaults_path = self.DEFAULTS_FILE
+        user_config_path = self.CONFIG_FILE
+        loaded_count = 0
 
-        # Set default configuration values
-        self.config_manager.config.set("app.name", "Qt Framework Demo")
-        self.config_manager.config.set("app.version", "1.0.0")
-        self.config_manager.config.set("features.charts", True)
-        self.config_manager.config.set("features.tables", True)
-        self.config_manager.config.set("features.notifications", True)
+        defaults: dict[str, Any] = {}
+        if defaults_path.exists():
+            try:
+                import json
+                with open(defaults_path, "r", encoding="utf-8") as f:
+                    defaults = json.load(f)
+                logger.info(f"Loaded defaults from: {defaults_path}")
+            except Exception as exc:
+                logger.warning(f"Failed to load defaults from {defaults_path}: {exc}")
+
+        if not defaults:
+            defaults = {
+                "$schema_version": "1.0.0",
+                "app": {
+                    "name": "Qt Framework Complete Demo",
+                    "version": "1.0.0",
+                    "debug": False,
+                    "organization": "Qt Framework Team"
+                },
+                "ui": {
+                    "theme": "monokai",
+                    "language": "en",
+                    "font_size": 12,
+                    "window": {
+                        "width": 1400,
+                        "height": 900,
+                        "remember_size": True,
+                        "center_on_startup": True
+                    },
+                    "animations": {
+                        "enabled": True,
+                        "duration": 250
+                    }
+                },
+                "features": {
+                    "charts": True,
+                    "tables": True,
+                    "notifications": True,
+                    "state_management": True,
+                    "routing": True,
+                    "plugins": True,
+                    "themes": True,
+                    "auto_save": True,
+                    "developer_mode": False
+                },
+                "performance": {
+                    "cache_size": 100,
+                    "max_threads": 4,
+                    "lazy_loading": True,
+                    "prefetch_data": False
+                },
+                "demo": {
+                    "show_welcome": True,
+                    "sample_data_size": 1000,
+                    "enable_tooltips": True,
+                    "highlight_new_features": True
+                }
+            }
+            logger.info("Using embedded defaults for configuration")
+
+        self.config_manager.load_defaults(defaults)
+        loaded_count += 1
+
+        if user_config_path.exists():
+            try:
+                if self.config_manager.load_file(user_config_path, validate=True):
+                    loaded_count += 1
+                    logger.info(f"Loaded overrides from: {user_config_path}")
+            except Exception as exc:
+                logger.warning(f"Failed to load overrides from {user_config_path}: {exc}")
+        else:
+            logger.info(f"User config not found, expected at {user_config_path}")
+
+        env_prefix = "QTFRAMEWORKCOMPLETEDEMO_"
+        self.config_manager.load_env(env_prefix)
+
+        self._apply_runtime_config()
 
     def _setup_ui(self) -> None:
         """Setup UI components."""
@@ -433,9 +652,9 @@ class DemoWindow(BaseWindow):
         data_table.setMinimumHeight(250)
 
         # Connect demonstration signals
-        data_table.row_selected.connect(lambda row: print(f"Selected employee at row {row}"))
-        data_table.cell_edited.connect(lambda row, col, text: print(f"Cell edited: Row {row}, Col {col}, New value: {text}"))
-        data_table.row_double_clicked.connect(lambda row: print(f"Double-clicked employee at row {row}"))
+        data_table.row_selected.connect(lambda row: logger.debug(f"Selected employee at row {row}"))
+        data_table.cell_edited.connect(lambda row, col, text: logger.debug(f"Cell edited: Row {row}, Col {col}, New value: {text}"))
+        data_table.row_double_clicked.connect(lambda row: logger.debug(f"Double-clicked employee at row {row}"))
 
         tables_card.add_widget(QLabel("Enhanced DataTable with Search/Filter (Try searching 'Engineering' or filtering by department):"))
         tables_card.add_widget(data_table)
@@ -484,9 +703,9 @@ class DemoWindow(BaseWindow):
         tree_table.setMinimumHeight(300)
 
         # Connect demonstration signals
-        tree_table.item_selected.connect(lambda item: print(f"Selected tree item: {item}"))
-        tree_table.item_expanded.connect(lambda item: print(f"Expanded tree item: {item}"))
-        tree_table.item_double_clicked.connect(lambda item: print(f"Double-clicked tree item: {item}"))
+        tree_table.item_selected.connect(lambda item: logger.debug(f"Selected tree item: {item}"))
+        tree_table.item_expanded.connect(lambda item: logger.debug(f"Expanded tree item: {item}"))
+        tree_table.item_double_clicked.connect(lambda item: logger.debug(f"Double-clicked tree item: {item}"))
 
         tables_card.add_widget(QLabel("Enhanced TreeTable with Search & Expand/Collapse (Try searching 'test' or 'docs'):"))
         tables_card.add_widget(tree_table)
@@ -634,20 +853,45 @@ class DemoWindow(BaseWindow):
 
         config_card = Card(title="Configuration System", elevated=True)
 
-        info = QLabel("The framework includes a flexible configuration management system with multiple providers.")
+        info = QLabel("The framework includes a flexible configuration management system with multiple providers and schema versioning.")
         info.setWordWrap(True)
         config_card.add_widget(info)
+
+        # Configuration sources
+        sources_group = QGroupBox("Configuration Sources (Priority Order)")
+        sources_layout = QVBoxLayout()
+
+        sources = self.config_manager.get_sources()
+        for i, source in enumerate(sources, 1):
+            source_label = QLabel(f"{i}. {source}")
+            if source == "defaults":
+                source_label.setText(f"{i}. {source} (Framework defaults)")
+            elif "resources" in source:
+                source_label.setText(f"{i}. {source} (Custom defaults)")
+            sources_layout.addWidget(source_label)
+
+        sources_group.setLayout(sources_layout)
+        config_card.add_widget(sources_group)
 
         # Current config
         config_group = QGroupBox("Current Configuration")
         config_layout = QVBoxLayout()
 
         config_items = [
-            f"app.name: {self.config_manager.config.get('app.name', 'Not set')}",
-            f"app.version: {self.config_manager.config.get('app.version', 'Not set')}",
-            f"features.charts: {self.config_manager.config.get('features.charts', False)}",
-            f"features.tables: {self.config_manager.config.get('features.tables', False)}",
-            f"features.notifications: {self.config_manager.config.get('features.notifications', False)}",
+            f"Schema Version: {self.config_manager.get_config_schema_version()}",
+            f"app.name: {self.config_manager.get('app.name', 'Not set')}",
+            f"app.version: {self.config_manager.get('app.version', 'Not set')}",
+            f"app.debug: {self.config_manager.get('app.debug', 'Not set')}",
+            f"ui.theme: {self.config_manager.get('ui.theme', 'Not set')}",
+            f"ui.font_size: {self.config_manager.get('ui.font_size', 'Not set')}",
+            f"ui.window.width: {self.config_manager.get('ui.window.width', 'Not set')}",
+            f"ui.window.height: {self.config_manager.get('ui.window.height', 'Not set')}",
+            f"features.charts: {self.config_manager.get('features.charts', False)}",
+            f"features.tables: {self.config_manager.get('features.tables', False)}",
+            f"features.notifications: {self.config_manager.get('features.notifications', False)}",
+            f"features.themes: {self.config_manager.get('features.themes', False)}",
+            f"performance.cache_size: {self.config_manager.get('performance.cache_size', 'Not set')}",
+            f"demo.sample_data_size: {self.config_manager.get('demo.sample_data_size', 'Not set')}",
         ]
 
         for item in config_items:
@@ -656,27 +900,128 @@ class DemoWindow(BaseWindow):
         config_group.setLayout(config_layout)
         config_card.add_widget(config_group)
 
-        # Config editor
-        editor_group = QGroupBox("Configuration Editor")
+        # Config file viewer
+        viewer_group = QGroupBox("Configuration Files")
+        viewer_layout = QVBoxLayout()
+
+        # Show custom config info
+        resources_config = self.CONFIG_FILE
+
+        info_text = QTextEdit()
+        info_text.setReadOnly(True)
+        info_text.setMaximumHeight(150)
+
+        defaults_path = self.DEFAULTS_FILE
+        loaded_sources = self.config_manager.get_sources()
+        defaults_path = self.DEFAULTS_FILE
+        loaded_sources = self.config_manager.get_sources()
+        existing_configs = sorted(self.RESOURCES_DIR.glob("*.json"))
+        info_lines = [
+            f"Config Directory: {self.RESOURCES_DIR}",
+            f"Defaults Config Path: {defaults_path if defaults_path.exists() else 'Not found'}",
+            f"User Config Path: {resources_config if resources_config.exists() else 'Not found'}",
+            f"Available Config Files: {', '.join(str(p.relative_to(self.RESOURCES_DIR)) for p in existing_configs) if existing_configs else 'None'}",
+            f"Loaded Sources: {', '.join(loaded_sources) if loaded_sources else 'None'}",
+        ]
+
+        info_text.setPlainText("\n".join(info_lines))
+        viewer_layout.addWidget(QLabel("Configuration File Info:"))
+        viewer_layout.addWidget(info_text)
+        self.config_viewer = QTextEdit()
+        self.config_viewer.setMaximumHeight(200)
+        self.config_viewer.setReadOnly(True)
+        self._update_config_viewer()
+
+        viewer_layout.addWidget(QLabel("Current Configuration (JSON):"))
+        viewer_layout.addWidget(self.config_viewer)
+
+        # Refresh button
+        refresh_btn = Button("Refresh Config View", variant=ButtonVariant.SECONDARY)
+        refresh_btn.clicked.connect(self._reload_config_from_resources)
+        viewer_layout.addWidget(refresh_btn)
+
+        viewer_group.setLayout(viewer_layout)
+        config_card.add_widget(viewer_group)
+
+        # Advanced Config Editor
+        editor_group = QGroupBox("Advanced Configuration Editor")
         editor_layout = QVBoxLayout()
 
-        key_input = Input(placeholder="Config key (e.g., app.name)")
-        value_input = Input(placeholder="Config value")
+        # Create tabbed editor with new framework TabWidget
+        self.config_tabs = TabWidget()
 
-        set_btn = Button("Set Configuration", variant=ButtonVariant.PRIMARY)
-        set_btn.clicked.connect(lambda: self._set_config(key_input.text(), value_input.text()))
+        # Get current configuration data
+        config_data = self.config_manager.get_all()
 
-        editor_layout.addWidget(QLabel("Key:"))
-        editor_layout.addWidget(key_input)
-        editor_layout.addWidget(QLabel("Value:"))
-        editor_layout.addWidget(value_input)
-        editor_layout.addWidget(set_btn)
+        # Create specialized config tab instances with relevant data sections
+        self.app_tab = ApplicationConfigTab(self._filter_config(config_data, "app"))
+        self.ui_tab = UIConfigTab(self._filter_config(config_data, "ui"))
+        self.features_tab = FeaturesConfigTab(self._filter_config(config_data, "features"))
+
+        # Connect tab value change signals
+        self.app_tab.value_changed.connect(self._on_config_value_changed)
+        self.ui_tab.value_changed.connect(self._on_config_value_changed)
+        self.features_tab.value_changed.connect(self._on_config_value_changed)
+        self._config_tab_pages = [("app", self.app_tab), ("ui", self.ui_tab), ("features", self.features_tab)]
+
+        # Add tabs to widget
+        self.config_tabs.add_tab(self.app_tab, "Application")
+        self.config_tabs.add_tab(self.ui_tab, "User Interface")
+        self.config_tabs.add_tab(self.features_tab, "Features")
+
+        editor_layout.addWidget(self.config_tabs)
+
+        # Control buttons
+        button_layout = QHBoxLayout()
+
+        reset_btn = Button("Reset to Defaults", variant=ButtonVariant.WARNING)
+        reset_btn.clicked.connect(self._reset_config_to_defaults)
+
+        apply_btn = Button("Apply Changes", variant=ButtonVariant.PRIMARY)
+        apply_btn.clicked.connect(self._apply_config_changes)
+
+        save_btn = Button("Save User Config", variant=ButtonVariant.SUCCESS)
+        save_btn.clicked.connect(self._save_user_config)
+
+        button_layout.addWidget(reset_btn)
+        button_layout.addWidget(apply_btn)
+        button_layout.addWidget(save_btn)
+        editor_layout.addLayout(button_layout)
 
         editor_group.setLayout(editor_layout)
         config_card.add_widget(editor_group)
 
         self.content_layout.addWidget(config_card)
         self.content_layout.addStretch()
+
+    def _on_config_value_changed(self, key: str, value: Any) -> None:
+        """Handle configuration value changes from tabs."""
+        try:
+            self.config_manager.set(key, value)
+            if key == 'ui.theme':
+                self._apply_runtime_config()
+            if hasattr(self, 'config_viewer'):
+                self._update_config_viewer()
+        except Exception as exc:
+            logger.warning(f"Failed to update configuration for {key}: {exc}")
+
+
+    def _filter_config(self, config_data: dict[str, Any], prefix: str) -> dict[str, Any]:
+        """Filter configuration data by prefix.
+
+        Args:
+            config_data: Full configuration dictionary
+            prefix: Prefix to filter by (e.g., 'app', 'ui', 'features')
+
+        Returns:
+            Dictionary with only keys matching the prefix
+        """
+        flat_data = self._flatten_dict(config_data)
+        return {
+            key: value
+            for key, value in flat_data.items()
+            if key.startswith(f"{prefix}.")
+        }
 
     def _show_plugins(self) -> None:
         """Show plugin system section."""
@@ -927,8 +1272,12 @@ class DemoWindow(BaseWindow):
 
     def _on_theme_changed(self, theme_name: str) -> None:
         """Handle theme change."""
+        self.config_manager.set('ui.theme', theme_name)
+        if hasattr(self, 'config_viewer'):
+            self._update_config_viewer()
+        self._update_config_tabs()
+
         if self._app and self._app.theme_manager:
-            # Check if theme is already set to prevent infinite recursion
             current_theme = self._app.theme_manager.get_current_theme_name()
             if current_theme != theme_name:
                 self._app.theme_manager.set_theme(theme_name)
@@ -1002,10 +1351,416 @@ class DemoWindow(BaseWindow):
         state = self.store.get_state()
         self.state_text.setPlainText(json.dumps(state, indent=2))
 
+    def _update_config_viewer(self) -> None:
+        """Update the configuration viewer with current config."""
+        viewer = getattr(self, 'config_viewer', None)
+        if not self._is_widget_valid(viewer):
+            return
+        try:
+            import json
+            config_data = self.config_manager.config.to_dict()
+            formatted_json = json.dumps(config_data, indent=2)
+            viewer.setPlainText(formatted_json)
+        except Exception as e:
+            if self._is_widget_valid(viewer):
+                viewer.setPlainText(f"Error displaying config: {e}")
+
+    def _set_config_and_refresh(self, key_input: Input, value_input: Input) -> None:
+        """Set configuration value and refresh the viewer."""
+        key = key_input.text()
+        value = value_input.text()
+        if key and value:
+            # Try to parse value as JSON for proper types
+            try:
+                import json
+                parsed_value = json.loads(value)
+            except (json.JSONDecodeError, ValueError):
+                # If not JSON, use as string
+                parsed_value = value
+
+            self.config_manager.set(key, parsed_value)
+            if key == 'ui.theme':
+                self._apply_runtime_config()
+            self._show_notification(f"Configuration updated: {key} = {parsed_value}")
+
+            # Clear inputs
+            key_input.clear()
+            value_input.clear()
+
+            # Refresh the config viewer
+            if hasattr(self, 'config_viewer'):
+                self._update_config_viewer()
+
+    def _save_user_config(self) -> None:
+        """Save current configuration to resources directory."""
+        try:
+            # Save to resources directory
+            config_path = self.CONFIG_FILE
+
+            # Ensure directory exists
+            self.RESOURCES_DIR.mkdir(exist_ok=True)
+
+            # Get current config excluding defaults
+            current_config = self.config_manager.get_config(exclude_defaults=True)
+            if '$schema_version' not in current_config:
+                current_config['$schema_version'] = self.config_manager.get_config_schema_version()
+
+            # Save to JSON file
+            import json
+            with open(config_path, 'w', encoding='utf-8') as f:
+                json.dump(current_config, f, indent=2)
+
+            logger.info(f"Configuration saved to: {config_path}")
+            self._show_notification(f"Configuration saved to: {config_path}")
+
+            # Update the config viewer to reflect the new saved file
+            self._update_config_viewer()
+
+        except Exception as e:
+            self._show_notification(f"Error saving config: {e}")
+
+    def _reload_config_from_resources(self) -> None:
+        """Reload configuration from resources directory and update viewers."""
+        try:
+            # Use the built-in reload functionality
+            self.config_manager.reload()
+
+            # Update all viewers with the reloaded config
+            self._update_config_viewer()
+            self._update_config_tabs()
+            self._apply_runtime_config()
+
+            logger.info("Configuration reloaded successfully")
+            self._show_notification("Configuration reloaded successfully")
+
+        except Exception as e:
+            self._show_notification(f"Error reloading config: {e}")
+            logger.error(f"Error reloading config: {e}")
+
+    def _update_config_tabs(self) -> None:
+        """Update all config tab controls with current config values."""
+        config_data = self.config_manager.get_all()
+        for prefix, tab in getattr(self, '_config_tab_pages', []):
+            if not self._is_widget_valid(tab):
+                continue
+            tab.update_data(self._filter_config(config_data, prefix))
+
+    def _apply_runtime_config(self) -> None:
+        """Apply runtime configuration values to the live application."""
+        if not getattr(self, '_app', None):
+            return
+
+        theme_manager = getattr(self._app, 'theme_manager', None)
+        if theme_manager:
+            theme_name = self.config_manager.get('ui.theme')
+            if theme_name:
+                current_theme = theme_manager.get_current_theme_name()
+                if current_theme != theme_name:
+                    theme_manager.set_theme(theme_name)
+
+    def _create_app_config_tab(self) -> QWidget:
+        """Create the application configuration tab."""
+        tab = QWidget()
+        layout = QFormLayout(tab)
+
+        # App Name
+        app_name_input = QLineEdit()
+        app_name_input.setText(self.config_manager.get('app.name', ''))
+        app_name_input.setPlaceholderText("Application Name")
+        self.config_controls['app.name'] = app_name_input
+        layout.addRow("Application Name:", app_name_input)
+
+        # App Version
+        app_version_input = QLineEdit()
+        app_version_input.setText(self.config_manager.get('app.version', ''))
+        app_version_input.setPlaceholderText("1.0.0")
+        self.config_controls['app.version'] = app_version_input
+        layout.addRow("Version:", app_version_input)
+
+        # Organization
+        org_input = QLineEdit()
+        org_input.setText(self.config_manager.get('app.organization', ''))
+        org_input.setPlaceholderText("Organization Name")
+        self.config_controls['app.organization'] = org_input
+        layout.addRow("Organization:", org_input)
+
+        # Debug Mode
+        debug_check = QCheckBox()
+        debug_check.setChecked(self.config_manager.get('app.debug', False))
+        self.config_controls['app.debug'] = debug_check
+        layout.addRow("Debug Mode:", debug_check)
+
+        return tab
+
+    def _create_ui_config_tab(self) -> QWidget:
+        """Create the UI configuration tab."""
+        tab = QWidget()
+        layout = QFormLayout(tab)
+
+        # Theme Selection
+        theme_combo = QComboBox()
+        theme_combo.addItems(["light", "dark", "monokai"])
+        current_theme = self.config_manager.get('ui.theme', 'light')
+        theme_combo.setCurrentText(current_theme)
+        self.config_controls['ui.theme'] = theme_combo
+        layout.addRow("Theme:", theme_combo)
+
+        # Language
+        language_combo = QComboBox()
+        language_combo.addItems(["en", "es", "fr", "de", "ja", "zh"])
+        current_lang = self.config_manager.get('ui.language', 'en')
+        language_combo.setCurrentText(current_lang)
+        self.config_controls['ui.language'] = language_combo
+        layout.addRow("Language:", language_combo)
+
+        # Font Size
+        font_size_spin = QSpinBox()
+        font_size_spin.setRange(8, 72)
+        font_size_spin.setValue(self.config_manager.get('ui.font_size', 12))
+        font_size_spin.setSuffix(" pt")
+        self.config_controls['ui.font_size'] = font_size_spin
+        layout.addRow("Font Size:", font_size_spin)
+
+        # Window Width
+        width_spin = QSpinBox()
+        width_spin.setRange(800, 3840)
+        width_spin.setValue(self.config_manager.get('ui.window.width', 1400))
+        width_spin.setSuffix(" px")
+        self.config_controls['ui.window.width'] = width_spin
+        layout.addRow("Window Width:", width_spin)
+
+        # Window Height
+        height_spin = QSpinBox()
+        height_spin.setRange(600, 2160)
+        height_spin.setValue(self.config_manager.get('ui.window.height', 900))
+        height_spin.setSuffix(" px")
+        self.config_controls['ui.window.height'] = height_spin
+        layout.addRow("Window Height:", height_spin)
+
+        # Remember Size
+        remember_size_check = QCheckBox()
+        remember_size_check.setChecked(self.config_manager.get('ui.window.remember_size', True))
+        self.config_controls['ui.window.remember_size'] = remember_size_check
+        layout.addRow("Remember Window Size:", remember_size_check)
+
+        # Center on Startup
+        center_check = QCheckBox()
+        center_check.setChecked(self.config_manager.get('ui.window.center_on_startup', True))
+        self.config_controls['ui.window.center_on_startup'] = center_check
+        layout.addRow("Center on Startup:", center_check)
+
+        # Animations Enabled
+        animations_check = QCheckBox()
+        animations_check.setChecked(self.config_manager.get('ui.animations.enabled', True))
+        self.config_controls['ui.animations.enabled'] = animations_check
+        layout.addRow("Enable Animations:", animations_check)
+
+        # Animation Duration
+        duration_spin = QSpinBox()
+        duration_spin.setRange(50, 1000)
+        duration_spin.setValue(self.config_manager.get('ui.animations.duration', 250))
+        duration_spin.setSuffix(" ms")
+        self.config_controls['ui.animations.duration'] = duration_spin
+        layout.addRow("Animation Duration:", duration_spin)
+
+        return tab
+
+    def _create_features_config_tab(self) -> QWidget:
+        """Create the features configuration tab."""
+        tab = QWidget()
+        layout = QFormLayout(tab)
+
+        # Feature toggles
+        features = [
+            ('features.charts', 'Charts', True),
+            ('features.tables', 'Data Tables', True),
+            ('features.notifications', 'Notifications', True),
+            ('features.state_management', 'State Management', True),
+            ('features.routing', 'Routing', True),
+            ('features.plugins', 'Plugin System', True),
+            ('features.themes', 'Theme System', True),
+            ('features.auto_save', 'Auto Save', True),
+            ('features.developer_mode', 'Developer Mode', False),
+        ]
+
+        for key, label, default in features:
+            checkbox = QCheckBox()
+            checkbox.setChecked(self.config_manager.get(key, default))
+            self.config_controls[key] = checkbox
+            layout.addRow(f"Enable {label}:", checkbox)
+
+        return tab
+
+    def _create_performance_config_tab(self) -> QWidget:
+        """Create the performance configuration tab."""
+        tab = QWidget()
+        layout = QFormLayout(tab)
+
+        # Cache Size with slider
+        cache_layout = QVBoxLayout()
+        cache_spin = QSpinBox()
+        cache_spin.setRange(10, 1000)
+        cache_spin.setValue(self.config_manager.get('performance.cache_size', 100))
+        cache_spin.setSuffix(" MB")
+
+        cache_slider = QSlider(Qt.Horizontal)
+        cache_slider.setRange(10, 1000)
+        cache_slider.setValue(cache_spin.value())
+
+        # Connect slider and spinbox
+        cache_slider.valueChanged.connect(cache_spin.setValue)
+        cache_spin.valueChanged.connect(cache_slider.setValue)
+
+        cache_layout.addWidget(cache_spin)
+        cache_layout.addWidget(cache_slider)
+        cache_widget = QWidget()
+        cache_widget.setLayout(cache_layout)
+
+        self.config_controls['performance.cache_size'] = cache_spin
+        layout.addRow("Cache Size:", cache_widget)
+
+        # Max Threads
+        threads_spin = QSpinBox()
+        threads_spin.setRange(1, 64)
+        threads_spin.setValue(self.config_manager.get('performance.max_threads', 4))
+        self.config_controls['performance.max_threads'] = threads_spin
+        layout.addRow("Max Threads:", threads_spin)
+
+        # Lazy Loading
+        lazy_check = QCheckBox()
+        lazy_check.setChecked(self.config_manager.get('performance.lazy_loading', True))
+        self.config_controls['performance.lazy_loading'] = lazy_check
+        layout.addRow("Lazy Loading:", lazy_check)
+
+        # Prefetch Data
+        prefetch_check = QCheckBox()
+        prefetch_check.setChecked(self.config_manager.get('performance.prefetch_data', False))
+        self.config_controls['performance.prefetch_data'] = prefetch_check
+        layout.addRow("Prefetch Data:", prefetch_check)
+
+        return tab
+
+    def _create_demo_config_tab(self) -> QWidget:
+        """Create the demo-specific configuration tab."""
+        tab = QWidget()
+        layout = QFormLayout(tab)
+
+        # Show Welcome
+        welcome_check = QCheckBox()
+        welcome_check.setChecked(self.config_manager.get('demo.show_welcome', True))
+        self.config_controls['demo.show_welcome'] = welcome_check
+        layout.addRow("Show Welcome Screen:", welcome_check)
+
+        # Sample Data Size with slider
+        data_layout = QVBoxLayout()
+        data_spin = QSpinBox()
+        data_spin.setRange(100, 10000)
+        data_spin.setValue(self.config_manager.get('demo.sample_data_size', 1000))
+
+        data_slider = QSlider(Qt.Horizontal)
+        data_slider.setRange(100, 10000)
+        data_slider.setValue(data_spin.value())
+
+        # Connect slider and spinbox
+        data_slider.valueChanged.connect(data_spin.setValue)
+        data_spin.valueChanged.connect(data_slider.setValue)
+
+        data_layout.addWidget(data_spin)
+        data_layout.addWidget(data_slider)
+        data_widget = QWidget()
+        data_widget.setLayout(data_layout)
+
+        self.config_controls['demo.sample_data_size'] = data_spin
+        layout.addRow("Sample Data Size:", data_widget)
+
+        # Enable Tooltips
+        tooltips_check = QCheckBox()
+        tooltips_check.setChecked(self.config_manager.get('demo.enable_tooltips', True))
+        self.config_controls['demo.enable_tooltips'] = tooltips_check
+        layout.addRow("Enable Tooltips:", tooltips_check)
+
+        # Highlight New Features
+        highlight_check = QCheckBox()
+        highlight_check.setChecked(self.config_manager.get('demo.highlight_new_features', True))
+        self.config_controls['demo.highlight_new_features'] = highlight_check
+        layout.addRow("Highlight New Features:", highlight_check)
+
+        return tab
+
+    def _apply_config_changes(self) -> None:
+        """Apply all configuration changes from the GUI controls."""
+        try:
+            changes_made = False
+            for _prefix, tab in getattr(self, '_config_tab_pages', []):
+                if not self._is_widget_valid(tab):
+                    continue
+                for key, new_value in tab.get_values().items():
+                    current_value = self.config_manager.get(key)
+                    if current_value != new_value:
+                        self.config_manager.set(key, new_value)
+                        if key == 'ui.theme':
+                            self._apply_runtime_config()
+                        changes_made = True
+
+            if changes_made:
+                if hasattr(self, 'config_viewer'):
+                    self._update_config_viewer()
+                self._apply_runtime_config()
+                self._show_notification('Configuration changes applied successfully!')
+            else:
+                self._show_notification('No changes to apply')
+
+        except Exception as exc:
+            self._show_notification(f'Error applying changes: {exc}')
+            logger.warning(f'Error applying configuration changes: {exc}')
+
+
+    def _reset_config_to_defaults(self) -> None:
+        """Reset all configuration values to their defaults."""
+        try:
+            defaults_path = self.DEFAULTS_FILE
+            if defaults_path.exists():
+                try:
+                    import json
+                    with open(defaults_path, 'r', encoding='utf-8') as f:
+                        defaults = json.load(f)
+                    self.config_manager.load_defaults(defaults)
+                except Exception as exc:
+                    logger.warning(f'Failed to reload defaults from {defaults_path}: {exc}')
+
+            self.config_manager.reset_to_defaults()
+            if hasattr(self, 'config_viewer'):
+                self._update_config_viewer()
+            self._update_config_tabs()
+            self._apply_runtime_config()
+            self._show_notification('Configuration reset to defaults!')
+        except Exception as exc:
+            self._show_notification(f'Error resetting config: {exc}')
+            logger.warning(f'Error resetting configuration: {exc}')
+
+    def _update_gui_controls(self) -> None:
+        """Update all GUI controls with current config values."""
+        self._update_config_tabs()
+
+    def _is_widget_valid(self, widget: Any | None) -> bool:
+        """Check whether a Qt widget pointer is still valid."""
+        return widget is not None and isValid(widget)
+
+    def _flatten_dict(self, d: dict, parent_key: str = '', sep: str = '.') -> dict:
+        """Flatten nested dictionary with dot notation keys."""
+        items = []
+        for k, v in d.items():
+            new_key = f"{parent_key}{sep}{k}" if parent_key else k
+            if isinstance(v, dict):
+                items.extend(self._flatten_dict(v, new_key, sep=sep).items())
+            else:
+                items.append((new_key, v))
+        return dict(items)
+
     def _set_config(self, key: str, value: str) -> None:
         """Set configuration value."""
         if key and value:
-            self.config_manager.config.set(key, value)
+            self.config_manager.set(key, value)
             self._show_notification(f"Configuration updated: {key} = {value}")
 
     def _on_route_changed(self, path: str, params: dict) -> None:

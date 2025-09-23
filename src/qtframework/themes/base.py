@@ -383,11 +383,14 @@ class StandardTheme(Theme):
         }}
 
         QComboBox::down-arrow {{
-            image: none;
-            border-left: 4px solid transparent;
-            border-right: 4px solid transparent;
-            border-top: 6px solid {self.colors.text_secondary};
-            margin-right: {self.spacing.sm}px;
+            image: url(data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20d%3D%22M2%204l4%204%204-4z%22%20fill%3D%22{self.colors.text_secondary.replace('#', '%23')}%22/%3E%3C/svg%3E);
+            width: 12px;
+            height: 12px;
+            margin-right: 8px;
+        }}
+
+        QComboBox::down-arrow:on {{
+            top: 1px;
         }}
 
         QLabel {{

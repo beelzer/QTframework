@@ -121,3 +121,8 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html",
 ]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.3.0",
+]

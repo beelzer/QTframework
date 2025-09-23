@@ -10,12 +10,15 @@ from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QPushButton, QTextEdit, QW
 
 from qtframework.widgets.base import Widget
 from qtframework.widgets.buttons import CloseButton
+from qtframework.utils.validation import ValidatorChain, ValidationResult
+from qtframework.utils.exceptions import ValidationError
 
 
 class Input(QLineEdit):
-    """Enhanced input widget."""
+    """Enhanced input widget with validation support."""
 
     validation_changed = Signal(bool)
+    validation_error = Signal(str)  # Emits error message
 
     def __init__(
         self,
@@ -26,6 +29,8 @@ class Input(QLineEdit):
         read_only: bool = False,
         max_length: int | None = None,
         object_name: str | None = None,
+        validators: ValidatorChain | None = None,
+        validate_on_change: bool = True,
     ) -> None:
         """Initialize input.
 
@@ -36,6 +41,8 @@ class Input(QLineEdit):
             read_only: Read-only state
             max_length: Maximum length
             object_name: Object name for styling
+            validators: Validation chain
+            validate_on_change: Whether to validate on text change
         """
         super().__init__(parent)
 
@@ -52,7 +59,12 @@ class Input(QLineEdit):
             self.setMaxLength(max_length)
 
         self._validation_error = False
-        self.textChanged.connect(self._on_text_changed)
+        self._validators = validators or ValidatorChain()
+        self._validate_on_change = validate_on_change
+        self._error_message = ""
+
+        if validate_on_change:
+            self.textChanged.connect(self._on_text_changed)
 
     def _on_text_changed(self, text: str) -> None:
         """Handle text change.
@@ -62,36 +74,86 @@ class Input(QLineEdit):
         """
         self.validate()
 
-    def validate(self) -> bool:
-        """Validate input.
+    def add_validator(self, validator: "Validator") -> None:
+        """Add a validator to the input.
+
+        Args:
+            validator: Validator to add
+        """
+        from qtframework.utils.validation import Validator
+        self._validators.add_validator(validator)
+
+    def set_validators(self, validators: ValidatorChain) -> None:
+        """Set the validator chain.
+
+        Args:
+            validators: New validator chain
+        """
+        self._validators = validators
+
+    def validate(self, field_name: str = "") -> ValidationResult:
+        """Validate input value.
+
+        Args:
+            field_name: Name of the field for error reporting
 
         Returns:
-            True if valid
+            Validation result
         """
-        return True
+        value = self.text()
+        result = self._validators.validate(value, field_name or self.objectName() or "input")
 
-    def set_validation_error(self, error: bool) -> None:
+        # Update UI based on validation result
+        self.set_validation_error(not result.is_valid)
+
+        if not result.is_valid and result.errors:
+            self._error_message = result.errors[0].message
+            self.validation_error.emit(self._error_message)
+        else:
+            self._error_message = ""
+
+        return result
+
+    def set_validation_error(self, error: bool, message: str = "") -> None:
         """Set validation error state.
 
         Args:
             error: Error state
+            message: Error message
         """
         if self._validation_error != error:
             self._validation_error = error
+            self._error_message = message
             self.setProperty("error", error)
             self.style().unpolish(self)
             self.style().polish(self)
             self.update()
             self.validation_changed.emit(error)
 
+            if error and message:
+                self.validation_error.emit(message)
+
     @property
-    def validation_error(self) -> bool:
+    def has_validation_error(self) -> bool:
         """Get validation error state.
 
         Returns:
             Error state
         """
         return self._validation_error
+
+    @property
+    def error_message(self) -> str:
+        """Get current error message.
+
+        Returns:
+            Error message
+        """
+        return self._error_message
+
+    def clear_validation_error(self) -> None:
+        """Clear validation error state."""
+        self.set_validation_error(False)
 
     def set_icon(self, icon: QIcon, position: str = "left") -> None:
         """Set input icon.

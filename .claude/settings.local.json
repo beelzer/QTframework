@@ -13,7 +13,9 @@
       "Bash(findstr:*)",
       "Bash(del \"C:\\dev\\python\\QTframework\\test_theme_consistency.py\")",
       "Bash(del:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(find:*)",
+      "Bash(uv add:*)"
     ],
     "deny": [],
     "ask": []
