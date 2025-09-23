@@ -7,6 +7,7 @@ from typing import Any
 from PySide6.QtCore import Qt, Signal, QSortFilterProxyModel, QModelIndex
 from PySide6.QtGui import QStandardItemModel, QStandardItem, QColor, QBrush
 from PySide6.QtWidgets import (
+    QApplication,
     QHeaderView,
     QTableView,
     QTreeView,
@@ -80,11 +81,60 @@ class DataTable(QWidget):
         self.table.verticalHeader().setVisible(False)
         self.table.setSortingEnabled(True)
 
-        # Set style - removed hardcoded colors to respect theme
+        # Connect signals
+        self.table.itemSelectionChanged.connect(self._on_selection_changed)
+        self.table.itemChanged.connect(self._on_item_changed)
+        self.table.itemDoubleClicked.connect(self._on_item_double_clicked)
+
+        layout.addWidget(self.table)
+
+        # Store original data for filtering
+        self._original_data: list[list[Any]] = []
+        self._filter_column = -1  # -1 means all columns
+
+        # Apply theme-based styling and connect to theme changes
+        self._apply_theme_style()
+        self._connect_theme_signals()
+
+    def _apply_theme_style(self) -> None:
+        """Apply theme-based styling to the table."""
+        # Get theme from application
+        app = QApplication.instance()
+        if hasattr(app, 'theme_manager'):
+            theme = app.theme_manager.get_theme()
+            if theme and theme.colors:
+                colors = theme.colors
+                self.table.setStyleSheet(f"""
+                    QTableWidget {{
+                        gridline-color: {colors.table_grid};
+                        selection-background-color: {colors.table_row_selected};
+                        background-color: {colors.background};
+                    }}
+                    QTableWidget::item {{
+                        padding: 5px;
+                        color: {colors.text_primary};
+                    }}
+                    QTableWidget::item:alternate {{
+                        background-color: {colors.table_row_bg_alt};
+                    }}
+                    QTableWidget::item:hover {{
+                        background-color: {colors.table_row_hover};
+                    }}
+                    QHeaderView::section {{
+                        background-color: {colors.table_header_bg};
+                        color: {colors.text_primary};
+                        padding: 5px;
+                        border: 1px solid {colors.table_grid};
+                        font-weight: bold;
+                    }}
+                """)
+                return
+
+        # Fallback to palette-based styling
         self.table.setStyleSheet("""
             QTableWidget {
                 gridline-color: palette(mid);
-                selection-background-color: #3498db;
+                selection-background-color: palette(highlight);
             }
             QTableWidget::item {
                 padding: 5px;
@@ -98,16 +148,15 @@ class DataTable(QWidget):
             }
         """)
 
-        # Connect signals
-        self.table.itemSelectionChanged.connect(self._on_selection_changed)
-        self.table.itemChanged.connect(self._on_item_changed)
-        self.table.itemDoubleClicked.connect(self._on_item_double_clicked)
+    def _connect_theme_signals(self) -> None:
+        """Connect to theme change signals."""
+        app = QApplication.instance()
+        if hasattr(app, 'theme_manager'):
+            app.theme_manager.theme_changed.connect(self._on_theme_changed)
 
-        layout.addWidget(self.table)
-
-        # Store original data for filtering
-        self._original_data: list[list[Any]] = []
-        self._filter_column = -1  # -1 means all columns
+    def _on_theme_changed(self, theme_name: str) -> None:
+        """Handle theme change."""
+        self._apply_theme_style()
 
     def set_headers(self, headers: list[str]) -> None:
         """Set table headers."""
@@ -307,10 +356,52 @@ class TreeTable(QWidget):
         self.tree.setExpandsOnDoubleClick(True)
         self.tree.setSortingEnabled(True)
 
-        # Set style - using palette colors for theme support
+        # Connect signals
+        self._setup_connections()
+
+        layout.addWidget(self.tree)
+
+        # Apply theme-based styling and connect to theme changes
+        self._apply_theme_style()
+        self._connect_theme_signals()
+
+    def _apply_theme_style(self) -> None:
+        """Apply theme-based styling to the tree."""
+        # Get theme from application
+        app = QApplication.instance()
+        if hasattr(app, 'theme_manager'):
+            theme = app.theme_manager.get_theme()
+            if theme and theme.colors:
+                colors = theme.colors
+                self.tree.setStyleSheet(f"""
+                    QTreeWidget {{
+                        selection-background-color: {colors.table_row_selected};
+                        background-color: {colors.background};
+                    }}
+                    QTreeWidget::item {{
+                        padding: 3px;
+                        color: {colors.text_primary};
+                    }}
+                    QTreeWidget::item:hover {{
+                        background-color: {colors.table_row_hover};
+                    }}
+                    QTreeWidget::item:selected {{
+                        background-color: {colors.table_row_selected};
+                    }}
+                    QHeaderView::section {{
+                        background-color: {colors.table_header_bg};
+                        color: {colors.text_primary};
+                        padding: 5px;
+                        border: 1px solid {colors.table_grid};
+                        font-weight: bold;
+                    }}
+                """)
+                return
+
+        # Fallback to palette-based styling
         self.tree.setStyleSheet("""
             QTreeWidget {
-                selection-background-color: #3498db;
+                selection-background-color: palette(highlight);
             }
             QTreeWidget::item {
                 padding: 3px;
@@ -324,12 +415,21 @@ class TreeTable(QWidget):
             }
         """)
 
-        # Connect signals
+    def _connect_theme_signals(self) -> None:
+        """Connect to theme change signals."""
+        app = QApplication.instance()
+        if hasattr(app, 'theme_manager'):
+            app.theme_manager.theme_changed.connect(self._on_theme_changed)
+
+    def _on_theme_changed(self, theme_name: str) -> None:
+        """Handle theme change."""
+        self._apply_theme_style()
+
+    def _setup_connections(self) -> None:
+        """Setup signal connections."""
         self.tree.itemSelectionChanged.connect(self._on_selection_changed)
         self.tree.itemExpanded.connect(self._on_item_expanded)
         self.tree.itemDoubleClicked.connect(self._on_item_double_clicked)
-
-        layout.addWidget(self.tree)
 
     def set_headers(self, headers: list[str]) -> None:
         """Set tree headers."""
