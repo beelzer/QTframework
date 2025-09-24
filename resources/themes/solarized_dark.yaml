@@ -1,0 +1,183 @@
+name: solarized_dark
+display_name: Solarized Dark
+description: The popular Solarized Dark color scheme
+author: Qt Framework
+version: 2.0.0
+
+tokens:
+  primitive:
+    # Solarized base colors
+    gray_50: "#002b36"     # base03
+    gray_100: "#073642"    # base02
+    gray_200: "#586e75"    # base01
+    gray_300: "#657b83"    # base00
+    gray_400: "#839496"    # base0
+    gray_500: "#93a1a1"    # base1
+    gray_600: "#eee8d5"    # base2
+    gray_700: "#fdf6e3"    # base3
+    gray_800: "#fdf6e3"
+    gray_900: "#fdf6e3"
+    gray_950: "#ffffff"
+
+    # Solarized accent colors
+    primary_50: "#073642"
+    primary_100: "#084966"
+    primary_200: "#0a5580"
+    primary_300: "#0c6199"
+    primary_400: "#0e6db3"
+    primary_500: "#268bd2"   # blue
+    primary_600: "#4ca0db"
+    primary_700: "#72b5e4"
+    primary_800: "#98caed"
+    primary_900: "#bedff6"
+    primary_950: "#e4f4ff"
+
+    secondary_50: "#4d3d00"
+    secondary_100: "#665100"
+    secondary_200: "#806500"
+    secondary_300: "#997900"
+    secondary_400: "#b38d00"
+    secondary_500: "#b58900"   # yellow
+    secondary_600: "#c49d1a"
+    secondary_700: "#d3b133"
+    secondary_800: "#e2c54d"
+    secondary_900: "#f1d966"
+    secondary_950: "#ffed80"
+
+    success_50: "#1c4e00"
+    success_100: "#256600"
+    success_200: "#2f8000"
+    success_300: "#389900"
+    success_400: "#41b300"
+    success_500: "#859900"   # green
+    success_600: "#94a61a"
+    success_700: "#a3b333"
+    success_800: "#b2c04d"
+    success_900: "#c1cd66"
+    success_950: "#d0da80"
+
+    warning_50: "#803200"
+    warning_100: "#994000"
+    warning_200: "#b34d00"
+    warning_300: "#cc5a00"
+    warning_400: "#e66800"
+    warning_500: "#cb4b16"   # orange
+    warning_600: "#d3622f"
+    warning_700: "#db7948"
+    warning_800: "#e39061"
+    warning_900: "#eba77a"
+    warning_950: "#f3be93"
+
+    error_50: "#7f002d"
+    error_100: "#990036"
+    error_200: "#b3003f"
+    error_300: "#cc0048"
+    error_400: "#e60051"
+    error_500: "#dc322f"   # red
+    error_600: "#e14b48"
+    error_700: "#e66461"
+    error_800: "#eb7d7a"
+    error_900: "#f09693"
+    error_950: "#f5afac"
+
+    info_50: "#00495b"
+    info_100: "#005c73"
+    info_200: "#006f8c"
+    info_300: "#0082a4"
+    info_400: "#0095bd"
+    info_500: "#2aa198"   # cyan
+    info_600: "#43ada6"
+    info_700: "#5cb9b4"
+    info_800: "#75c5c2"
+    info_900: "#8ed1d0"
+    info_950: "#a7ddde"
+
+    white: "#fdf6e3"
+    black: "#002b36"
+    transparent: transparent
+
+  semantic:
+    bg_primary: "#002b36"
+    bg_secondary: "#073642"
+    bg_tertiary: "#586e75"
+    bg_elevated: "#073642"
+    bg_overlay: "rgba(0, 43, 54, 0.8)"
+
+    fg_primary: "#839496"
+    fg_secondary: "#657b83"
+    fg_tertiary: "#586e75"
+    fg_on_accent: "#002b36"
+    fg_on_dark: "#fdf6e3"
+    fg_on_light: "#002b36"
+
+    action_primary: "#268bd2"
+    action_primary_hover: "#4ca0db"
+    action_primary_active: "#0e6db3"
+    action_secondary: "#b58900"
+    action_secondary_hover: "#c49d1a"
+    action_secondary_active: "#997900"
+
+    feedback_success: "#859900"
+    feedback_warning: "#cb4b16"
+    feedback_error: "#dc322f"
+    feedback_info: "#2aa198"
+
+    border_default: "#586e75"
+    border_subtle: "#073642"
+    border_strong: "#657b83"
+    border_focus: "#268bd2"
+
+    state_hover: "#073642"
+    state_selected: "#073642"
+    state_disabled: "#002b36"
+    state_focus: "#073642"
+
+  components:
+    button_primary_bg: "#268bd2"
+    button_primary_fg: "#002b36"
+    button_primary_border: "#268bd2"
+    button_secondary_bg: "#073642"
+    button_secondary_fg: "#839496"
+    button_secondary_border: "#586e75"
+
+    input_bg: "#073642"
+    input_fg: "#839496"
+    input_border: "#586e75"
+    input_placeholder: "#586e75"
+
+    table_header_bg: "#073642"
+    table_header_fg: "#93a1a1"
+    table_row_bg: "#002b36"
+    table_row_bg_alt: "#073642"
+    table_row_hover: "#073642"
+    table_row_selected: "#073642"
+    table_border: "#586e75"
+
+    menu_bg: "#073642"
+    menu_fg: "#839496"
+    menu_hover_bg: "#073642"
+    menu_hover_fg: "#93a1a1"
+    menu_selected_bg: "#268bd2"
+    menu_selected_fg: "#002b36"
+
+    scrollbar_bg: "#073642"
+    scrollbar_thumb: "#586e75"
+    scrollbar_thumb_hover: "#657b83"
+
+    tab_bg: "#073642"
+    tab_fg: "#657b83"
+    tab_active_bg: "#002b36"
+    tab_active_fg: "#268bd2"
+    tab_hover_bg: "#073642"
+    tab_hover_fg: "#839496"
+
+    chart_1: "#268bd2"
+    chart_2: "#859900"
+    chart_3: "#b58900"
+    chart_4: "#dc322f"
+    chart_5: "#d33682"
+    chart_6: "#2aa198"
+    chart_grid: "#586e75"
+    chart_axis: "#657b83"
+
+custom_styles: {}
