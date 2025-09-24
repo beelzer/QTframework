@@ -1,0 +1,191 @@
+name: monokai
+display_name: Monokai
+description: A dark theme inspired by the popular Monokai color scheme
+author: Qt Framework
+version: 2.0.0
+
+tokens:
+  primitive:
+    # Monokai base colors - dark background
+    gray_50: "#272822" # darkest background
+    gray_100: "#3E3D32" # dark background
+    gray_200: "#49483E" # medium dark
+    gray_300: "#75715E" # comments
+    gray_400: "#90908A" # medium gray
+    gray_500: "#A6A6A0" # light gray
+    gray_600: "#BCBCB6" # lighter gray
+    gray_700: "#D2D2CC" # very light gray
+    gray_800: "#E8E8E2" # near white
+    gray_900: "#F8F8F2" # foreground white
+    gray_950: "#FFFFFF" # pure white
+
+    # Primary - Monokai cyan
+    primary_50: "#1A3A42"
+    primary_100: "#264D56"
+    primary_200: "#33606A"
+    primary_300: "#40737E"
+    primary_400: "#4D8692"
+    primary_500: "#66D9EF" # main cyan
+    primary_600: "#79DDF1"
+    primary_700: "#8CE1F3"
+    primary_800: "#9FE5F5"
+    primary_900: "#B2E9F7"
+    primary_950: "#C5EDF9"
+
+    # Secondary - Monokai green
+    secondary_50: "#2B3A0E"
+    secondary_100: "#3E5215"
+    secondary_200: "#516A1C"
+    secondary_300: "#648223"
+    secondary_400: "#779A2A"
+    secondary_500: "#A6E22E" # main green
+    secondary_600: "#B0E644"
+    secondary_700: "#BAEA5A"
+    secondary_800: "#C4EE70"
+    secondary_900: "#CEF286"
+    secondary_950: "#D8F69C"
+
+    # Error - Monokai pink
+    error_50: "#4D0F22"
+    error_100: "#661633"
+    error_200: "#801D44"
+    error_300: "#992455"
+    error_400: "#B32B66"
+    error_500: "#F92672" # main pink
+    error_600: "#FA3C82"
+    error_700: "#FB5292"
+    error_800: "#FC68A2"
+    error_900: "#FD7EB2"
+    error_950: "#FE94C2"
+
+    # Warning - Monokai orange
+    warning_50: "#4D2F0A"
+    warning_100: "#66400E"
+    warning_200: "#805012"
+    warning_300: "#996116"
+    warning_400: "#B3711A"
+    warning_500: "#FD971F" # main orange
+    warning_600: "#FDA135"
+    warning_700: "#FDAB4B"
+    warning_800: "#FDB561"
+    warning_900: "#FDBF77"
+    warning_950: "#FDC98D"
+
+    # Info colors
+    info_50: "#66D9EF"
+    info_500: "#66D9EF"
+
+    # Success colors
+    success_50: "#A6E22E"
+    success_500: "#A6E22E"
+
+    white: "#F8F8F2"
+    black: "#272822"
+    transparent: transparent
+
+  semantic:
+    bg_primary: "#272822"
+    bg_secondary: "#3E3D32"
+    bg_tertiary: "#49483E"
+    bg_elevated: "#3E3D32"
+    bg_overlay: "rgba(0, 0, 0, 0.7)"
+
+    fg_primary: "#F8F8F2"
+    fg_secondary: "#BCBCB6"
+    fg_tertiary: "#75715E"
+    fg_on_accent: "#272822"
+    fg_on_dark: "#F8F8F2"
+    fg_on_light: "#272822"
+
+    action_primary: "#66D9EF"
+    action_primary_hover: "#79DDF1"
+    action_primary_active: "#4D8692"
+    action_secondary: "#A6E22E"
+    action_secondary_hover: "#B0E644"
+    action_secondary_active: "#779A2A"
+
+    feedback_success: "#A6E22E"
+    feedback_warning: "#FD971F"
+    feedback_error: "#F92672"
+    feedback_info: "#66D9EF"
+
+    border_default: "#75715E"
+    border_subtle: "#49483E"
+    border_strong: "#90908A"
+    border_focus: "#66D9EF"
+
+    state_hover: "#49483E"
+    state_selected: "#49483E"
+    state_disabled: "#3E3D32"
+    state_focus: "#49483E"
+
+  components:
+    button_primary_bg: "#66D9EF"
+    button_primary_fg: "#272822"
+    button_primary_border: "#66D9EF"
+    button_secondary_bg: "#49483E"
+    button_secondary_fg: "#F8F8F2"
+    button_secondary_border: "#75715E"
+
+    input_bg: "#3E3D32"
+    input_fg: "#F8F8F2"
+    input_border: "#75715E"
+    input_placeholder: "#75715E"
+
+    table_header_bg: "#3E3D32"
+    table_header_fg: "#F8F8F2"
+    table_row_bg: "#272822"
+    table_row_bg_alt: "#2F2F2A"
+    table_row_hover: "#49483E"
+    table_row_selected: "#49483E"
+    table_border: "#49483E"
+
+    menu_bg: "#3E3D32"
+    menu_fg: "#F8F8F2"
+    menu_hover_bg: "#49483E"
+    menu_hover_fg: "#F8F8F2"
+    menu_selected_bg: "#66D9EF"
+    menu_selected_fg: "#272822"
+
+    scrollbar_bg: "#3E3D32"
+    scrollbar_thumb: "#75715E"
+    scrollbar_thumb_hover: "#90908A"
+
+    tab_bg: "#3E3D32"
+    tab_fg: "#BCBCB6"
+    tab_active_bg: "#272822"
+    tab_active_fg: "#66D9EF"
+    tab_hover_bg: "#49483E"
+    tab_hover_fg: "#F8F8F2"
+
+    chart_1: "#66D9EF"
+    chart_2: "#A6E22E"
+    chart_3: "#FD971F"
+    chart_4: "#F92672"
+    chart_5: "#AE81FF"
+    chart_6: "#F8F8F2"
+    chart_grid: "#49483E"
+    chart_axis: "#75715E"
+
+  typography:
+    font_family_code: "Consolas"
+
+  syntax:
+    keyword: "#F92672" # pink
+    class_name: "#66D9EF" # cyan
+    function: "#A6E22E" # green
+    string: "#E6DB74" # yellow
+    comment: "#75715E" # gray
+    number: "#AE81FF" # purple
+    operator: "#F92672" # pink
+    decorator: "#A6E22E" # green
+    constant: "#AE81FF" # purple
+    variable: "#F8F8F2" # white
+    parameter: "#FD971F" # orange
+    type: "#66D9EF" # cyan
+    namespace: "#66D9EF" # cyan
+    error: "#F92672" # pink
+    warning: "#FD971F" # orange
+    info: "#66D9EF" # cyan
+
+custom_styles: {}

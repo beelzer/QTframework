@@ -180,9 +180,9 @@ frame.setProperty("card", "true")  # Applies card styling
 
 ```
 resources/themes/
-├── monokai.json        # JSON theme file
-├── solarized_dark.yaml # YAML theme file
-└── custom_theme.json   # Your custom themes
+├── monokai.yaml        # Monokai theme
+├── solarized_dark.yaml # Solarized Dark theme
+└── custom_theme.yaml   # Your custom themes
 
 src/qtframework/themes/
 ├── __init__.py              # Public API

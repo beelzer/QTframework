@@ -45,10 +45,10 @@ See all framework features in action:
 
 ```bash
 # Using uv (recommended)
-uv run python examples/demo_app/main.py
+uv run python examples/features/main.py
 
 # Or with standard Python
-python examples/demo_app/main.py
+python examples/features/main.py
 ```
 
 ### Simple Example
@@ -94,7 +94,7 @@ qtframework/
 │   ├── controllers/       # Controllers
 │   └── utils/             # Utility functions
 ├── examples/              # Example applications
-│   └── demo_app/          # Complete framework demo
+│   └── features/          # Framework features showcase
 ├── tests/                 # Test suite
 ├── docs/                  # Documentation
 └── resources/             # Assets and themes
@@ -104,7 +104,7 @@ qtframework/
 
 ```bash
 # Run demo application
-uv run python examples/demo_app/main.py
+uv run python examples/features/main.py
 
 # Run linting
 ruff check src/
@@ -198,7 +198,7 @@ config.watch("app.theme", lambda v: print(f"Theme changed: {v}"))
 
 - Built-in light and dark themes
 - Theme manager for runtime switching
-- JSON-based custom theme support
+- YAML-based custom theme support
 - Complete widget styling
 
 ## License

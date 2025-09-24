@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
@@ -106,21 +105,6 @@ class Theme:
         )
 
     @classmethod
-    def from_json(cls, json_path: Path | str) -> Theme:
-        """Load theme from JSON file.
-
-        Args:
-            json_path: Path to JSON theme file
-
-        Returns:
-            Theme instance
-        """
-        path = Path(json_path)
-        with path.open("r", encoding="utf-8") as f:
-            data = json.load(f)
-        return cls.from_dict(data)
-
-    @classmethod
     def from_yaml(cls, yaml_path: Path | str) -> Theme:
         """Load theme from YAML file.
 
@@ -134,17 +118,6 @@ class Theme:
         with path.open("r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
         return cls.from_dict(data)
-
-    def save_json(self, json_path: Path | str) -> None:
-        """Save theme to JSON file.
-
-        Args:
-            json_path: Path to save JSON file
-        """
-        path = Path(json_path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with path.open("w", encoding="utf-8") as f:
-            json.dump(self.to_dict(), f, indent=2)
 
     def save_yaml(self, yaml_path: Path | str) -> None:
         """Save theme to YAML file.

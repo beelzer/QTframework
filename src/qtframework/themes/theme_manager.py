@@ -52,31 +52,22 @@ class ThemeManager(QObject):
             logger.debug(f"Themes directory does not exist: {self._themes_dir}")
             return
 
-        # Load JSON themes
-        for theme_file in self._themes_dir.glob("*.json"):
-            self._load_theme_file(theme_file)
-
-        # Load YAML themes
+        # Load YAML themes only
         for theme_file in self._themes_dir.glob("*.yaml"):
             self._load_theme_file(theme_file)
 
-        for theme_file in self._themes_dir.glob("*.yml"):
-            self._load_theme_file(theme_file)
-
     def _load_theme_file(self, theme_file: Path) -> None:
-        """Load a theme from a file.
+        """Load a theme from a YAML file.
 
         Args:
             theme_file: Path to the theme file
         """
         try:
-            if theme_file.suffix == ".json":
-                theme = Theme.from_json(theme_file)
-            elif theme_file.suffix in (".yaml", ".yml"):
-                theme = Theme.from_yaml(theme_file)
-            else:
-                logger.warning(f"Unknown theme file format: {theme_file}")
+            if theme_file.suffix != ".yaml":
+                logger.warning(f"Theme files must use .yaml extension: {theme_file}")
                 return
+
+            theme = Theme.from_yaml(theme_file)
 
             # Check for name conflicts
             if theme.name in self._themes:
@@ -244,7 +235,7 @@ class ThemeManager(QObject):
         Args:
             theme_name: Name of the theme to export
             export_path: Path to export the theme to
-            format: Export format ('json' or 'yaml')
+            format: Export format ('yaml' or 'yml' only)
 
         Returns:
             True if exported successfully
@@ -257,13 +248,11 @@ class ThemeManager(QObject):
         export_path = Path(export_path)
 
         try:
-            if format == "json":
-                theme.save_json(export_path)
-            elif format in ("yaml", "yml"):
-                theme.save_yaml(export_path)
-            else:
-                logger.error(f"Unknown export format: {format}")
+            if format not in ("yaml", "yml"):
+                logger.error(f"Only YAML export is supported. Got: {format}")
                 return False
+
+            theme.save_yaml(export_path)
 
             logger.info(f"Exported theme '{theme_name}' to {export_path}")
             return True
