@@ -2,9 +2,19 @@
 Animations demonstration page.
 """
 
-from PySide6.QtCore import QEasingCurve, QPropertyAnimation, Qt, QTimer
-from PySide6.QtWidgets import (QFrame, QGroupBox, QHBoxLayout, QLabel,
-                               QProgressBar, QPushButton, QSlider, QVBoxLayout)
+from __future__ import annotations
+
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtWidgets import (
+    QFrame,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QProgressBar,
+    QPushButton,
+    QSlider,
+    QVBoxLayout,
+)
 
 from .base import DemoPage
 
@@ -18,7 +28,7 @@ class AnimationsPage(DemoPage):
         titles = {
             "transitions": "Transitions",
             "progress": "Animated Progress",
-            "effects": "Visual Effects"
+            "effects": "Visual Effects",
         }
         super().__init__(titles.get(animation_type, "Animations"))
         self._init_timers()
@@ -165,9 +175,7 @@ class AnimationsPage(DemoPage):
 
         self.pulse_frame = QFrame()
         self.pulse_frame.setFixedSize(100, 100)
-        self.pulse_frame.setStyleSheet(
-            "background-color: #28a745; border-radius: 50px;"
-        )
+        self.pulse_frame.setStyleSheet("background-color: #28a745; border-radius: 50px;")
         pulse_layout.addWidget(self.pulse_frame, alignment=Qt.AlignCenter)
 
         pulse_controls = QHBoxLayout()

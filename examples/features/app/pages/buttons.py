@@ -2,8 +2,9 @@
 Buttons demonstration page.
 """
 
-from PySide6.QtWidgets import (QGroupBox, QHBoxLayout, QPushButton,
-                               QToolButton, QVBoxLayout)
+from __future__ import annotations
+
+from PySide6.QtWidgets import QGroupBox, QHBoxLayout, QPushButton, QToolButton, QVBoxLayout
 
 from .base import DemoPage
 

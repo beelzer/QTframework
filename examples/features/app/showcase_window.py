@@ -2,15 +2,16 @@
 Main application window for the showcase.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QApplication, QMainWindow, QSplitter,
-                               QStatusBar, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import QApplication, QMainWindow, QSplitter, QStatusBar, QVBoxLayout, QWidget
 
 from qtframework.config import ConfigManager
 from qtframework.navigation import Navigator
-from qtframework.state import Reducer, Store
+from qtframework.state import Store
 from qtframework.themes import ThemeManager
 
 from .content import ContentArea
@@ -41,16 +42,16 @@ class ShowcaseWindow(QMainWindow):
             if state is None:
                 state = {"counter": 0}
 
-            action_type = action.type if hasattr(action, 'type') else str(action)
+            action_type = action.type if hasattr(action, "type") else str(action)
 
             if action_type == "INCREMENT":
                 return {**state, "counter": state.get("counter", 0) + 1}
-            elif action_type == "DECREMENT":
+            if action_type == "DECREMENT":
                 return {**state, "counter": state.get("counter", 0) - 1}
-            elif action_type == "SET_COUNTER":
-                value = action.payload if hasattr(action, 'payload') else 0
+            if action_type == "SET_COUNTER":
+                value = action.payload if hasattr(action, "payload") else 0
                 return {**state, "counter": value}
-            elif action_type == "RESET" or action_type == "@@RESET":
+            if action_type == "RESET" or action_type == "@@RESET":
                 return {"counter": 0}
 
             return state
@@ -110,4 +111,5 @@ class ShowcaseWindow(QMainWindow):
 
             # Update code displays when theme changes
             from .dockwidgets import update_code_display_themes
+
             update_code_display_themes(self)

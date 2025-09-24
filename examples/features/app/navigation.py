@@ -2,9 +2,10 @@
 Navigation panel for the showcase.
 """
 
+from __future__ import annotations
+
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import (QFrame, QLabel, QLineEdit, QTreeWidget,
-                               QTreeWidgetItem, QVBoxLayout)
+from PySide6.QtWidgets import QFrame, QLabel, QLineEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout
 
 
 class NavigationPanel(QFrame):
@@ -56,50 +57,14 @@ class NavigationPanel(QFrame):
     def _get_categories(self):
         """Get feature categories."""
         return {
-            "Core Components": [
-                "Buttons",
-                "Inputs",
-                "Selections",
-                "Display"
-            ],
-            "Advanced Widgets": [
-                "Tables",
-                "Trees & Lists",
-                "Dialogs",
-                "Notifications"
-            ],
-            "Layouts": [
-                "Grid Layout",
-                "Flex Layout",
-                "Card Layout",
-                "Sidebar Layout"
-            ],
-            "Theming": [
-                "Theme Switcher",
-                "Color Palette",
-                "Typography",
-                "Spacing"
-            ],
-            "Forms": [
-                "Basic Form",
-                "Validation",
-                "Complex Form"
-            ],
-            "State": [
-                "State Demo",
-                "Actions",
-                "Reducers"
-            ],
-            "Navigation": [
-                "Router",
-                "Breadcrumbs",
-                "Tabs"
-            ],
-            "Animations": [
-                "Transitions",
-                "Progress",
-                "Effects"
-            ]
+            "Core Components": ["Buttons", "Inputs", "Selections", "Display"],
+            "Advanced Widgets": ["Tables", "Trees & Lists", "Dialogs", "Notifications"],
+            "Layouts": ["Grid Layout", "Flex Layout", "Card Layout", "Sidebar Layout"],
+            "Theming": ["Theme Switcher", "Color Palette", "Typography", "Spacing"],
+            "Forms": ["Basic Form", "Validation", "Complex Form"],
+            "State": ["State Demo", "Actions", "Reducers"],
+            "Navigation": ["Router", "Breadcrumbs", "Tabs"],
+            "Animations": ["Transitions", "Progress", "Effects"],
         }
 
     def _filter_tree(self, text: str):
@@ -123,11 +88,12 @@ class NavigationPanel(QFrame):
         """Handle item click."""
         if item.parent():  # Only handle child items
             page_name = item.text(0)
-            if self.parent_window and hasattr(self.parent_window, 'content_area'):
+            if self.parent_window and hasattr(self.parent_window, "content_area"):
                 self.parent_window.content_area.show_page(page_name)
                 self.parent_window.status_bar.showMessage(f"Viewing: {page_name}", 2000)
 
                 # Update properties panel
                 from .dockwidgets import log_output, update_properties_for_page
+
                 update_properties_for_page(self.parent_window, page_name)
                 log_output(self.parent_window, f"Navigated to: {page_name}")

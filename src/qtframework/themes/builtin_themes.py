@@ -3,9 +3,14 @@
 from __future__ import annotations
 
 from qtframework.themes.theme import Theme
-from qtframework.themes.tokens import (ComponentColors, DesignTokens,
-                                       PrimitiveColors, SemanticColors,
-                                       SyntaxColors, Typography)
+from qtframework.themes.tokens import (
+    ComponentColors,
+    DesignTokens,
+    PrimitiveColors,
+    SemanticColors,
+    SyntaxColors,
+    Typography,
+)
 
 
 def create_light_theme() -> Theme:
@@ -22,7 +27,6 @@ def create_light_theme() -> Theme:
         bg_tertiary=tokens.primitive.gray_100,
         bg_elevated=tokens.primitive.white,
         bg_overlay="rgba(0, 0, 0, 0.5)",
-
         # Foreground/Text
         fg_primary=tokens.primitive.gray_900,
         fg_secondary=tokens.primitive.gray_600,
@@ -30,7 +34,6 @@ def create_light_theme() -> Theme:
         fg_on_accent=tokens.primitive.white,
         fg_on_dark=tokens.primitive.white,
         fg_on_light=tokens.primitive.gray_900,
-
         # Interactive states
         action_primary=tokens.primitive.primary_500,
         action_primary_hover=tokens.primitive.primary_600,
@@ -38,19 +41,16 @@ def create_light_theme() -> Theme:
         action_secondary=tokens.primitive.secondary_500,
         action_secondary_hover=tokens.primitive.secondary_600,
         action_secondary_active=tokens.primitive.secondary_700,
-
         # Feedback
         feedback_success=tokens.primitive.success_500,
         feedback_warning=tokens.primitive.warning_500,
         feedback_error=tokens.primitive.error_500,
         feedback_info=tokens.primitive.info_500,
-
         # Borders
         border_default=tokens.primitive.gray_300,
         border_subtle=tokens.primitive.gray_200,
         border_strong=tokens.primitive.gray_400,
         border_focus=tokens.primitive.primary_500,
-
         # Special states
         state_hover=tokens.primitive.gray_100,
         state_selected=tokens.primitive.primary_100,
@@ -67,13 +67,11 @@ def create_light_theme() -> Theme:
         button_secondary_bg=tokens.primitive.gray_100,
         button_secondary_fg=tokens.primitive.gray_900,
         button_secondary_border=tokens.primitive.gray_300,
-
         # Input
         input_bg=tokens.primitive.white,
         input_fg=tokens.primitive.gray_900,
         input_border=tokens.primitive.gray_300,
         input_placeholder=tokens.primitive.gray_500,
-
         # Table
         table_header_bg=tokens.primitive.gray_100,
         table_header_fg=tokens.primitive.gray_900,
@@ -82,7 +80,6 @@ def create_light_theme() -> Theme:
         table_row_hover=tokens.primitive.gray_100,
         table_row_selected=tokens.primitive.primary_100,
         table_border=tokens.primitive.gray_200,
-
         # Menu
         menu_bg=tokens.primitive.white,
         menu_fg=tokens.primitive.gray_900,
@@ -90,12 +87,10 @@ def create_light_theme() -> Theme:
         menu_hover_fg=tokens.primitive.gray_900,
         menu_selected_bg=tokens.primitive.primary_100,
         menu_selected_fg=tokens.primitive.primary_700,
-
         # Scrollbar
         scrollbar_bg=tokens.primitive.gray_100,
         scrollbar_thumb=tokens.primitive.gray_400,
         scrollbar_thumb_hover=tokens.primitive.gray_500,
-
         # Tab
         tab_bg=tokens.primitive.gray_100,
         tab_fg=tokens.primitive.gray_600,
@@ -103,7 +98,6 @@ def create_light_theme() -> Theme:
         tab_active_fg=tokens.primitive.primary_500,
         tab_hover_bg=tokens.primitive.gray_50,
         tab_hover_fg=tokens.primitive.gray_900,
-
         # Chart/Graph colors
         chart_1=tokens.primitive.primary_500,
         chart_2=tokens.primitive.success_500,
@@ -168,7 +162,6 @@ def create_dark_theme() -> Theme:
         gray_800="#B0B0B0",
         gray_900="#E0E0E0",
         gray_950="#F5F5F5",
-
         # Primary colors - slightly adjusted for dark theme
         primary_50="#0A1929",
         primary_100="#0F2942",
@@ -181,7 +174,6 @@ def create_dark_theme() -> Theme:
         primary_800="#BBDEFB",
         primary_900="#E3F2FD",
         primary_950="#F0F7FF",
-
         # Keep other color scales similar
         secondary_50="#1A0E00",
         secondary_100="#2E1A00",
@@ -194,7 +186,6 @@ def create_dark_theme() -> Theme:
         secondary_800="#FFE0B2",
         secondary_900="#FFF3E0",
         secondary_950="#FFF8E1",
-
         # Success
         success_50="#0D2818",
         success_100="#1B5E20",
@@ -207,7 +198,6 @@ def create_dark_theme() -> Theme:
         success_800="#A5D6A7",
         success_900="#C8E6C9",
         success_950="#E8F5E9",
-
         # Warning
         warning_50="#331400",
         warning_100="#4D1F00",
@@ -220,7 +210,6 @@ def create_dark_theme() -> Theme:
         warning_800="#FFCC80",
         warning_900="#FFE0B2",
         warning_950="#FFF3E0",
-
         # Error
         error_50="#4A0E0E",
         error_100="#7F1D1D",
@@ -233,7 +222,6 @@ def create_dark_theme() -> Theme:
         error_800="#FECACA",
         error_900="#FEE2E2",
         error_950="#FEF2F2",
-
         # Info
         info_50="#002838",
         info_100="#003D4D",
@@ -246,7 +234,6 @@ def create_dark_theme() -> Theme:
         info_800="#80DEEA",
         info_900="#B2EBF2",
         info_950="#E0F7FA",
-
         # Pure colors
         white="#FFFFFF",
         black="#000000",
@@ -261,7 +248,6 @@ def create_dark_theme() -> Theme:
         bg_tertiary=tokens.primitive.gray_300,
         bg_elevated=tokens.primitive.gray_200,
         bg_overlay="rgba(0, 0, 0, 0.7)",
-
         # Foreground/Text
         fg_primary=tokens.primitive.gray_900,
         fg_secondary=tokens.primitive.gray_700,
@@ -269,7 +255,6 @@ def create_dark_theme() -> Theme:
         fg_on_accent=tokens.primitive.white,
         fg_on_dark=tokens.primitive.white,
         fg_on_light=tokens.primitive.gray_50,
-
         # Interactive states
         action_primary=tokens.primitive.primary_500,
         action_primary_hover=tokens.primitive.primary_600,
@@ -277,19 +262,16 @@ def create_dark_theme() -> Theme:
         action_secondary=tokens.primitive.secondary_500,
         action_secondary_hover=tokens.primitive.secondary_600,
         action_secondary_active=tokens.primitive.secondary_700,
-
         # Feedback
         feedback_success=tokens.primitive.success_500,
         feedback_warning=tokens.primitive.warning_500,
         feedback_error=tokens.primitive.error_500,
         feedback_info=tokens.primitive.info_500,
-
         # Borders
         border_default=tokens.primitive.gray_400,
         border_subtle=tokens.primitive.gray_300,
         border_strong=tokens.primitive.gray_500,
         border_focus=tokens.primitive.primary_500,
-
         # Special states
         state_hover=tokens.primitive.gray_300,
         state_selected=tokens.primitive.primary_300,
@@ -306,13 +288,11 @@ def create_dark_theme() -> Theme:
         button_secondary_bg=tokens.primitive.gray_300,
         button_secondary_fg=tokens.primitive.gray_900,
         button_secondary_border=tokens.primitive.gray_400,
-
         # Input
         input_bg=tokens.primitive.gray_200,
         input_fg=tokens.primitive.gray_900,
         input_border=tokens.primitive.gray_400,
         input_placeholder=tokens.primitive.gray_600,
-
         # Table
         table_header_bg=tokens.primitive.gray_300,
         table_header_fg=tokens.primitive.gray_900,
@@ -321,7 +301,6 @@ def create_dark_theme() -> Theme:
         table_row_hover=tokens.primitive.gray_300,
         table_row_selected=tokens.primitive.primary_300,
         table_border=tokens.primitive.gray_400,
-
         # Menu
         menu_bg=tokens.primitive.gray_200,
         menu_fg=tokens.primitive.gray_900,
@@ -329,12 +308,10 @@ def create_dark_theme() -> Theme:
         menu_hover_fg=tokens.primitive.gray_900,
         menu_selected_bg=tokens.primitive.primary_300,
         menu_selected_fg=tokens.primitive.white,
-
         # Scrollbar
         scrollbar_bg=tokens.primitive.gray_200,
         scrollbar_thumb=tokens.primitive.gray_500,
         scrollbar_thumb_hover=tokens.primitive.gray_600,
-
         # Tab
         tab_bg=tokens.primitive.gray_300,
         tab_fg=tokens.primitive.gray_700,
@@ -342,7 +319,6 @@ def create_dark_theme() -> Theme:
         tab_active_fg=tokens.primitive.primary_500,
         tab_hover_bg=tokens.primitive.gray_200,
         tab_hover_fg=tokens.primitive.gray_900,
-
         # Chart/Graph colors
         chart_1=tokens.primitive.primary_500,
         chart_2=tokens.primitive.success_500,
@@ -407,7 +383,6 @@ def create_high_contrast_theme() -> Theme:
         gray_800="#101010",
         gray_900="#000000",
         gray_950="#000000",
-
         # High contrast primary colors
         primary_50="#E6F3FF",
         primary_100="#CCE7FF",
@@ -420,7 +395,6 @@ def create_high_contrast_theme() -> Theme:
         primary_800="#003366",
         primary_900="#001A33",
         primary_950="#000D1A",
-
         # Keep other colors vibrant for visibility
         white="#FFFFFF",
         black="#000000",
@@ -435,7 +409,6 @@ def create_high_contrast_theme() -> Theme:
         bg_tertiary=tokens.primitive.gray_100,
         bg_elevated=tokens.primitive.white,
         bg_overlay="rgba(0, 0, 0, 0.8)",
-
         # Foreground/Text - maximum contrast
         fg_primary=tokens.primitive.black,
         fg_secondary=tokens.primitive.gray_700,
@@ -443,7 +416,6 @@ def create_high_contrast_theme() -> Theme:
         fg_on_accent=tokens.primitive.white,
         fg_on_dark=tokens.primitive.white,
         fg_on_light=tokens.primitive.black,
-
         # Interactive states
         action_primary=tokens.primitive.primary_500,
         action_primary_hover=tokens.primitive.primary_600,
@@ -451,19 +423,16 @@ def create_high_contrast_theme() -> Theme:
         action_secondary=tokens.primitive.gray_700,
         action_secondary_hover=tokens.primitive.gray_800,
         action_secondary_active=tokens.primitive.gray_900,
-
         # Feedback - high contrast colors
         feedback_success="#008000",
         feedback_warning="#FF8C00",
         feedback_error="#DC143C",
         feedback_info="#1E90FF",
-
         # Borders - strong for visibility
         border_default=tokens.primitive.black,
         border_subtle=tokens.primitive.gray_400,
         border_strong=tokens.primitive.black,
         border_focus=tokens.primitive.primary_500,
-
         # Special states
         state_hover=tokens.primitive.gray_200,
         state_selected=tokens.primitive.primary_100,
@@ -480,13 +449,11 @@ def create_high_contrast_theme() -> Theme:
         button_secondary_bg=tokens.primitive.white,
         button_secondary_fg=tokens.primitive.black,
         button_secondary_border=tokens.primitive.black,
-
         # Input
         input_bg=tokens.primitive.white,
         input_fg=tokens.primitive.black,
         input_border=tokens.primitive.black,
         input_placeholder=tokens.primitive.gray_600,
-
         # Table
         table_header_bg=tokens.primitive.gray_200,
         table_header_fg=tokens.primitive.black,
@@ -495,7 +462,6 @@ def create_high_contrast_theme() -> Theme:
         table_row_hover=tokens.primitive.gray_200,
         table_row_selected=tokens.primitive.primary_100,
         table_border=tokens.primitive.black,
-
         # Other components follow similar pattern
         menu_bg=tokens.primitive.white,
         menu_fg=tokens.primitive.black,

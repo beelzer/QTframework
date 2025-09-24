@@ -2,10 +2,18 @@
 Dialogs demonstration page.
 """
 
+from __future__ import annotations
+
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QColorDialog, QFileDialog, QFontDialog,
-                               QGroupBox, QHBoxLayout, QMessageBox,
-                               QPushButton, QVBoxLayout)
+from PySide6.QtWidgets import (
+    QColorDialog,
+    QFileDialog,
+    QFontDialog,
+    QGroupBox,
+    QHBoxLayout,
+    QMessageBox,
+    QPushButton,
+)
 
 from .base import DemoPage
 
@@ -89,7 +97,7 @@ class DialogsPage(DemoPage):
         QMessageBox.information(
             self.parent_window or self,
             "Information",
-            "This is an informational message.\n\nIt provides helpful details to the user."
+            "This is an informational message.\n\nIt provides helpful details to the user.",
         )
 
     def _show_warning(self):
@@ -97,7 +105,7 @@ class DialogsPage(DemoPage):
         QMessageBox.warning(
             self.parent_window or self,
             "Warning",
-            "This is a warning message.\n\nPlease proceed with caution."
+            "This is a warning message.\n\nPlease proceed with caution.",
         )
 
     def _show_error(self):
@@ -105,7 +113,7 @@ class DialogsPage(DemoPage):
         QMessageBox.critical(
             self.parent_window or self,
             "Error",
-            "This is an error message.\n\nSomething went wrong!"
+            "This is an error message.\n\nSomething went wrong!",
         )
 
     def _show_question(self):
@@ -113,14 +121,10 @@ class DialogsPage(DemoPage):
         result = QMessageBox.question(
             self.parent_window or self,
             "Question",
-            "Do you want to continue?\n\nThis action cannot be undone."
+            "Do you want to continue?\n\nThis action cannot be undone.",
         )
         if result == QMessageBox.Yes:
-            QMessageBox.information(
-                self.parent_window or self,
-                "Result",
-                "You selected: Yes"
-            )
+            QMessageBox.information(self.parent_window or self, "Result", "You selected: Yes")
 
     def _show_file_dialog(self):
         """Show file dialog."""
@@ -128,53 +132,37 @@ class DialogsPage(DemoPage):
             self.parent_window or self,
             "Select File",
             "",
-            "All Files (*);;Python Files (*.py);;Text Files (*.txt)"
+            "All Files (*);;Python Files (*.py);;Text Files (*.txt)",
         )
         if filename:
             QMessageBox.information(
-                self.parent_window or self,
-                "File Selected",
-                f"You selected:\n{filename}"
+                self.parent_window or self, "File Selected", f"You selected:\n{filename}"
             )
 
     def _show_folder_dialog(self):
         """Show folder dialog."""
-        folder = QFileDialog.getExistingDirectory(
-            self.parent_window or self,
-            "Select Folder"
-        )
+        folder = QFileDialog.getExistingDirectory(self.parent_window or self, "Select Folder")
         if folder:
             QMessageBox.information(
-                self.parent_window or self,
-                "Folder Selected",
-                f"You selected:\n{folder}"
+                self.parent_window or self, "Folder Selected", f"You selected:\n{folder}"
             )
 
     def _show_color_dialog(self):
         """Show color dialog."""
-        color = QColorDialog.getColor(
-            Qt.white,
-            self.parent_window or self,
-            "Select Color"
-        )
+        color = QColorDialog.getColor(Qt.white, self.parent_window or self, "Select Color")
         if color.isValid():
             QMessageBox.information(
-                self.parent_window or self,
-                "Color Selected",
-                f"You selected:\n{color.name()}"
+                self.parent_window or self, "Color Selected", f"You selected:\n{color.name()}"
             )
 
     def _show_font_dialog(self):
         """Show font dialog."""
         from PySide6.QtGui import QFont
-        font, ok = QFontDialog.getFont(
-            QFont(),
-            self.parent_window or self,
-            "Select Font"
-        )
+
+        font, ok = QFontDialog.getFont(QFont(), self.parent_window or self, "Select Font")
         if ok:
             QMessageBox.information(
                 self.parent_window or self,
                 "Font Selected",
-                f"You selected:\n{font.family()}, {font.pointSize()}pt"
+                f"You selected:\n{font.family()}, {font.pointSize()}pt",
             )

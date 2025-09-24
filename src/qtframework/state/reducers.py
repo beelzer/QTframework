@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import copy
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 from qtframework.state.actions import Action
+
 
 State = TypeVar("State", bound=dict)
 Reducer = Callable[[State, Action], State]

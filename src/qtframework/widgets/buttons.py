@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, override
 from PySide6.QtCore import Property, QSize, Qt, Signal
 from PySide6.QtWidgets import QPushButton, QWidget
 
+
 if TYPE_CHECKING:
     from PySide6.QtGui import QIcon
 
@@ -69,6 +70,7 @@ class Button(QPushButton):
 
         if icon:
             from PySide6.QtGui import QIcon as QIconClass
+
             if isinstance(icon, QIconClass):
                 self.setIcon(icon)
 

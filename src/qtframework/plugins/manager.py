@@ -4,14 +4,16 @@ from __future__ import annotations
 
 import importlib
 import importlib.util
+from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from PySide6.QtCore import QObject, Signal
 
 from qtframework.plugins.base import Plugin, PluginMetadata, PluginState
 from qtframework.utils.exceptions import PluginError, SecurityError
 from qtframework.utils.logger import get_logger
+
 
 if TYPE_CHECKING:
     from qtframework.core.application import Application
@@ -116,7 +118,7 @@ class PluginManager(QObject):
                     raise SecurityError(
                         f"Plugin path failed security validation: {plugin_path}",
                         security_context="plugin_loading",
-                        attempted_action="load_plugin"
+                        attempted_action="load_plugin",
                     )
                 plugin = self._load_plugin_from_path(plugin_path)
             else:
@@ -134,20 +136,16 @@ class PluginManager(QObject):
                     self.plugin_loaded.emit(plugin_id)
                     logger.info(f"Plugin {plugin_id} loaded successfully")
                     return True
-                else:
-                    plugin.set_state(PluginState.ERROR)
-                    del self._plugins[plugin_id]
-                    raise PluginError(
-                        f"Plugin {plugin_id} initialization failed",
-                        plugin_id=plugin_id,
-                        operation="initialize"
-                    )
-            else:
+                plugin.set_state(PluginState.ERROR)
+                del self._plugins[plugin_id]
                 raise PluginError(
-                    f"Failed to load plugin {plugin_id}",
+                    f"Plugin {plugin_id} initialization failed",
                     plugin_id=plugin_id,
-                    operation="load"
+                    operation="initialize",
                 )
+            raise PluginError(
+                f"Failed to load plugin {plugin_id}", plugin_id=plugin_id, operation="load"
+            )
 
         except (PluginError, SecurityError) as e:
             self.plugin_error.emit(plugin_id, str(e))
@@ -156,7 +154,7 @@ class PluginManager(QObject):
             error = PluginError(
                 f"Unexpected error loading plugin {plugin_id}: {e}",
                 plugin_id=plugin_id,
-                operation="load"
+                operation="load",
             )
             self.plugin_error.emit(plugin_id, str(error))
             raise error
@@ -222,9 +220,8 @@ class PluginManager(QObject):
                 self.plugin_activated.emit(plugin_id)
                 logger.info(f"Plugin {plugin_id} activated")
                 return True
-            else:
-                plugin.set_state(PluginState.ERROR)
-                return False
+            plugin.set_state(PluginState.ERROR)
+            return False
         except Exception as e:
             logger.error(f"Failed to activate plugin {plugin_id}: {e}")
             plugin.set_state(PluginState.ERROR)
@@ -382,7 +379,7 @@ class PluginManager(QObject):
                     continue
 
             # Check plugin directory size (prevent loading huge plugins)
-            total_size = sum(f.stat().st_size for f in path.rglob('*') if f.is_file())
+            total_size = sum(f.stat().st_size for f in path.rglob("*") if f.is_file())
             if total_size > 50 * 1024 * 1024:  # 50MB limit
                 logger.warning(f"Plugin directory too large: {path} ({total_size} bytes)")
                 return False
@@ -431,7 +428,9 @@ class PluginManager(QObject):
 
             for pattern in suspicious_patterns:
                 if pattern in content:
-                    logger.warning(f"Suspicious pattern '{pattern}' found in plugin file: {file_path}")
+                    logger.warning(
+                        f"Suspicious pattern '{pattern}' found in plugin file: {file_path}"
+                    )
                     return False
 
             return True
@@ -453,8 +452,7 @@ class PluginManager(QObject):
         # Check if plugin is actually a Plugin instance
         if not isinstance(plugin, Plugin):
             raise PluginError(
-                f"Plugin {plugin_id} is not a valid Plugin instance",
-                plugin_id=plugin_id
+                f"Plugin {plugin_id} is not a valid Plugin instance", plugin_id=plugin_id
             )
 
         # Check required methods
@@ -462,8 +460,7 @@ class PluginManager(QObject):
         for method in required_methods:
             if not hasattr(plugin, method) or not callable(getattr(plugin, method)):
                 raise PluginError(
-                    f"Plugin {plugin_id} missing required method: {method}",
-                    plugin_id=plugin_id
+                    f"Plugin {plugin_id} missing required method: {method}", plugin_id=plugin_id
                 )
 
         # Check plugin metadata if available
@@ -472,5 +469,5 @@ class PluginManager(QObject):
             if metadata and hasattr(metadata, "id") and metadata.id != plugin_id:
                 raise PluginError(
                     f"Plugin metadata ID mismatch: expected {plugin_id}, got {metadata.id}",
-                    plugin_id=plugin_id
+                    plugin_id=plugin_id,
                 )

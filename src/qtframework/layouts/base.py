@@ -5,8 +5,7 @@ from __future__ import annotations
 from enum import Enum
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QBoxLayout, QWidget
-from PySide6.QtWidgets import QGridLayout as QtGridLayout
+from PySide6.QtWidgets import QBoxLayout, QGridLayout as QtGridLayout, QWidget
 
 
 class Direction(Enum):

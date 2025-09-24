@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -344,7 +344,7 @@ class DesignTokens:
     transitions: Transitions = field(default_factory=Transitions)
     syntax: SyntaxColors = field(default_factory=SyntaxColors)
 
-    def resolve_token(self, token_path: str) -> Optional[str]:
+    def resolve_token(self, token_path: str) -> str | None:
         """Resolve a token path to its value.
 
         Args:
@@ -380,7 +380,7 @@ class DesignTokens:
                     if resolved:
                         setattr(self.semantic, attr_name, resolved)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert tokens to dictionary format."""
         return {
             "primitive": self.primitive.model_dump(),
@@ -395,7 +395,7 @@ class DesignTokens:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> DesignTokens:
+    def from_dict(cls, data: dict[str, Any]) -> DesignTokens:
         """Create DesignTokens from dictionary."""
         return cls(
             primitive=PrimitiveColors(**data.get("primitive", {})),

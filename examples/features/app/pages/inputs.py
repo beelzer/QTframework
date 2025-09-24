@@ -2,11 +2,24 @@
 Input controls demonstration page.
 """
 
+from __future__ import annotations
+
+import math
 from datetime import datetime
 
-from PySide6.QtWidgets import (QDateEdit, QDateTimeEdit, QDoubleSpinBox,
-                               QGridLayout, QGroupBox, QLabel, QLineEdit,
-                               QSpinBox, QTextEdit, QTimeEdit, QVBoxLayout)
+from PySide6.QtWidgets import (
+    QDateEdit,
+    QDateTimeEdit,
+    QDoubleSpinBox,
+    QGridLayout,
+    QGroupBox,
+    QLabel,
+    QLineEdit,
+    QSpinBox,
+    QTextEdit,
+    QTimeEdit,
+    QVBoxLayout,
+)
 
 from .base import DemoPage
 
@@ -88,7 +101,7 @@ class InputsPage(DemoPage):
         layout.addWidget(QLabel("Decimal:"), 1, 0)
         double_spin = QDoubleSpinBox()
         double_spin.setRange(0.0, 100.0)
-        double_spin.setValue(3.14159)
+        double_spin.setValue(math.pi)
         double_spin.setDecimals(3)
         layout.addWidget(double_spin, 1, 1)
 

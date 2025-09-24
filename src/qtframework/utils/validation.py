@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import re
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Pattern
+from typing import Any
 
 from qtframework.utils.exceptions import ValidationError
 
@@ -50,12 +51,9 @@ class RequiredValidator(Validator):
 
     def validate(self, value: Any, field_name: str = "") -> bool:
         """Validate that value is not empty."""
-        if value is None or value == "" or (hasattr(value, '__len__') and len(value) == 0):
+        if value is None or value == "" or (hasattr(value, "__len__") and len(value) == 0):
             raise ValidationError(
-                self.message,
-                field_name=field_name,
-                field_value=value,
-                validation_rule="required"
+                self.message, field_name=field_name, field_value=value, validation_rule="required"
             )
         return True
 
@@ -67,7 +65,7 @@ class LengthValidator(Validator):
         self,
         min_length: int | None = None,
         max_length: int | None = None,
-        message: str | None = None
+        message: str | None = None,
     ) -> None:
         """Initialize length validator.
 
@@ -103,7 +101,7 @@ class LengthValidator(Validator):
                 self.message,
                 field_name=field_name,
                 field_value=value,
-                validation_rule=f"min_length:{self.min_length}"
+                validation_rule=f"min_length:{self.min_length}",
             )
 
         if self.max_length is not None and length > self.max_length:
@@ -111,7 +109,7 @@ class LengthValidator(Validator):
                 self.message,
                 field_name=field_name,
                 field_value=value,
-                validation_rule=f"max_length:{self.max_length}"
+                validation_rule=f"max_length:{self.max_length}",
             )
 
         return True
@@ -120,7 +118,7 @@ class LengthValidator(Validator):
 class RegexValidator(Validator):
     """Validates value against a regular expression."""
 
-    def __init__(self, pattern: str | Pattern[str], message: str | None = None) -> None:
+    def __init__(self, pattern: str | re.Pattern[str], message: str | None = None) -> None:
         """Initialize regex validator.
 
         Args:
@@ -140,7 +138,7 @@ class RegexValidator(Validator):
                 self.message,
                 field_name=field_name,
                 field_value=value,
-                validation_rule=f"regex:{self.pattern.pattern}"
+                validation_rule=f"regex:{self.pattern.pattern}",
             )
 
         return True
@@ -149,14 +147,11 @@ class RegexValidator(Validator):
 class EmailValidator(RegexValidator):
     """Validates email addresses."""
 
-    EMAIL_PATTERN = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    EMAIL_PATTERN = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 
     def __init__(self, message: str | None = None) -> None:
         """Initialize email validator."""
-        super().__init__(
-            self.EMAIL_PATTERN,
-            message or "Please enter a valid email address"
-        )
+        super().__init__(self.EMAIL_PATTERN, message or "Please enter a valid email address")
 
 
 class NumberValidator(Validator):
@@ -167,7 +162,7 @@ class NumberValidator(Validator):
         min_value: float | None = None,
         max_value: float | None = None,
         allow_float: bool = True,
-        message: str | None = None
+        message: str | None = None,
     ) -> None:
         """Initialize number validator.
 
@@ -200,14 +195,14 @@ class NumberValidator(Validator):
                 num_value = float(value)
             else:
                 num_value = int(value)
-                if str(value).count('.') > 0:
+                if str(value).count(".") > 0:
                     raise ValueError("Float not allowed")
         except (ValueError, TypeError):
             raise ValidationError(
                 "Please enter a valid number",
                 field_name=field_name,
                 field_value=value,
-                validation_rule="number"
+                validation_rule="number",
             )
 
         if self.min_value is not None and num_value < self.min_value:
@@ -215,7 +210,7 @@ class NumberValidator(Validator):
                 self.message,
                 field_name=field_name,
                 field_value=value,
-                validation_rule=f"min_value:{self.min_value}"
+                validation_rule=f"min_value:{self.min_value}",
             )
 
         if self.max_value is not None and num_value > self.max_value:
@@ -223,7 +218,7 @@ class NumberValidator(Validator):
                 self.message,
                 field_name=field_name,
                 field_value=value,
-                validation_rule=f"max_value:{self.max_value}"
+                validation_rule=f"max_value:{self.max_value}",
             )
 
         return True
@@ -237,7 +232,7 @@ class PathValidator(Validator):
         must_exist: bool = False,
         must_be_file: bool = False,
         must_be_dir: bool = False,
-        message: str | None = None
+        message: str | None = None,
     ) -> None:
         """Initialize path validator.
 
@@ -259,7 +254,7 @@ class PathValidator(Validator):
                 "Path must be a string or Path object",
                 field_name=field_name,
                 field_value=value,
-                validation_rule="path_type"
+                validation_rule="path_type",
             )
 
         path = Path(value)
@@ -269,7 +264,7 @@ class PathValidator(Validator):
                 "Path does not exist",
                 field_name=field_name,
                 field_value=value,
-                validation_rule="path_exists"
+                validation_rule="path_exists",
             )
 
         if self.must_be_file and path.exists() and not path.is_file():
@@ -277,7 +272,7 @@ class PathValidator(Validator):
                 "Path must be a file",
                 field_name=field_name,
                 field_value=value,
-                validation_rule="path_is_file"
+                validation_rule="path_is_file",
             )
 
         if self.must_be_dir and path.exists() and not path.is_dir():
@@ -285,7 +280,7 @@ class PathValidator(Validator):
                 "Path must be a directory",
                 field_name=field_name,
                 field_value=value,
-                validation_rule="path_is_dir"
+                validation_rule="path_is_dir",
             )
 
         return True
@@ -311,7 +306,7 @@ class ChoiceValidator(Validator):
                 self.message,
                 field_name=field_name,
                 field_value=value,
-                validation_rule=f"choice:{self.choices}"
+                validation_rule=f"choice:{self.choices}",
             )
         return True
 
@@ -334,10 +329,7 @@ class CustomValidator(Validator):
         try:
             if not self.func(value):
                 raise ValidationError(
-                    self.message,
-                    field_name=field_name,
-                    field_value=value,
-                    validation_rule="custom"
+                    self.message, field_name=field_name, field_value=value, validation_rule="custom"
                 )
         except Exception as e:
             if isinstance(e, ValidationError):
@@ -346,7 +338,7 @@ class CustomValidator(Validator):
                 f"Validation error: {e}",
                 field_name=field_name,
                 field_value=value,
-                validation_rule="custom"
+                validation_rule="custom",
             )
         return True
 
@@ -418,7 +410,9 @@ class FormValidator:
         """Initialize form validator."""
         self.field_validators: dict[str, ValidatorChain] = {}
 
-    def add_field(self, field_name: str, validators: list[Validator] | ValidatorChain) -> FormValidator:
+    def add_field(
+        self, field_name: str, validators: list[Validator] | ValidatorChain
+    ) -> FormValidator:
         """Add field validation.
 
         Args:
@@ -481,23 +475,19 @@ def optional_email_field() -> ValidatorChain:
 
 def number_field(min_value: float | None = None, max_value: float | None = None) -> ValidatorChain:
     """Create validator chain for number field."""
-    return ValidatorChain([
-        RequiredValidator(),
-        NumberValidator(min_value, max_value)
-    ])
+    return ValidatorChain([RequiredValidator(), NumberValidator(min_value, max_value)])
 
 
-def path_field(must_exist: bool = False, must_be_file: bool = False, must_be_dir: bool = False) -> ValidatorChain:
+def path_field(
+    must_exist: bool = False, must_be_file: bool = False, must_be_dir: bool = False
+) -> ValidatorChain:
     """Create validator chain for path field."""
     return ValidatorChain([
         RequiredValidator(),
-        PathValidator(must_exist, must_be_file, must_be_dir)
+        PathValidator(must_exist, must_be_file, must_be_dir),
     ])
 
 
 def choice_field(choices: list[Any]) -> ValidatorChain:
     """Create validator chain for choice field."""
-    return ValidatorChain([
-        RequiredValidator(),
-        ChoiceValidator(choices)
-    ])
+    return ValidatorChain([RequiredValidator(), ChoiceValidator(choices)])

@@ -2,6 +2,8 @@
 Content area manager for the showcase.
 """
 
+from __future__ import annotations
+
 from PySide6.QtWidgets import QStackedWidget
 
 from .pages.animations import AnimationsPage

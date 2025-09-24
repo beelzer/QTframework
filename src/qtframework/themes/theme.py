@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import yaml
 
@@ -22,8 +22,8 @@ class Theme:
         description: str = "",
         author: str = "",
         version: str = "1.0.0",
-        tokens: Optional[DesignTokens] = None,
-        custom_styles: Optional[Dict[str, str]] = None,
+        tokens: DesignTokens | None = None,
+        custom_styles: dict[str, str] | None = None,
     ):
         """Initialize theme.
 
@@ -53,7 +53,7 @@ class Theme:
         """
         return self._stylesheet_generator.generate(self.tokens, self.custom_styles)
 
-    def get_token(self, token_path: str) -> Optional[str]:
+    def get_token(self, token_path: str) -> str | None:
         """Get a token value by its path.
 
         Args:
@@ -64,7 +64,7 @@ class Theme:
         """
         return self.tokens.resolve_token(token_path)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Export theme as dictionary.
 
         Returns:
@@ -81,7 +81,7 @@ class Theme:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Theme:
+    def from_dict(cls, data: dict[str, Any]) -> Theme:
         """Create theme from dictionary.
 
         Args:

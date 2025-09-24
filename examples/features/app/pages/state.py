@@ -2,10 +2,11 @@
 State management demonstration page.
 """
 
+from __future__ import annotations
+
 import json
 
-from PySide6.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
-                               QTextEdit, QVBoxLayout)
+from PySide6.QtWidgets import QGroupBox, QHBoxLayout, QLabel, QPushButton, QTextEdit, QVBoxLayout
 
 from .base import DemoPage
 
@@ -115,8 +116,9 @@ class StatePage(DemoPage):
         self.counter += 1
 
         # Update store if available
-        if self.parent_window and hasattr(self.parent_window, 'state_store'):
+        if self.parent_window and hasattr(self.parent_window, "state_store"):
             from qtframework.state import Action
+
             self.parent_window.state_store.dispatch(Action(type="INCREMENT"))
 
         self._update_displays()
@@ -127,8 +129,9 @@ class StatePage(DemoPage):
         self.counter -= 1
 
         # Update store if available
-        if self.parent_window and hasattr(self.parent_window, 'state_store'):
+        if self.parent_window and hasattr(self.parent_window, "state_store"):
             from qtframework.state import Action
+
             self.parent_window.state_store.dispatch(Action(type="DECREMENT"))
 
         self._update_displays()
@@ -139,8 +142,9 @@ class StatePage(DemoPage):
         self.counter += value
 
         # Update store if available
-        if self.parent_window and hasattr(self.parent_window, 'state_store'):
+        if self.parent_window and hasattr(self.parent_window, "state_store"):
             from qtframework.state import Action
+
             self.parent_window.state_store.dispatch(
                 Action(type="SET_COUNTER", payload=self.counter)
             )
@@ -153,8 +157,9 @@ class StatePage(DemoPage):
         self.counter = 0
 
         # Update store if available
-        if self.parent_window and hasattr(self.parent_window, 'state_store'):
+        if self.parent_window and hasattr(self.parent_window, "state_store"):
             from qtframework.state import Action
+
             self.parent_window.state_store.dispatch(Action(type="RESET"))
 
         self._update_displays()
@@ -169,7 +174,7 @@ class StatePage(DemoPage):
         action = {
             "type": action_type,
             "value": value,
-            "timestamp": QDateTime.currentDateTime().toString("hh:mm:ss")
+            "timestamp": QDateTime.currentDateTime().toString("hh:mm:ss"),
         }
         self.history.append(action)
 
@@ -183,19 +188,19 @@ class StatePage(DemoPage):
         state = {
             "counter": self.counter,
             "lastAction": self.history[-1] if self.history else None,
-            "historyLength": len(self.history)
+            "historyLength": len(self.history),
         }
 
         # Use the parent window's state store if available
-        if self.parent_window and hasattr(self.parent_window, 'state_store'):
+        if self.parent_window and hasattr(self.parent_window, "state_store"):
             state.update(self.parent_window.state_store.get_state())
 
         self.state_display.setText(json.dumps(state, indent=2))
 
         # Update history display
         history_text = "\n".join([
-            f"[{action['timestamp']}] {action['type']}" +
-            (f"({action['value']})" if action['value'] is not None else "")
+            f"[{action['timestamp']}] {action['type']}"
+            + (f"({action['value']})" if action["value"] is not None else "")
             for action in self.history
         ])
         self.history_display.setText(history_text or "No actions yet")

@@ -15,10 +15,12 @@ The Qt Framework now features a modern, token-based theming system inspired by d
 ### Token Hierarchy
 
 1. **Primitive Tokens**: Raw design values (colors, sizes, etc.)
+
    - Color scales (gray, primary, secondary, success, warning, error, info)
    - Base values for typography, spacing, borders, shadows
 
 2. **Semantic Tokens**: Meaning-based references to primitive tokens
+
    - Background colors (primary, secondary, tertiary, elevated)
    - Foreground/text colors (primary, secondary, tertiary)
    - Interactive states (hover, selected, disabled, focus)
@@ -151,12 +153,14 @@ theme_manager.register_theme(custom_theme)
 The theme system supports various widget properties for enhanced styling:
 
 #### Button Variants
+
 ```python
 button = QPushButton("Click me")
 button.setProperty("variant", "primary")  # primary, secondary, success, warning, danger, info, ghost, outline
 ```
 
 #### Typography
+
 ```python
 label = QLabel("Heading")
 label.setProperty("heading", "h1")  # h1, h2, h3
@@ -166,6 +170,7 @@ label.setProperty("secondary", "true")
 ```
 
 #### Cards/Frames
+
 ```python
 frame = QFrame()
 frame.setProperty("card", "true")  # Applies card styling
@@ -193,6 +198,7 @@ src/qtframework/themes/
 ### Color Scales
 
 Each color has 11 shades (50-950):
+
 - `gray_*`: Neutral colors
 - `primary_*`: Main brand color
 - `secondary_*`: Accent color

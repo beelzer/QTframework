@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Dict
-
 from qtframework.themes.tokens import DesignTokens
 
 
 class StylesheetGenerator:
     """Generate Qt stylesheets from design tokens."""
 
-    def generate(self, tokens: DesignTokens, custom_styles: Dict[str, str]) -> str:
+    def generate(self, tokens: DesignTokens, custom_styles: dict[str, str]) -> str:
         """Generate complete stylesheet from tokens.
 
         Args:

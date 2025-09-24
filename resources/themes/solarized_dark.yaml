@@ -7,14 +7,14 @@ version: 2.0.0
 tokens:
   primitive:
     # Solarized base colors
-    gray_50: "#002b36"     # base03
-    gray_100: "#073642"    # base02
-    gray_200: "#586e75"    # base01
-    gray_300: "#657b83"    # base00
-    gray_400: "#839496"    # base0
-    gray_500: "#93a1a1"    # base1
-    gray_600: "#eee8d5"    # base2
-    gray_700: "#fdf6e3"    # base3
+    gray_50: "#002b36" # base03
+    gray_100: "#073642" # base02
+    gray_200: "#586e75" # base01
+    gray_300: "#657b83" # base00
+    gray_400: "#839496" # base0
+    gray_500: "#93a1a1" # base1
+    gray_600: "#eee8d5" # base2
+    gray_700: "#fdf6e3" # base3
     gray_800: "#fdf6e3"
     gray_900: "#fdf6e3"
     gray_950: "#ffffff"
@@ -25,7 +25,7 @@ tokens:
     primary_200: "#0a5580"
     primary_300: "#0c6199"
     primary_400: "#0e6db3"
-    primary_500: "#268bd2"   # blue
+    primary_500: "#268bd2" # blue
     primary_600: "#4ca0db"
     primary_700: "#72b5e4"
     primary_800: "#98caed"
@@ -37,7 +37,7 @@ tokens:
     secondary_200: "#806500"
     secondary_300: "#997900"
     secondary_400: "#b38d00"
-    secondary_500: "#b58900"   # yellow
+    secondary_500: "#b58900" # yellow
     secondary_600: "#c49d1a"
     secondary_700: "#d3b133"
     secondary_800: "#e2c54d"
@@ -49,7 +49,7 @@ tokens:
     success_200: "#2f8000"
     success_300: "#389900"
     success_400: "#41b300"
-    success_500: "#859900"   # green
+    success_500: "#859900" # green
     success_600: "#94a61a"
     success_700: "#a3b333"
     success_800: "#b2c04d"
@@ -61,7 +61,7 @@ tokens:
     warning_200: "#b34d00"
     warning_300: "#cc5a00"
     warning_400: "#e66800"
-    warning_500: "#cb4b16"   # orange
+    warning_500: "#cb4b16" # orange
     warning_600: "#d3622f"
     warning_700: "#db7948"
     warning_800: "#e39061"
@@ -73,7 +73,7 @@ tokens:
     error_200: "#b3003f"
     error_300: "#cc0048"
     error_400: "#e60051"
-    error_500: "#dc322f"   # red
+    error_500: "#dc322f" # red
     error_600: "#e14b48"
     error_700: "#e66461"
     error_800: "#eb7d7a"
@@ -85,7 +85,7 @@ tokens:
     info_200: "#006f8c"
     info_300: "#0082a4"
     info_400: "#0095bd"
-    info_500: "#2aa198"   # cyan
+    info_500: "#2aa198" # cyan
     info_600: "#43ada6"
     info_700: "#5cb9b4"
     info_800: "#75c5c2"
@@ -184,21 +184,21 @@ tokens:
     font_family_code: "Consolas"
 
   syntax:
-    keyword: "#859900"      # green
-    class_name: "#268bd2"   # blue
-    function: "#b58900"     # yellow
-    string: "#2aa198"       # cyan
-    comment: "#586e75"      # base01
-    number: "#d33682"       # magenta
-    operator: "#839496"     # base0
-    decorator: "#b58900"    # yellow
-    constant: "#cb4b16"     # orange
-    variable: "#839496"     # base0
-    parameter: "#93a1a1"    # base1
-    type: "#268bd2"         # blue
-    namespace: "#268bd2"    # blue
-    error: "#dc322f"        # red
-    warning: "#cb4b16"      # orange
-    info: "#268bd2"         # blue
+    keyword: "#859900" # green
+    class_name: "#268bd2" # blue
+    function: "#b58900" # yellow
+    string: "#2aa198" # cyan
+    comment: "#586e75" # base01
+    number: "#d33682" # magenta
+    operator: "#839496" # base0
+    decorator: "#b58900" # yellow
+    constant: "#cb4b16" # orange
+    variable: "#839496" # base0
+    parameter: "#93a1a1" # base1
+    type: "#268bd2" # blue
+    namespace: "#268bd2" # blue
+    error: "#dc322f" # red
+    warning: "#cb4b16" # orange
+    info: "#268bd2" # blue
 
 custom_styles: {}

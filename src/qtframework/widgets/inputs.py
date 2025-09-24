@@ -8,10 +8,9 @@ from PySide6.QtCore import Signal
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QPushButton, QTextEdit, QWidget
 
+from qtframework.utils.validation import ValidationResult, ValidatorChain
 from qtframework.widgets.base import Widget
 from qtframework.widgets.buttons import CloseButton
-from qtframework.utils.validation import ValidatorChain, ValidationResult
-from qtframework.utils.exceptions import ValidationError
 
 
 class Input(QLineEdit):
@@ -74,13 +73,12 @@ class Input(QLineEdit):
         """
         self.validate()
 
-    def add_validator(self, validator: "Validator") -> None:
+    def add_validator(self, validator: Validator) -> None:
         """Add a validator to the input.
 
         Args:
             validator: Validator to add
         """
-        from qtframework.utils.validation import Validator
         self._validators.add_validator(validator)
 
     def set_validators(self, validators: ValidatorChain) -> None:

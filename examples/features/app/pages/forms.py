@@ -2,9 +2,20 @@
 Forms demonstration page.
 """
 
-from PySide6.QtWidgets import (QCheckBox, QComboBox, QGridLayout, QGroupBox,
-                               QHBoxLayout, QLabel, QLineEdit, QPushButton,
-                               QTextEdit, QVBoxLayout, QWidget)
+from __future__ import annotations
+
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QComboBox,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QTextEdit,
+    QVBoxLayout,
+)
 
 from .base import DemoPage
 
@@ -15,11 +26,7 @@ class FormsPage(DemoPage):
     def __init__(self, form_type: str = "basic"):
         """Initialize the forms page."""
         self.form_type = form_type
-        titles = {
-            "basic": "Basic Form",
-            "validation": "Form Validation",
-            "complex": "Complex Form"
-        }
+        titles = {"basic": "Basic Form", "validation": "Form Validation", "complex": "Complex Form"}
         super().__init__(titles.get(form_type, "Forms"))
         self._create_content()
 
@@ -143,9 +150,9 @@ class FormsPage(DemoPage):
         row += 1
 
         layout.addWidget(QLabel("Date of Birth:"), row, 0)
-        from datetime import datetime
 
         from PySide6.QtWidgets import QDateEdit
+
         dob = QDateEdit()
         dob.setCalendarPopup(True)
         layout.addWidget(dob, row, 1)

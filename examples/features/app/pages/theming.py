@@ -2,9 +2,19 @@
 Theming demonstration page.
 """
 
-from PySide6.QtWidgets import (QCheckBox, QComboBox, QFrame, QGridLayout,
-                               QGroupBox, QHBoxLayout, QLabel, QVBoxLayout,
-                               QWidget)
+from __future__ import annotations
+
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QComboBox,
+    QFrame,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QVBoxLayout,
+    QWidget,
+)
 
 from .base import DemoPage
 
@@ -20,7 +30,7 @@ class ThemingPage(DemoPage):
         titles = {
             "switcher": "Theme Switcher",
             "palette": "Color Palette",
-            "typography": "Typography System"
+            "typography": "Typography System",
         }
         super().__init__(titles.get(page_type, "Theming"))
         self._create_content()
@@ -46,7 +56,7 @@ class ThemingPage(DemoPage):
         layout.addWidget(QLabel("Current Theme:"))
 
         theme_combo = QComboBox()
-        if self.parent_window and hasattr(self.parent_window, 'theme_manager'):
+        if self.parent_window and hasattr(self.parent_window, "theme_manager"):
             themes = self.parent_window.theme_manager.list_themes()
             theme_combo.addItems(themes)
             theme_combo.currentTextChanged.connect(self.parent_window.apply_theme)
@@ -80,7 +90,7 @@ class ThemingPage(DemoPage):
             ("Background", "#ffffff", "Default background"),
             ("Surface", "#f5f5f5", "Surface color"),
             ("Text", "#212529", "Primary text"),
-            ("Text Secondary", "#6c757d", "Secondary text")
+            ("Text Secondary", "#6c757d", "Secondary text"),
         ]
 
         for i, (name, color, description) in enumerate(colors):
@@ -130,7 +140,7 @@ class ThemingPage(DemoPage):
             ("Body", "16px", "Default body text"),
             ("Body Small", "14px", "Secondary text"),
             ("Caption", "12px", "Helper text and captions"),
-            ("Overline", "10px", "Overline text")
+            ("Overline", "10px", "Overline text"),
         ]
 
         for name, size, usage in typography:

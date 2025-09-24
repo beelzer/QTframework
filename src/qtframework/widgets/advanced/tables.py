@@ -4,25 +4,22 @@ from __future__ import annotations
 
 from typing import Any
 
-from PySide6.QtCore import Qt, Signal, QSortFilterProxyModel, QModelIndex
-from PySide6.QtGui import QStandardItemModel, QStandardItem, QColor, QBrush
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QApplication,
-    QHeaderView,
-    QTableView,
-    QTreeView,
-    QWidget,
-    QVBoxLayout,
+    QComboBox,
     QHBoxLayout,
+    QLabel,
     QLineEdit,
     QPushButton,
-    QLabel,
-    QComboBox,
     QTableWidget,
     QTableWidgetItem,
     QTreeWidget,
     QTreeWidgetItem,
-    QAbstractItemView,
+    QVBoxLayout,
+    QWidget,
 )
 
 
@@ -100,7 +97,7 @@ class DataTable(QWidget):
         """Apply theme-based styling to the table."""
         # Get theme from application
         app = QApplication.instance()
-        if hasattr(app, 'theme_manager'):
+        if hasattr(app, "theme_manager"):
             theme = app.theme_manager.get_theme()
             if theme and theme.colors:
                 colors = theme.colors
@@ -151,7 +148,7 @@ class DataTable(QWidget):
     def _connect_theme_signals(self) -> None:
         """Connect to theme change signals."""
         app = QApplication.instance()
-        if hasattr(app, 'theme_manager'):
+        if hasattr(app, "theme_manager"):
             app.theme_manager.theme_changed.connect(self._on_theme_changed)
 
     def _on_theme_changed(self, theme_name: str) -> None:
@@ -216,8 +213,7 @@ class DataTable(QWidget):
     def remove_selected_rows(self) -> None:
         """Remove selected rows."""
         rows = set()
-        for item in self.table.selectedItems():
-            rows.add(item.row())
+        rows.update(item.row() for item in self.table.selectedItems())
 
         for row in sorted(rows, reverse=True):
             self.table.removeRow(row)
@@ -235,8 +231,7 @@ class DataTable(QWidget):
     def get_selected_rows(self) -> list[int]:
         """Get list of selected row indices."""
         rows = set()
-        for item in self.table.selectedItems():
-            rows.add(item.row())
+        rows.update(item.row() for item in self.table.selectedItems())
         return sorted(rows)
 
     def _on_selection_changed(self) -> None:
@@ -369,7 +364,7 @@ class TreeTable(QWidget):
         """Apply theme-based styling to the tree."""
         # Get theme from application
         app = QApplication.instance()
-        if hasattr(app, 'theme_manager'):
+        if hasattr(app, "theme_manager"):
             theme = app.theme_manager.get_theme()
             if theme and theme.colors:
                 colors = theme.colors
@@ -418,7 +413,7 @@ class TreeTable(QWidget):
     def _connect_theme_signals(self) -> None:
         """Connect to theme change signals."""
         app = QApplication.instance()
-        if hasattr(app, 'theme_manager'):
+        if hasattr(app, "theme_manager"):
             app.theme_manager.theme_changed.connect(self._on_theme_changed)
 
     def _on_theme_changed(self, theme_name: str) -> None:
@@ -497,6 +492,7 @@ class TreeTable(QWidget):
 
     def _apply_search_filter(self, search_text: str) -> None:
         """Apply search filter to tree items."""
+
         def filter_item(item: QTreeWidgetItem, text: str) -> bool:
             """Recursively filter items."""
             # Check if item matches
@@ -618,9 +614,7 @@ class PivotTable(QWidget):
             return
 
         # Calculate pivot
-        pivot_data = self._calculate_pivot(
-            row_field, col_field, value_field, agg_func
-        )
+        pivot_data = self._calculate_pivot(row_field, col_field, value_field, agg_func)
 
         # Display in table
         self._display_pivot(pivot_data, row_field, col_field)

@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QPropertyAnimation, Qt, Signal
+from PySide6.QtCore import QPropertyAnimation, Signal
 from PySide6.QtWidgets import QStackedWidget, QWidget
+
 
 if TYPE_CHECKING:
     from qtframework.navigation.router import Router

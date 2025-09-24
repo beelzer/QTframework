@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Pattern
+from typing import Any
 
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QWidget
 
 from qtframework.utils.logger import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -43,7 +45,7 @@ class Route:
             return True, match.groupdict()
         return False, {}
 
-    def _path_to_pattern(self) -> Pattern[str]:
+    def _path_to_pattern(self) -> re.Pattern[str]:
         """Convert path to regex pattern.
 
         Returns:
@@ -93,6 +95,7 @@ class Router(QObject):
 
     def _build_route_map(self) -> None:
         """Build route name map."""
+
         def add_to_map(route: Route, parent_path: str = "") -> None:
             full_path = parent_path + route.path
             if route.name:
@@ -123,7 +126,9 @@ class Router(QObject):
         self._routes = [r for r in self._routes if r.path != path]
         self._route_map = {n: r for n, r in self._route_map.items() if r.path != path}
 
-    def navigate(self, path: str, params: dict[str, Any] | None = None, _internal: bool = False) -> bool:
+    def navigate(
+        self, path: str, params: dict[str, Any] | None = None, _internal: bool = False
+    ) -> bool:
         """Navigate to a path.
 
         Args:
@@ -192,6 +197,7 @@ class Router(QObject):
         Returns:
             Matching route or None
         """
+
         def check_route(route: Route, parent_path: str = "") -> Route | None:
             full_path = parent_path + route.path
             matches, _ = route.matches(path)
@@ -301,9 +307,7 @@ class Router(QObject):
             return None
 
         component = self._current_route.component
-        if callable(component):
-            return component()
-        elif isinstance(component, type):
+        if callable(component) or isinstance(component, type):
             return component()
 
         return None

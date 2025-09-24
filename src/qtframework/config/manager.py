@@ -2,20 +2,21 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import copy
+from pathlib import Path
 from typing import Any
 
 from qtframework.config.config import Config
 from qtframework.utils.exceptions import ConfigurationError
-from qtframework.utils.validation import ValidatorChain
 from qtframework.utils.logger import get_logger
 from qtframework.utils.paths import (
+    ensure_directory,
     find_config_files,
     get_preferred_config_path,
     get_user_config_dir,
-    ensure_directory,
 )
+from qtframework.utils.validation import ValidatorChain
+
 
 logger = get_logger(__name__)
 
@@ -43,7 +44,10 @@ class ConfigManager:
     def _setup_default_validators(self) -> None:
         """Setup default configuration validators."""
         from qtframework.utils.validation import (
-            required_string, optional_string, number_field, choice_field
+            choice_field,
+            number_field,
+            optional_string,
+            required_string,
         )
 
         # Application configuration validators
@@ -51,17 +55,14 @@ class ConfigManager:
             "app.name": required_string(min_length=1, max_length=100),
             "app.version": required_string(min_length=1, max_length=20),
             "app.debug": ValidatorChain(),  # Allow any boolean-like value
-
             # Database configuration
             "database.host": optional_string(max_length=255),
             "database.port": number_field(min_value=1, max_value=65535),
             "database.name": optional_string(max_length=100),
-
             # UI configuration
             "ui.theme": choice_field(["light", "dark", "monokai", "blue", "purple", "auto"]),
             "ui.language": optional_string(max_length=10),
             "ui.font_size": number_field(min_value=8, max_value=72),
-
             # Performance settings
             "performance.cache_size": number_field(min_value=0, max_value=1000),
             "performance.max_threads": number_field(min_value=1, max_value=64),
@@ -89,8 +90,7 @@ class ConfigManager:
         # Validate file security
         if not self._validate_config_file_security(path):
             raise ConfigurationError(
-                f"Configuration file failed security validation: {path}",
-                source=str(path)
+                f"Configuration file failed security validation: {path}", source=str(path)
             )
 
         resolved_format = format
@@ -126,10 +126,7 @@ class ConfigManager:
         except ConfigurationError:
             raise
         except Exception as e:
-            raise ConfigurationError(
-                f"Failed to load config from {path}: {e}",
-                source=str(path)
-            )
+            raise ConfigurationError(f"Failed to load config from {path}: {e}", source=str(path))
 
     def _validate_config_file_security(self, path: Path) -> bool:
         """Validate configuration file for security concerns.
@@ -172,44 +169,41 @@ class ConfigManager:
         try:
             if format == "json":
                 import json
+
                 with open(path, encoding="utf-8") as f:
                     data = json.load(f)
             elif format in ["yaml", "yml"]:
                 import yaml
+
                 with open(path, encoding="utf-8") as f:
                     data = yaml.safe_load(f)
             elif format == "ini":
                 import configparser
+
                 parser = configparser.ConfigParser()
                 parser.read(path)
                 data = {s: dict(parser.items(s)) for s in parser.sections()}
             elif format == "env":
                 from dotenv import dotenv_values
+
                 data = dict(dotenv_values(path))
             else:
-                raise ConfigurationError(
-                    f"Unsupported format: {format}",
-                    source=str(path)
-                )
+                raise ConfigurationError(f"Unsupported format: {format}", source=str(path))
 
             if not isinstance(data, dict):
                 raise ConfigurationError(
                     f"Configuration file must contain a dictionary, got {type(data)}",
-                    source=str(path)
+                    source=str(path),
                 )
 
             return data
 
         except (json.JSONDecodeError, yaml.YAMLError) as e:
             raise ConfigurationError(
-                f"Invalid {format.upper()} format in config file: {e}",
-                source=str(path)
+                f"Invalid {format.upper()} format in config file: {e}", source=str(path)
             )
         except Exception as e:
-            raise ConfigurationError(
-                f"Error reading config file: {e}",
-                source=str(path)
-            )
+            raise ConfigurationError(f"Error reading config file: {e}", source=str(path))
 
     def _validate_config_data(self, data: dict[str, Any], source: str) -> None:
         """Validate configuration data.
@@ -221,39 +215,40 @@ class ConfigManager:
         Raises:
             ConfigurationError: If validation fails
         """
+
         def validate_nested(obj: dict[str, Any], prefix: str = "") -> None:
             for key, value in obj.items():
                 full_key = f"{prefix}.{key}" if prefix else key
 
                 if isinstance(value, dict):
                     validate_nested(value, full_key)
-                else:
-                    # Validate individual values
-                    if full_key in self._validators:
-                        try:
-                            result = self._validators[full_key].validate(value, full_key)
-                            if not result.is_valid:
-                                errors = "; ".join(result.get_error_messages())
-                                raise ConfigurationError(
-                                    f"Validation failed for '{full_key}': {errors}",
-                                    config_key=full_key,
-                                    config_value=value,
-                                    source=source
-                                )
-                        except Exception as e:
-                            if isinstance(e, ConfigurationError):
-                                raise
+                # Validate individual values
+                elif full_key in self._validators:
+                    try:
+                        result = self._validators[full_key].validate(value, full_key)
+                        if not result.is_valid:
+                            errors = "; ".join(result.get_error_messages())
                             raise ConfigurationError(
-                                f"Validation error for '{full_key}': {e}",
+                                f"Validation failed for '{full_key}': {errors}",
                                 config_key=full_key,
                                 config_value=value,
-                                source=source
+                                source=source,
                             )
+                    except Exception as e:
+                        if isinstance(e, ConfigurationError):
+                            raise
+                        raise ConfigurationError(
+                            f"Validation error for '{full_key}': {e}",
+                            config_key=full_key,
+                            config_value=value,
+                            source=source,
+                        )
 
         validate_nested(data)
 
     def _setup_schema_migrations(self) -> None:
         """Setup schema migration handlers for different versions."""
+
         # Example migration from 0.9.x to 1.0.0
         def migrate_0_9_to_1_0(data: dict[str, Any]) -> dict[str, Any]:
             """Migrate config from version 0.9.x to 1.0.0."""
@@ -263,11 +258,7 @@ class ConfigManager:
 
             # Add new required fields with defaults
             if "performance" not in data:
-                data["performance"] = {
-                    "cache_size": 100,
-                    "max_threads": 4,
-                    "lazy_loading": True
-                }
+                data["performance"] = {"cache_size": 100, "max_threads": 4, "lazy_loading": True}
 
             return data
 
@@ -288,7 +279,9 @@ class ConfigManager:
         Raises:
             ConfigurationError: If schema validation fails
         """
-        schema_version = data.get("$schema_version", "0.9.0")  # Default to old version if not specified
+        schema_version = data.get(
+            "$schema_version", "0.9.0"
+        )  # Default to old version if not specified
 
         # If schema version matches current, no migration needed
         if schema_version == self._current_schema_version:
@@ -297,7 +290,9 @@ class ConfigManager:
 
         # Check if migration is possible
         if schema_version in self._migration_handlers:
-            logger.info(f"Migrating config from schema version {schema_version} to {self._current_schema_version} for {source}")
+            logger.info(
+                f"Migrating config from schema version {schema_version} to {self._current_schema_version} for {source}"
+            )
             try:
                 migrated_data = self._migration_handlers[schema_version](data)
                 migrated_data["$schema_version"] = self._current_schema_version
@@ -305,12 +300,14 @@ class ConfigManager:
             except Exception as e:
                 raise ConfigurationError(
                     f"Failed to migrate config schema from {schema_version} to {self._current_schema_version}: {e}",
-                    source=source
+                    source=source,
                 )
 
         # Check if schema version is newer than supported
         if self._compare_versions(schema_version, self._current_schema_version) > 0:
-            logger.warning(f"Config schema version {schema_version} is newer than supported {self._current_schema_version} for {source}")
+            logger.warning(
+                f"Config schema version {schema_version} is newer than supported {self._current_schema_version} for {source}"
+            )
             # Allow loading but warn about potential compatibility issues
             return data
 
@@ -318,11 +315,13 @@ class ConfigManager:
         if self._compare_versions(schema_version, "0.8.0") < 0:
             raise ConfigurationError(
                 f"Config schema version {schema_version} is too old and unsupported (minimum: 0.8.0)",
-                source=source
+                source=source,
             )
 
         # If we get here, it's an unknown version - allow but warn
-        logger.warning(f"Unknown config schema version {schema_version} for {source}, proceeding without migration")
+        logger.warning(
+            f"Unknown config schema version {schema_version} for {source}, proceeding without migration"
+        )
         return data
 
     def _compare_versions(self, version1: str, version2: str) -> int:
@@ -341,25 +340,24 @@ class ConfigManager:
 
             if v1 < v2:
                 return -1
-            elif v1 > v2:
+            if v1 > v2:
                 return 1
-            else:
-                return 0
+            return 0
         except (ValueError, IndexError) as e:
             logger.warning(f"Failed to parse version strings '{version1}' and '{version2}': {e}")
             return 0  # Treat as equal if parsing fails
 
     def _collect_env_data(self, prefix: str = "") -> dict[str, Any]:
         """Collect environment configuration values."""
-        import os
         import json
+        import os
 
         env_data: dict[str, Any] = {}
         for key, value in os.environ.items():
             if prefix and not key.startswith(prefix):
                 continue
 
-            config_key = key[len(prefix):] if prefix else key
+            config_key = key[len(prefix) :] if prefix else key
             config_key = config_key.lower().replace("_", ".")
 
             try:
@@ -419,10 +417,12 @@ class ConfigManager:
 
             if format == "json":
                 import json
+
                 with open(path, "w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2)
             elif format in ["yaml", "yml"]:
                 import yaml
+
                 with open(path, "w", encoding="utf-8") as f:
                     yaml.safe_dump(data, f, default_flow_style=False)
             else:
@@ -550,8 +550,12 @@ class ConfigManager:
         if "defaults" not in self._load_order:
             self._load_order.insert(0, "defaults")  # Defaults have lowest priority
 
-    def load_standard_configs(self, app_name: str, config_filename: str = "config.json",
-                            defaults: dict[str, Any] | None = None) -> int:
+    def load_standard_configs(
+        self,
+        app_name: str,
+        config_filename: str = "config.json",
+        defaults: dict[str, Any] | None = None,
+    ) -> int:
         """Load configuration from standard locations with defaults.
 
         This method implements the standard config loading pattern:
@@ -598,8 +602,9 @@ class ConfigManager:
         logger.info(f"Loaded configuration from {loaded_count} sources for app '{app_name}'")
         return loaded_count
 
-    def save_user_config(self, app_name: str, config_filename: str = "config.json",
-                        exclude_defaults: bool = True) -> bool:
+    def save_user_config(
+        self, app_name: str, config_filename: str = "config.json", exclude_defaults: bool = True
+    ) -> bool:
         """Save current configuration to user config directory.
 
         Args:
@@ -635,6 +640,7 @@ class ConfigManager:
             # Save filtered data
             try:
                 import json
+
                 # Ensure schema version is included in saved config
                 if "$schema_version" not in filtered_data:
                     filtered_data["$schema_version"] = self._current_schema_version
@@ -649,7 +655,9 @@ class ConfigManager:
             # Save all current config
             return self.save(config_path)
 
-    def _filter_non_defaults(self, current: dict[str, Any], defaults: dict[str, Any]) -> dict[str, Any]:
+    def _filter_non_defaults(
+        self, current: dict[str, Any], defaults: dict[str, Any]
+    ) -> dict[str, Any]:
         """Filter out default values from current config.
 
         Args:
@@ -682,7 +690,9 @@ class ConfigManager:
         self._config.from_dict(defaults_copy)
         logger.info("Configuration reset to defaults")
 
-    def get_config_info(self, app_name: str, config_filename: str = "config.json") -> dict[str, Any]:
+    def get_config_info(
+        self, app_name: str, config_filename: str = "config.json"
+    ) -> dict[str, Any]:
         """Get information about config file locations for an application.
 
         Args:
@@ -694,7 +704,6 @@ class ConfigManager:
         """
         from qtframework.utils.paths import (
             get_system_config_dir,
-            get_user_config_dir,
         )
 
         info = {
@@ -764,7 +773,7 @@ class ConfigManager:
             Tuple of (major, minor, patch) version numbers
         """
         try:
-            parts = version.split('.')
+            parts = version.split(".")
             return (int(parts[0]), int(parts[1]), int(parts[2]) if len(parts) > 2 else 0)
         except (ValueError, IndexError):
             return (0, 0, 0)

@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 
-from PySide6.QtCore import QObject, QPropertyAnimation, QRect, Qt, QTimer, Signal
-from PySide6.QtGui import QFont, QPainter, QPalette
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtCore import QObject, QPropertyAnimation, Qt, QTimer, Signal
+from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from qtframework.widgets.buttons import CloseButton
-from qtframework.themes.manager import ThemeManager
 
 
 class NotificationType(Enum):
@@ -123,11 +123,12 @@ class Notification(QFrame):
         """Apply style based on notification type."""
         # Get current theme from application if available
         from PySide6.QtWidgets import QApplication
+
         app = QApplication.instance()
 
         theme = None
         theme_name = "light"
-        if hasattr(app, 'theme_manager'):
+        if hasattr(app, "theme_manager"):
             theme = app.theme_manager.get_theme()
             theme_name = app.theme_manager.get_current_theme_name()
 
@@ -228,7 +229,7 @@ class Notification(QFrame):
         """Animate notification disappearance."""
         from PySide6.QtCore import QEasingCurve
 
-        if hasattr(self, '_opacity_effect'):
+        if hasattr(self, "_opacity_effect"):
             # Animate opacity from 1 to 0
             self._animation = QPropertyAnimation(self._opacity_effect, b"opacity")
             self._animation.setDuration(200)

@@ -2,8 +2,17 @@
 Layouts demonstration page.
 """
 
-from PySide6.QtWidgets import (QFrame, QGridLayout, QGroupBox, QHBoxLayout,
-                               QLabel, QPushButton, QVBoxLayout, QWidget)
+from __future__ import annotations
+
+from PySide6.QtWidgets import (
+    QFrame,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,
+)
 
 from .base import DemoPage
 
@@ -75,7 +84,7 @@ class LayoutsPage(DemoPage):
         h_layout = QHBoxLayout()
 
         for i in range(4):
-            card = self._create_card(f"Flex {i+1}", "Flexible width")
+            card = self._create_card(f"Flex {i + 1}", "Flexible width")
             h_layout.addWidget(card)
 
         h_group.setLayout(h_layout)
@@ -86,7 +95,7 @@ class LayoutsPage(DemoPage):
         v_layout = QVBoxLayout()
 
         for i in range(3):
-            card = self._create_card(f"Item {i+1}", "Stacked vertically")
+            card = self._create_card(f"Item {i + 1}", "Stacked vertically")
             v_layout.addWidget(card)
 
         v_group.setLayout(v_layout)
@@ -103,7 +112,7 @@ class LayoutsPage(DemoPage):
             card_layout = QVBoxLayout(card)
 
             # Card header
-            header = QLabel(f"Card {i+1}")
+            header = QLabel(f"Card {i + 1}")
             header.setProperty("heading", "h3")
             card_layout.addWidget(header)
 
@@ -143,7 +152,7 @@ class LayoutsPage(DemoPage):
 
         # Sidebar items
         for i in range(5):
-            item = QPushButton(f"Menu Item {i+1}")
+            item = QPushButton(f"Menu Item {i + 1}")
             item.setProperty("variant", "ghost")
             sidebar_layout.addWidget(item)
 

@@ -5,13 +5,14 @@ from __future__ import annotations
 import sys
 from typing import TYPE_CHECKING, Any, override
 
-from PySide6.QtCore import QSettings, Signal, QtMsgType, qInstallMessageHandler
+from PySide6.QtCore import QSettings, Signal, qInstallMessageHandler
 from PySide6.QtGui import QGuiApplication, QPalette
 from PySide6.QtWidgets import QApplication
 
 from qtframework.core.context import Context
 from qtframework.themes import ThemeManager
 from qtframework.utils.logger import get_logger
+
 
 if TYPE_CHECKING:
     from qtframework.core.window import BaseWindow
@@ -20,6 +21,7 @@ logger = get_logger(__name__)
 
 
 _original_qt_message_handler = None
+
 
 def _qt_message_filter(mode, context, message):
     if message == "Could not parse application stylesheet":
@@ -141,8 +143,9 @@ class Application(QApplication):
         # Try to detect system theme using StyleHints (Qt 6.5+)
         try:
             style_hints = QGuiApplication.styleHints()
-            if hasattr(style_hints, 'colorScheme'):
+            if hasattr(style_hints, "colorScheme"):
                 from PySide6.QtCore import Qt
+
                 if style_hints.colorScheme() == Qt.ColorScheme.Dark:
                     logger.info("OS dark mode detected via styleHints")
                     return "dark"
@@ -153,9 +156,9 @@ class Application(QApplication):
         palette = QGuiApplication.palette()
         window_color = palette.color(QPalette.ColorRole.Window)
         # Calculate luminance
-        luminance = (0.299 * window_color.red() +
-                    0.587 * window_color.green() +
-                    0.114 * window_color.blue()) / 255
+        luminance = (
+            0.299 * window_color.red() + 0.587 * window_color.green() + 0.114 * window_color.blue()
+        ) / 255
 
         if luminance < 0.5:
             logger.info("Dark theme detected via palette luminance")

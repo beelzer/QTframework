@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from qtframework.state.actions import Action, AsyncAction
 from qtframework.utils.logger import get_logger
+
 
 logger = get_logger(__name__)
 

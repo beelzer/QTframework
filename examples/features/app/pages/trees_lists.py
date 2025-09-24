@@ -2,8 +2,9 @@
 Trees and lists demonstration page.
 """
 
-from PySide6.QtWidgets import (QHBoxLayout, QListWidget, QTreeWidget,
-                               QTreeWidgetItem, QWidget)
+from __future__ import annotations
+
+from PySide6.QtWidgets import QHBoxLayout, QListWidget, QTreeWidget, QTreeWidgetItem, QWidget
 
 from .base import DemoPage
 
@@ -84,7 +85,7 @@ class TreesListsPage(DemoPage):
             "💾 Database.db",
             "⚙️ Settings.ini",
             "🔒 Secure.key",
-            "📈 Report.csv"
+            "📈 Report.csv",
         ]
 
         list_widget.addItems(items)

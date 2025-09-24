@@ -42,6 +42,7 @@ class JsonProvider(FileProvider):
     def load(self) -> dict[str, Any]:
         """Load from JSON."""
         import json
+
         try:
             with open(self.path, encoding="utf-8") as f:
                 return json.load(f)
@@ -56,6 +57,7 @@ class YamlProvider(FileProvider):
         """Load from YAML."""
         try:
             import yaml
+
             with open(self.path, encoding="utf-8") as f:
                 return yaml.safe_load(f)
         except:
@@ -72,6 +74,7 @@ class EnvProvider(ConfigProvider):
     def load(self) -> dict[str, Any]:
         """Load from environment."""
         import os
+
         data = {}
         for key, value in os.environ.items():
             if self.prefix and not key.startswith(self.prefix):

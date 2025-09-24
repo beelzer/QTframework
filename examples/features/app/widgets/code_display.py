@@ -2,9 +2,10 @@
 Code display widget with syntax highlighting.
 """
 
-from PySide6.QtCore import QRegularExpression, Qt
-from PySide6.QtGui import (QColor, QFont, QPalette, QSyntaxHighlighter,
-                           QTextCharFormat)
+from __future__ import annotations
+
+from PySide6.QtCore import QRegularExpression
+from PySide6.QtGui import QColor, QFont, QPalette, QSyntaxHighlighter, QTextCharFormat
 from PySide6.QtWidgets import QApplication, QTextEdit
 
 
@@ -32,26 +33,28 @@ class PythonHighlighter(QSyntaxHighlighter):
         # Try to get colors from the theme manager
         try:
             # Import here to avoid circular imports
-            import sys
-            from pathlib import Path
 
             # Try to access the theme manager from the main window
             app = QApplication.instance()
             if app:
                 for widget in app.topLevelWidgets():
-                    if hasattr(widget, 'theme_manager'):
+                    if hasattr(widget, "theme_manager"):
                         current_theme = widget.theme_manager.get_current_theme()
-                        if current_theme and hasattr(current_theme, 'tokens') and hasattr(current_theme.tokens, 'syntax'):
+                        if (
+                            current_theme
+                            and hasattr(current_theme, "tokens")
+                            and hasattr(current_theme.tokens, "syntax")
+                        ):
                             syntax = current_theme.tokens.syntax
                             return {
-                                'keyword': syntax.keyword,
-                                'class': syntax.class_name,
-                                'function': syntax.function,
-                                'string': syntax.string,
-                                'comment': syntax.comment,
-                                'number': syntax.number,
-                                'operator': syntax.operator,
-                                'decorator': syntax.decorator,
+                                "keyword": syntax.keyword,
+                                "class": syntax.class_name,
+                                "function": syntax.function,
+                                "string": syntax.string,
+                                "comment": syntax.comment,
+                                "number": syntax.number,
+                                "operator": syntax.operator,
+                                "decorator": syntax.decorator,
                             }
         except:
             pass
@@ -59,49 +62,77 @@ class PythonHighlighter(QSyntaxHighlighter):
         # Fallback to default colors based on theme detection
         if self._is_dark_theme():
             return {
-                'keyword': "#569CD6",
-                'class': "#4EC9B0",
-                'function': "#DCDCAA",
-                'string': "#CE9178",
-                'comment': "#6A9955",
-                'number': "#B5CEA8",
-                'operator': "#D4D4D4",
-                'decorator': "#DCDCAA",
+                "keyword": "#569CD6",
+                "class": "#4EC9B0",
+                "function": "#DCDCAA",
+                "string": "#CE9178",
+                "comment": "#6A9955",
+                "number": "#B5CEA8",
+                "operator": "#D4D4D4",
+                "decorator": "#DCDCAA",
             }
-        else:
-            return {
-                'keyword': "#0000FF",
-                'class': "#267F99",
-                'function': "#795E26",
-                'string': "#A31515",
-                'comment': "#008000",
-                'number': "#098658",
-                'operator': "#000000",
-                'decorator': "#AA0000",
-            }
+        return {
+            "keyword": "#0000FF",
+            "class": "#267F99",
+            "function": "#795E26",
+            "string": "#A31515",
+            "comment": "#008000",
+            "number": "#098658",
+            "operator": "#000000",
+            "decorator": "#AA0000",
+        }
 
     def _setup_rules(self):
         """Set up highlighting rules with theme-aware colors."""
         # Get colors from theme or defaults
         colors = self._get_theme_syntax_colors()
 
-        keyword_color = colors['keyword']
-        class_color = colors['class']
-        function_color = colors['function']
-        string_color = colors['string']
-        comment_color = colors['comment']
-        number_color = colors['number']
+        keyword_color = colors["keyword"]
+        class_color = colors["class"]
+        function_color = colors["function"]
+        string_color = colors["string"]
+        comment_color = colors["comment"]
+        number_color = colors["number"]
 
         # Keywords
         keyword_format = QTextCharFormat()
         keyword_format.setForeground(QColor(keyword_color))
         keyword_format.setFontWeight(QFont.Bold)
         keywords = [
-            "and", "as", "assert", "break", "class", "continue", "def",
-            "del", "elif", "else", "except", "False", "finally", "for",
-            "from", "global", "if", "import", "in", "is", "lambda",
-            "None", "nonlocal", "not", "or", "pass", "raise", "return",
-            "True", "try", "while", "with", "yield", "self"
+            "and",
+            "as",
+            "assert",
+            "break",
+            "class",
+            "continue",
+            "def",
+            "del",
+            "elif",
+            "else",
+            "except",
+            "False",
+            "finally",
+            "for",
+            "from",
+            "global",
+            "if",
+            "import",
+            "in",
+            "is",
+            "lambda",
+            "None",
+            "nonlocal",
+            "not",
+            "or",
+            "pass",
+            "raise",
+            "return",
+            "True",
+            "try",
+            "while",
+            "with",
+            "yield",
+            "self",
         ]
         for word in keywords:
             pattern = QRegularExpression(f"\\b{word}\\b")
@@ -111,13 +142,10 @@ class PythonHighlighter(QSyntaxHighlighter):
         class_format = QTextCharFormat()
         class_format.setForeground(QColor(class_color))
         class_format.setFontWeight(QFont.Bold)
-        self.highlighting_rules.append((
-            QRegularExpression("\\bQ[A-Za-z]+\\b"),
-            class_format
-        ))
+        self.highlighting_rules.append((QRegularExpression("\\bQ[A-Za-z]+\\b"), class_format))
         self.highlighting_rules.append((
             QRegularExpression("\\b[A-Z][A-Za-z0-9_]+\\b"),
-            class_format
+            class_format,
         ))
 
         # Functions
@@ -125,7 +153,7 @@ class PythonHighlighter(QSyntaxHighlighter):
         function_format.setForeground(QColor(function_color))
         self.highlighting_rules.append((
             QRegularExpression("\\b[A-Za-z0-9_]+(?=\\()"),
-            function_format
+            function_format,
         ))
 
         # Strings
@@ -134,29 +162,26 @@ class PythonHighlighter(QSyntaxHighlighter):
         # Single quotes
         self.highlighting_rules.append((
             QRegularExpression("'[^'\\\\]*(\\\\.[^'\\\\]*)*'"),
-            string_format
+            string_format,
         ))
         # Double quotes
         self.highlighting_rules.append((
             QRegularExpression('"[^"\\\\]*(\\\\.[^"\\\\]*)*"'),
-            string_format
+            string_format,
         ))
 
         # Comments
         comment_format = QTextCharFormat()
         comment_format.setForeground(QColor(comment_color))
         comment_format.setFontItalic(True)
-        self.highlighting_rules.append((
-            QRegularExpression("#[^\n]*"),
-            comment_format
-        ))
+        self.highlighting_rules.append((QRegularExpression("#[^\n]*"), comment_format))
 
         # Numbers
         number_format = QTextCharFormat()
         number_format.setForeground(QColor(number_color))
         self.highlighting_rules.append((
             QRegularExpression("\\b[0-9]+\\.?[0-9]*\\b"),
-            number_format
+            number_format,
         ))
 
     def highlightBlock(self, text):
@@ -202,14 +227,14 @@ class CodeDisplay(QTextEdit):
             app = QApplication.instance()
             if app:
                 for widget in app.topLevelWidgets():
-                    if hasattr(widget, 'theme_manager'):
+                    if hasattr(widget, "theme_manager"):
                         current_theme = widget.theme_manager.get_current_theme()
-                        if current_theme and hasattr(current_theme, 'tokens'):
-                            if hasattr(current_theme.tokens, 'typography'):
+                        if current_theme and hasattr(current_theme, "tokens"):
+                            if hasattr(current_theme.tokens, "typography"):
                                 typography = current_theme.tokens.typography
-                                if hasattr(typography, 'font_family_code'):
+                                if hasattr(typography, "font_family_code"):
                                     font_name = typography.font_family_code
-                                if hasattr(typography, 'font_size_sm'):
+                                if hasattr(typography, "font_size_sm"):
                                     font_size = typography.font_size_sm
                             break
         except:
@@ -248,7 +273,7 @@ class CodeDisplay(QTextEdit):
     def update_theme(self):
         """Update the highlighter and font when theme changes."""
         # Update syntax colors
-        if hasattr(self, 'highlighter'):
+        if hasattr(self, "highlighter"):
             self.highlighter.rehighlight_with_theme()
 
         # Update font from theme

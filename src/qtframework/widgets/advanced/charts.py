@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import math
 from enum import Enum
-from typing import Any
 
 from PySide6.QtCore import QPointF, QRectF, Qt
-from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen, QPaintEvent
+from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPaintEvent, QPen
 from PySide6.QtWidgets import QApplication, QWidget
 
 
@@ -70,28 +69,27 @@ class ChartWidget(QWidget):
         colors = self.get_data_colors()
         return colors[index % len(colors)]
 
-
     def get_theme_colors(self) -> dict:
         """Get colors from the current theme."""
         # Get theme from application
         app = QApplication.instance()
-        if hasattr(app, 'theme_manager'):
+        if hasattr(app, "theme_manager"):
             theme = app.theme_manager.get_theme()
             if theme and theme.colors:
                 colors = theme.colors
                 return {
-                    'background': QColor(colors.background),
-                    'text': QColor(colors.text_primary),
-                    'grid': QColor(colors.chart_grid),
-                    'axis': QColor(colors.chart_axis),
+                    "background": QColor(colors.background),
+                    "text": QColor(colors.text_primary),
+                    "grid": QColor(colors.chart_grid),
+                    "axis": QColor(colors.chart_axis),
                 }
 
         # Fallback to defaults
         return {
-            'background': QColor("#f8f9fa"),
-            'text': QColor("#2c3e50"),
-            'grid': QColor("#e0e0e0"),
-            'axis': QColor("#2c3e50"),
+            "background": QColor("#f8f9fa"),
+            "text": QColor("#2c3e50"),
+            "grid": QColor("#e0e0e0"),
+            "axis": QColor("#2c3e50"),
         }
 
     def get_data_colors(self) -> list[QColor]:
@@ -102,7 +100,7 @@ class ChartWidget(QWidget):
 
         # Get theme from application
         app = QApplication.instance()
-        if hasattr(app, 'theme_manager'):
+        if hasattr(app, "theme_manager"):
             theme = app.theme_manager.get_theme()
             if theme and theme.colors:
                 colors = theme.colors
@@ -148,13 +146,13 @@ class LineChart(ChartWidget):
         theme_colors = self.get_theme_colors()
 
         # Draw background
-        painter.fillRect(0, 0, width, height, theme_colors['background'])
+        painter.fillRect(0, 0, width, height, theme_colors["background"])
 
         # Draw title
         if self._title:
             font = QFont("Arial", 12, QFont.Weight.Bold)
             painter.setFont(font)
-            painter.setPen(QPen(theme_colors['text'], 2))
+            painter.setPen(QPen(theme_colors["text"], 2))
             painter.drawText(0, 0, width, 30, Qt.AlignmentFlag.AlignCenter, self._title)
 
         if not self._data:
@@ -175,7 +173,7 @@ class LineChart(ChartWidget):
 
         # Draw grid
         if self._show_grid:
-            painter.setPen(QPen(theme_colors['grid'], 1))
+            painter.setPen(QPen(theme_colors["grid"], 1))
             # Horizontal grid lines
             for i in range(5):
                 y = chart_top + (chart_height * i / 4)
@@ -186,7 +184,7 @@ class LineChart(ChartWidget):
                 painter.drawLine(int(x), chart_top, int(x), chart_bottom)
 
         # Draw axes
-        painter.setPen(QPen(theme_colors['axis'], 2))
+        painter.setPen(QPen(theme_colors["axis"], 2))
         painter.drawLine(chart_left, chart_top, chart_left, chart_bottom)  # Y-axis
         painter.drawLine(chart_left, chart_bottom, chart_right, chart_bottom)  # X-axis
 
@@ -212,22 +210,20 @@ class LineChart(ChartWidget):
         if self._labels:
             font = QFont("Arial", 8)
             painter.setFont(font)
-            painter.setPen(QPen(theme_colors['text'], 1))
-            for i, label in enumerate(self._labels[:len(self._data)]):
+            painter.setPen(QPen(theme_colors["text"], 1))
+            for i, label in enumerate(self._labels[: len(self._data)]):
                 x = chart_left + (chart_width * i / max(1, len(self._data) - 1))
                 painter.drawText(
-                    int(x - 20), chart_bottom + 5, 40, 20,
-                    Qt.AlignmentFlag.AlignCenter, label
+                    int(x - 20), chart_bottom + 5, 40, 20, Qt.AlignmentFlag.AlignCenter, label
                 )
 
         # Draw value labels on Y-axis
-        painter.setPen(QPen(theme_colors['text'], 1))
+        painter.setPen(QPen(theme_colors["text"], 1))
         for i in range(5):
             y = chart_top + (chart_height * i / 4)
             value = max_val - (value_range * i / 4)
             painter.drawText(
-                5, int(y - 10), chart_left - 10, 20,
-                Qt.AlignmentFlag.AlignRight, f"{value:.1f}"
+                5, int(y - 10), chart_left - 10, 20, Qt.AlignmentFlag.AlignRight, f"{value:.1f}"
             )
 
 
@@ -252,13 +248,13 @@ class BarChart(ChartWidget):
         theme_colors = self.get_theme_colors()
 
         # Draw background
-        painter.fillRect(0, 0, width, height, theme_colors['background'])
+        painter.fillRect(0, 0, width, height, theme_colors["background"])
 
         # Draw title
         if self._title:
             font = QFont("Arial", 12, QFont.Weight.Bold)
             painter.setFont(font)
-            painter.setPen(QPen(theme_colors['text'], 2))
+            painter.setPen(QPen(theme_colors["text"], 2))
             painter.drawText(0, 0, width, 30, Qt.AlignmentFlag.AlignCenter, self._title)
 
         if not self._data:
@@ -277,14 +273,14 @@ class BarChart(ChartWidget):
 
         # Draw grid
         if self._show_grid:
-            painter.setPen(QPen(theme_colors['grid'], 1))
+            painter.setPen(QPen(theme_colors["grid"], 1))
             # Horizontal grid lines
             for i in range(5):
                 y = chart_top + (chart_height * i / 4)
                 painter.drawLine(chart_left, int(y), chart_right, int(y))
 
         # Draw axes
-        painter.setPen(QPen(theme_colors['axis'], 2))
+        painter.setPen(QPen(theme_colors["axis"], 2))
         painter.drawLine(chart_left, chart_top, chart_left, chart_bottom)  # Y-axis
         painter.drawLine(chart_left, chart_bottom, chart_right, chart_bottom)  # X-axis
 
@@ -300,40 +296,44 @@ class BarChart(ChartWidget):
 
                 # Draw bar
                 color = self.get_color(i)
-                painter.fillRect(
-                    QRectF(x, y, bar_width, bar_height),
-                    QBrush(color)
-                )
+                painter.fillRect(QRectF(x, y, bar_width, bar_height), QBrush(color))
 
                 # Draw value on top of bar
                 font = QFont("Arial", 9)
                 painter.setFont(font)
-                painter.setPen(QPen(theme_colors['text'], 1))
+                painter.setPen(QPen(theme_colors["text"], 1))
                 painter.drawText(
-                    int(x), int(y - 20), int(bar_width), 20,
-                    Qt.AlignmentFlag.AlignCenter, str(value)
+                    int(x),
+                    int(y - 20),
+                    int(bar_width),
+                    20,
+                    Qt.AlignmentFlag.AlignCenter,
+                    str(value),
                 )
 
                 # Draw label
                 if i < len(self._labels):
                     font = QFont("Arial", 8)
                     painter.setFont(font)
-                    painter.setPen(QPen(theme_colors['text'], 1))
+                    painter.setPen(QPen(theme_colors["text"], 1))
                     painter.drawText(
-                        int(x), chart_bottom + 5, int(bar_width), 30,
-                        Qt.AlignmentFlag.AlignCenter, self._labels[i]
+                        int(x),
+                        chart_bottom + 5,
+                        int(bar_width),
+                        30,
+                        Qt.AlignmentFlag.AlignCenter,
+                        self._labels[i],
                     )
 
         # Draw value labels on Y-axis
         font = QFont("Arial", 8)
         painter.setFont(font)
-        painter.setPen(QPen(theme_colors['text'], 1))
+        painter.setPen(QPen(theme_colors["text"], 1))
         for i in range(5):
             y = chart_top + (chart_height * i / 4)
             value = max_val - (max_val * i / 4)
             painter.drawText(
-                5, int(y - 10), chart_left - 10, 20,
-                Qt.AlignmentFlag.AlignRight, f"{value:.1f}"
+                5, int(y - 10), chart_left - 10, 20, Qt.AlignmentFlag.AlignRight, f"{value:.1f}"
             )
 
 
@@ -358,13 +358,13 @@ class PieChart(ChartWidget):
         theme_colors = self.get_theme_colors()
 
         # Draw background
-        painter.fillRect(0, 0, width, height, theme_colors['background'])
+        painter.fillRect(0, 0, width, height, theme_colors["background"])
 
         # Draw title
         if self._title:
             font = QFont("Arial", 12, QFont.Weight.Bold)
             painter.setFont(font)
-            painter.setPen(QPen(theme_colors['text'], 2))
+            painter.setPen(QPen(theme_colors["text"], 2))
             painter.drawText(0, 0, width, 30, Qt.AlignmentFlag.AlignCenter, self._title)
 
         if not self._data:
@@ -408,10 +408,14 @@ class PieChart(ChartWidget):
                 font = QFont("Arial", 9, QFont.Weight.Bold)
                 painter.setFont(font)
                 painter.setPen(QPen(Qt.GlobalColor.white, 1))
-                label_text = f"{percentage*100:.1f}%"
+                label_text = f"{percentage * 100:.1f}%"
                 painter.drawText(
-                    int(label_x - 30), int(label_y - 10), 60, 20,
-                    Qt.AlignmentFlag.AlignCenter, label_text
+                    int(label_x - 30),
+                    int(label_y - 10),
+                    60,
+                    20,
+                    Qt.AlignmentFlag.AlignCenter,
+                    label_text,
                 )
 
             start_angle += span_angle
@@ -423,24 +427,25 @@ class PieChart(ChartWidget):
             legend_x = x + size + 20
             legend_y = y + 20
 
-            for i, (label, value) in enumerate(zip(self._labels, self._data)):
+            for i, (label, value) in enumerate(zip(self._labels, self._data, strict=False)):
                 if i >= len(self._data):
                     break
 
                 # Draw color box
                 color = self.get_color(i)
-                painter.fillRect(
-                    QRectF(legend_x, legend_y + i * 25, 15, 15),
-                    QBrush(color)
-                )
+                painter.fillRect(QRectF(legend_x, legend_y + i * 25, 15, 15), QBrush(color))
 
                 # Draw label
-                painter.setPen(QPen(theme_colors['text'], 1))
+                painter.setPen(QPen(theme_colors["text"], 1))
                 percentage = value / total * 100
                 legend_text = f"{label}: {value} ({percentage:.1f}%)"
                 painter.drawText(
-                    int(legend_x + 20), int(legend_y + i * 25), 200, 20,
-                    Qt.AlignmentFlag.AlignVCenter, legend_text
+                    int(legend_x + 20),
+                    int(legend_y + i * 25),
+                    200,
+                    20,
+                    Qt.AlignmentFlag.AlignVCenter,
+                    legend_text,
                 )
 
 
@@ -471,13 +476,13 @@ class ScatterChart(ChartWidget):
         theme_colors = self.get_theme_colors()
 
         # Draw background
-        painter.fillRect(0, 0, width, height, theme_colors['background'])
+        painter.fillRect(0, 0, width, height, theme_colors["background"])
 
         # Draw title
         if self._title:
             font = QFont("Arial", 12, QFont.Weight.Bold)
             painter.setFont(font)
-            painter.setPen(QPen(theme_colors['text'], 2))
+            painter.setPen(QPen(theme_colors["text"], 2))
             painter.drawText(0, 0, width, 30, Qt.AlignmentFlag.AlignCenter, self._title)
 
         if not self._data_points:
@@ -501,7 +506,7 @@ class ScatterChart(ChartWidget):
 
         # Draw grid
         if self._show_grid:
-            painter.setPen(QPen(theme_colors['grid'], 1))
+            painter.setPen(QPen(theme_colors["grid"], 1))
             # Horizontal grid lines
             for i in range(5):
                 y = chart_top + (chart_height * i / 4)
@@ -512,7 +517,7 @@ class ScatterChart(ChartWidget):
                 painter.drawLine(int(x), chart_top, int(x), chart_bottom)
 
         # Draw axes
-        painter.setPen(QPen(theme_colors['axis'], 2))
+        painter.setPen(QPen(theme_colors["axis"], 2))
         painter.drawLine(chart_left, chart_top, chart_left, chart_bottom)  # Y-axis
         painter.drawLine(chart_left, chart_bottom, chart_right, chart_bottom)  # X-axis
 

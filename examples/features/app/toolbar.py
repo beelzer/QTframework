@@ -2,6 +2,8 @@
 Toolbar configuration for the showcase.
 """
 
+from __future__ import annotations
+
 from PySide6.QtWidgets import QToolBar
 
 

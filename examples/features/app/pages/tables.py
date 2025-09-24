@@ -2,8 +2,9 @@
 Tables demonstration page.
 """
 
-from PySide6.QtWidgets import (QLabel, QPushButton, QTableWidget,
-                               QTableWidgetItem, QVBoxLayout)
+from __future__ import annotations
+
+from PySide6.QtWidgets import QPushButton, QTableWidget, QTableWidgetItem
 
 from .base import DemoPage
 

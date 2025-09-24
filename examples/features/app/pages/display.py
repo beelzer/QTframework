@@ -2,8 +2,9 @@
 Display elements demonstration page.
 """
 
-from PySide6.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QProgressBar,
-                               QVBoxLayout)
+from __future__ import annotations
+
+from PySide6.QtWidgets import QGroupBox, QHBoxLayout, QLabel, QProgressBar, QVBoxLayout
 
 from .base import DemoPage
 
@@ -77,7 +78,7 @@ class DisplayPage(DemoPage):
             ("Success", "success"),
             ("Warning", "warning"),
             ("Danger", "danger"),
-            ("Info", "info")
+            ("Info", "info"),
         ]
 
         for text, variant in badges:

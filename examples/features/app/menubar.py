@@ -2,6 +2,8 @@
 Menu bar configuration for the showcase.
 """
 
+from __future__ import annotations
+
 from PySide6.QtGui import QAction, QActionGroup
 from PySide6.QtWidgets import QMessageBox
 
@@ -142,5 +144,5 @@ def _show_about(window):
         "Qt Framework Showcase v1.0.0\n\n"
         "A comprehensive demonstration application showcasing "
         "all features and capabilities of our Qt Framework.\n\n"
-        "Built with PySide6 and modern design principles."
+        "Built with PySide6 and modern design principles.",
     )

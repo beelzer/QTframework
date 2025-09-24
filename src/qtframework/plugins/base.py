@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from PySide6.QtCore import QObject, Signal
+
 
 if TYPE_CHECKING:
     from qtframework.core.application import Application
@@ -130,7 +132,6 @@ class Plugin(QObject):
 
     def cleanup(self) -> None:
         """Clean up plugin resources."""
-        pass
 
     def get_settings(self) -> dict[str, Any]:
         """Get plugin settings.
@@ -155,7 +156,6 @@ class Plugin(QObject):
         Args:
             settings: New settings
         """
-        pass
 
     def register_hook(self, hook_name: str, callback: Callable) -> None:
         """Register a hook callback.

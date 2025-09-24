@@ -5,12 +5,14 @@ A comprehensive, enterprise-grade Qt application framework for Python with advan
 ## 🚀 Core Features
 
 ### Foundation
+
 - **Modular Architecture**: Clean separation of concerns with dedicated modules
 - **Advanced Theming**: Built-in theme manager with runtime switching
 - **Type Safety**: Full type hints and mypy strict mode support
 - **Modern Python**: Built for Python 3.13+ with latest best practices
 
 ### Advanced Capabilities
+
 - **🔌 Plugin System**: Extensible plugin architecture for modular features
 - **📊 State Management**: Redux-like state management with middleware support
 - **🔔 Notifications**: Toast-style notification system with animations
@@ -117,11 +119,13 @@ pytest
 ## Components
 
 ### Core Components
+
 - `Application`: Enhanced QApplication with context and theme management
 - `BaseWindow`: Base window class with framework integration
 - `Context`: Application-wide state management
 
 ### State Management
+
 ```python
 from qtframework.state import Store, Action, combine_reducers
 
@@ -136,6 +140,7 @@ store.subscribe(lambda state: print(state))
 ```
 
 ### Plugin System
+
 ```python
 from qtframework.plugins import Plugin, PluginManager
 
@@ -149,6 +154,7 @@ manager.load_plugin("my_plugin")
 ```
 
 ### Navigation/Routing
+
 ```python
 from qtframework.navigation import Router, Route
 
@@ -162,6 +168,7 @@ router.navigate_by_name("home")
 ```
 
 ### Notification System
+
 ```python
 from qtframework.widgets.advanced.notifications import NotificationManager
 
@@ -171,6 +178,7 @@ notifications.error("Error", "Something went wrong")
 ```
 
 ### Configuration Management
+
 ```python
 from qtframework.config import Config, ConfigManager
 
@@ -181,11 +189,13 @@ config.watch("app.theme", lambda v: print(f"Theme changed: {v}"))
 ```
 
 ### Widgets
+
 - **Basic**: Button, Input, PasswordInput, SearchInput, TextArea, Card
 - **Advanced**: DataTable, TreeTable, Charts, Dialogs, Notifications
 - **Layouts**: FlexLayout, GridLayout, SidebarLayout, CardLayout
 
 ### Themes
+
 - Built-in light and dark themes
 - Theme manager for runtime switching
 - JSON-based custom theme support

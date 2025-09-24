@@ -3,74 +3,63 @@
 from __future__ import annotations
 
 import sys
-import random
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QFont
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QCheckBox,
     QComboBox,
+    QFormLayout,
+    QGroupBox,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QListWidget,
     QMessageBox,
-    QTextEdit,
-    QWidget,
-    QVBoxLayout,
     QScrollArea,
-    QSpinBox,
-    QCheckBox,
-    QPushButton,
-    QGroupBox,
-    QTabWidget,
-    QFormLayout,
     QSlider,
-    QDoubleSpinBox,
-    QLineEdit,
-    QGridLayout,
-    QFrame,
+    QSpinBox,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
 )
-
 from shiboken6 import isValid
+
 from qtframework import Application, BaseWindow
+from qtframework.config import ConfigManager
 from qtframework.layouts import Card, FlexLayout, SidebarLayout
-from qtframework.layouts.sidebar import SidebarPosition
 from qtframework.layouts.base import Direction
+from qtframework.layouts.sidebar import SidebarPosition
+from qtframework.navigation import Route, Router
+from qtframework.plugins import PluginManager
+from qtframework.state import Action, Store
+from qtframework.utils.logger import get_logger
 from qtframework.widgets import (
     Button,
-    IconButton,
     Input,
     PasswordInput,
     SearchInput,
     TextArea,
     ToggleButton,
 )
-from qtframework.widgets.buttons import ButtonSize, ButtonVariant
 from qtframework.widgets.advanced import (
-    LineChart,
     BarChart,
-    PieChart,
-    DataTable,
-    TreeTable,
-    NotificationManager,
-    Notification,
-    InputDialog,
-    ConfirmDialog,
-    ProgressDialog,
-    FormDialog,
-    TabWidget,
     BaseTabPage,
+    ConfirmDialog,
+    DataTable,
+    LineChart,
+    NotificationManager,
+    PieChart,
+    TabWidget,
+    TreeTable,
 )
 from qtframework.widgets.advanced.notifications import NotificationType
-from qtframework.state import Store, Action
-from qtframework.navigation import Router, Navigator, Route
-from qtframework.config import ConfigManager
-from qtframework.plugins import PluginManager
-from qtframework.utils.logger import get_logger
+from qtframework.widgets.buttons import ButtonSize, ButtonVariant
+
 
 logger = get_logger(__name__)
 
@@ -111,13 +100,9 @@ class ApplicationConfigTab(BaseTabPage):
         """Connect application settings signals."""
         for key, control in self._controls.items():
             if isinstance(control, QLineEdit):
-                control.textChanged.connect(
-                    lambda text, k=key: self.value_changed.emit(k, text)
-                )
+                control.textChanged.connect(lambda text, k=key: self.value_changed.emit(k, text))
             elif isinstance(control, QCheckBox):
-                control.toggled.connect(
-                    lambda checked, k=key: self.value_changed.emit(k, checked)
-                )
+                control.toggled.connect(lambda checked, k=key: self.value_changed.emit(k, checked))
 
 
 class UIConfigTab(BaseTabPage):
@@ -156,9 +141,7 @@ class UIConfigTab(BaseTabPage):
                     lambda text, k=key: self.value_changed.emit(k, text)
                 )
             elif isinstance(control, QSpinBox):
-                control.valueChanged.connect(
-                    lambda value, k=key: self.value_changed.emit(k, value)
-                )
+                control.valueChanged.connect(lambda value, k=key: self.value_changed.emit(k, value))
 
 
 class FeaturesConfigTab(BaseTabPage):
@@ -193,9 +176,7 @@ class FeaturesConfigTab(BaseTabPage):
         """Connect feature settings signals."""
         for key, control in self._controls.items():
             if isinstance(control, QCheckBox):
-                control.toggled.connect(
-                    lambda checked, k=key: self.value_changed.emit(k, checked)
-                )
+                control.toggled.connect(lambda checked, k=key: self.value_changed.emit(k, checked))
 
 
 class DemoWindow(BaseWindow):
@@ -343,12 +324,16 @@ class DemoWindow(BaseWindow):
             Route(path="/tables", component=create_tables_widget, name="tables"),
             Route(
                 path="/state",
-                component=lambda: QLabel("<h2>State Management Page</h2>\nRedux-style state management with actions and reducers"),
+                component=lambda: QLabel(
+                    "<h2>State Management Page</h2>\nRedux-style state management with actions and reducers"
+                ),
                 name="state",
             ),
             Route(
                 path="/config",
-                component=lambda: QLabel("<h2>Configuration Page</h2>\nFlexible configuration management system"),
+                component=lambda: QLabel(
+                    "<h2>Configuration Page</h2>\nFlexible configuration management system"
+                ),
                 name="config",
             ),
         ]
@@ -370,7 +355,8 @@ class DemoWindow(BaseWindow):
         if defaults_path.exists():
             try:
                 import json
-                with open(defaults_path, "r", encoding="utf-8") as f:
+
+                with open(defaults_path, encoding="utf-8") as f:
                     defaults = json.load(f)
                 logger.info(f"Loaded defaults from: {defaults_path}")
             except Exception as exc:
@@ -383,7 +369,7 @@ class DemoWindow(BaseWindow):
                     "name": "Qt Framework Complete Demo",
                     "version": "1.0.0",
                     "debug": False,
-                    "organization": "Qt Framework Team"
+                    "organization": "Qt Framework Team",
                 },
                 "ui": {
                     "theme": "monokai",
@@ -393,12 +379,9 @@ class DemoWindow(BaseWindow):
                         "width": 1400,
                         "height": 900,
                         "remember_size": True,
-                        "center_on_startup": True
+                        "center_on_startup": True,
                     },
-                    "animations": {
-                        "enabled": True,
-                        "duration": 250
-                    }
+                    "animations": {"enabled": True, "duration": 250},
                 },
                 "features": {
                     "charts": True,
@@ -409,20 +392,20 @@ class DemoWindow(BaseWindow):
                     "plugins": True,
                     "themes": True,
                     "auto_save": True,
-                    "developer_mode": False
+                    "developer_mode": False,
                 },
                 "performance": {
                     "cache_size": 100,
                     "max_threads": 4,
                     "lazy_loading": True,
-                    "prefetch_data": False
+                    "prefetch_data": False,
                 },
                 "demo": {
                     "show_welcome": True,
                     "sample_data_size": 1000,
                     "enable_tooltips": True,
-                    "highlight_new_features": True
-                }
+                    "highlight_new_features": True,
+                },
             }
             logger.info("Using embedded defaults for configuration")
 
@@ -599,7 +582,10 @@ class DemoWindow(BaseWindow):
         line_chart.set_title("Monthly Sales Trend (2024)")
         # Realistic sales data with growth trend
         sales_data = [120, 135, 158, 142, 189, 234, 267, 298, 312, 345, 389, 421]
-        line_chart.set_data(sales_data, ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
+        line_chart.set_data(
+            sales_data,
+            ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        )
         line_chart.set_show_grid(True)  # Enable grid
         line_chart.setMinimumSize(350, 250)
         charts_layout.addWidget(line_chart)
@@ -608,7 +594,9 @@ class DemoWindow(BaseWindow):
         bar_chart = BarChart()
         bar_chart.set_title("Product Sales Q4 2024")
         product_sales = [1250, 985, 743, 612, 498]
-        bar_chart.set_data(product_sales, ["Laptops", "Tablets", "Phones", "Accessories", "Software"])
+        bar_chart.set_data(
+            product_sales, ["Laptops", "Tablets", "Phones", "Accessories", "Software"]
+        )
         bar_chart.set_show_grid(True)  # Enable grid
         bar_chart.setMinimumSize(350, 250)
         charts_layout.addWidget(bar_chart)
@@ -654,10 +642,20 @@ class DemoWindow(BaseWindow):
 
         # Connect demonstration signals
         data_table.row_selected.connect(lambda row: logger.debug(f"Selected employee at row {row}"))
-        data_table.cell_edited.connect(lambda row, col, text: logger.debug(f"Cell edited: Row {row}, Col {col}, New value: {text}"))
-        data_table.row_double_clicked.connect(lambda row: logger.debug(f"Double-clicked employee at row {row}"))
+        data_table.cell_edited.connect(
+            lambda row, col, text: logger.debug(
+                f"Cell edited: Row {row}, Col {col}, New value: {text}"
+            )
+        )
+        data_table.row_double_clicked.connect(
+            lambda row: logger.debug(f"Double-clicked employee at row {row}")
+        )
 
-        tables_card.add_widget(QLabel("Enhanced DataTable with Search/Filter (Try searching 'Engineering' or filtering by department):"))
+        tables_card.add_widget(
+            QLabel(
+                "Enhanced DataTable with Search/Filter (Try searching 'Engineering' or filtering by department):"
+            )
+        )
         tables_card.add_widget(data_table)
 
         # Enhanced Tree table with file browser structure
@@ -674,7 +672,9 @@ class DemoWindow(BaseWindow):
         tree_table.add_item(src_folder, ["config.py", "Python File", "2.1 KB", "2024-01-10"])
 
         # Components subfolder
-        components_folder = tree_table.add_item(src_folder, ["components", "Folder", "-", "2024-01-12"])
+        components_folder = tree_table.add_item(
+            src_folder, ["components", "Folder", "-", "2024-01-12"]
+        )
         tree_table.add_item(components_folder, ["button.py", "Python File", "5.2 KB", "2024-01-12"])
         tree_table.add_item(components_folder, ["input.py", "Python File", "7.8 KB", "2024-01-11"])
         tree_table.add_item(components_folder, ["chart.py", "Python File", "15.4 KB", "2024-01-12"])
@@ -706,9 +706,15 @@ class DemoWindow(BaseWindow):
         # Connect demonstration signals
         tree_table.item_selected.connect(lambda item: logger.debug(f"Selected tree item: {item}"))
         tree_table.item_expanded.connect(lambda item: logger.debug(f"Expanded tree item: {item}"))
-        tree_table.item_double_clicked.connect(lambda item: logger.debug(f"Double-clicked tree item: {item}"))
+        tree_table.item_double_clicked.connect(
+            lambda item: logger.debug(f"Double-clicked tree item: {item}")
+        )
 
-        tables_card.add_widget(QLabel("Enhanced TreeTable with Search & Expand/Collapse (Try searching 'test' or 'docs'):"))
+        tables_card.add_widget(
+            QLabel(
+                "Enhanced TreeTable with Search & Expand/Collapse (Try searching 'test' or 'docs'):"
+            )
+        )
         tables_card.add_widget(tree_table)
 
         self.content_layout.addWidget(tables_card)
@@ -791,7 +797,9 @@ class DemoWindow(BaseWindow):
 
         nav_card = Card(title="Router Navigation", elevated=True)
 
-        nav_info = QLabel("The framework includes a router for navigation between different views/pages.")
+        nav_info = QLabel(
+            "The framework includes a router for navigation between different views/pages."
+        )
         nav_info.setWordWrap(True)
         nav_card.add_widget(nav_info)
 
@@ -817,7 +825,9 @@ class DemoWindow(BaseWindow):
         self.route_content = QLabel("Navigate to a route to see its component")
         self.route_content.setWordWrap(True)
         self.route_content.setMinimumHeight(100)
-        self.route_content.setStyleSheet("QLabel { background-color: palette(base); padding: 10px; }")
+        self.route_content.setStyleSheet(
+            "QLabel { background-color: palette(base); padding: 10px; }"
+        )
         route_display_layout.addWidget(self.route_content)
         self.route_display.setLayout(route_display_layout)
         nav_card.add_widget(self.route_display)
@@ -854,7 +864,9 @@ class DemoWindow(BaseWindow):
 
         config_card = Card(title="Configuration System", elevated=True)
 
-        info = QLabel("The framework includes a flexible configuration management system with multiple providers and schema versioning.")
+        info = QLabel(
+            "The framework includes a flexible configuration management system with multiple providers and schema versioning."
+        )
         info.setWordWrap(True)
         config_card.add_widget(info)
 
@@ -963,7 +975,11 @@ class DemoWindow(BaseWindow):
         self.app_tab.value_changed.connect(self._on_config_value_changed)
         self.ui_tab.value_changed.connect(self._on_config_value_changed)
         self.features_tab.value_changed.connect(self._on_config_value_changed)
-        self._config_tab_pages = [("app", self.app_tab), ("ui", self.ui_tab), ("features", self.features_tab)]
+        self._config_tab_pages = [
+            ("app", self.app_tab),
+            ("ui", self.ui_tab),
+            ("features", self.features_tab),
+        ]
 
         # Add tabs to widget
         self.config_tabs.add_tab(self.app_tab, "Application")
@@ -999,13 +1015,12 @@ class DemoWindow(BaseWindow):
         """Handle configuration value changes from tabs."""
         try:
             self.config_manager.set(key, value)
-            if key in ('ui.theme', 'ui.font_size'):
+            if key in ("ui.theme", "ui.font_size"):
                 self._apply_runtime_config()
-            if hasattr(self, 'config_viewer'):
+            if hasattr(self, "config_viewer"):
                 self._update_config_viewer()
         except Exception as exc:
             logger.warning(f"Failed to update configuration for {key}: {exc}")
-
 
     def _filter_config(self, config_data: dict[str, Any], prefix: str) -> dict[str, Any]:
         """Filter configuration data by prefix.
@@ -1018,11 +1033,7 @@ class DemoWindow(BaseWindow):
             Dictionary with only keys matching the prefix
         """
         flat_data = self._flatten_dict(config_data)
-        return {
-            key: value
-            for key, value in flat_data.items()
-            if key.startswith(f"{prefix}.")
-        }
+        return {key: value for key, value in flat_data.items() if key.startswith(f"{prefix}.")}
 
     def _show_plugins(self) -> None:
         """Show plugin system section."""
@@ -1030,7 +1041,9 @@ class DemoWindow(BaseWindow):
 
         plugin_card = Card(title="Extensible Plugin Architecture", elevated=True)
 
-        info = QLabel("The framework supports a plugin system for extending functionality. Plugins can hook into the application lifecycle and add new features.")
+        info = QLabel(
+            "The framework supports a plugin system for extending functionality. Plugins can hook into the application lifecycle and add new features."
+        )
         info.setWordWrap(True)
         plugin_card.add_widget(info)
 
@@ -1078,7 +1091,9 @@ class DemoWindow(BaseWindow):
 
         notif_card = Card(title="Toast Notifications", elevated=True)
 
-        info = QLabel("The framework includes a notification system for displaying toast messages to users.")
+        info = QLabel(
+            "The framework includes a notification system for displaying toast messages to users."
+        )
         info.setWordWrap(True)
         notif_card.add_widget(info)
 
@@ -1087,27 +1102,35 @@ class DemoWindow(BaseWindow):
         types_layout = QVBoxLayout()
 
         info_btn = Button("Show Info", variant=ButtonVariant.PRIMARY)
-        info_btn.clicked.connect(lambda: self.notification_manager.notify(
-            "Information", "This is an informational message", NotificationType.INFO
-        ))
+        info_btn.clicked.connect(
+            lambda: self.notification_manager.notify(
+                "Information", "This is an informational message", NotificationType.INFO
+            )
+        )
         types_layout.addWidget(info_btn)
 
         success_btn = Button("Show Success", variant=ButtonVariant.SUCCESS)
-        success_btn.clicked.connect(lambda: self.notification_manager.notify(
-            "Success!", "Operation completed successfully", NotificationType.SUCCESS
-        ))
+        success_btn.clicked.connect(
+            lambda: self.notification_manager.notify(
+                "Success!", "Operation completed successfully", NotificationType.SUCCESS
+            )
+        )
         types_layout.addWidget(success_btn)
 
         warning_btn = Button("Show Warning", variant=ButtonVariant.WARNING)
-        warning_btn.clicked.connect(lambda: self.notification_manager.notify(
-            "Warning", "Please review this important information", NotificationType.WARNING
-        ))
+        warning_btn.clicked.connect(
+            lambda: self.notification_manager.notify(
+                "Warning", "Please review this important information", NotificationType.WARNING
+            )
+        )
         types_layout.addWidget(warning_btn)
 
         error_btn = Button("Show Error", variant=ButtonVariant.DANGER)
-        error_btn.clicked.connect(lambda: self.notification_manager.notify(
-            "Error", "An error occurred during operation", NotificationType.ERROR
-        ))
+        error_btn.clicked.connect(
+            lambda: self.notification_manager.notify(
+                "Error", "An error occurred during operation", NotificationType.ERROR
+            )
+        )
         types_layout.addWidget(error_btn)
 
         types_group.setLayout(types_layout)
@@ -1132,12 +1155,14 @@ class DemoWindow(BaseWindow):
         duration_layout.addStretch()
 
         custom_btn = Button("Show Custom Notification", variant=ButtonVariant.PRIMARY)
-        custom_btn.clicked.connect(lambda: self.notification_manager.notify(
-            title_input.text() or "Custom Notification",
-            message_input.toPlainText() or "This is a custom message",
-            NotificationType.INFO,
-            duration_spin.value()
-        ))
+        custom_btn.clicked.connect(
+            lambda: self.notification_manager.notify(
+                title_input.text() or "Custom Notification",
+                message_input.toPlainText() or "This is a custom message",
+                NotificationType.INFO,
+                duration_spin.value(),
+            )
+        )
 
         custom_layout.addWidget(title_input)
         custom_layout.addWidget(message_input)
@@ -1262,7 +1287,9 @@ class DemoWindow(BaseWindow):
             card.add_widget(card_content)
 
             # Add action button to card
-            card_btn = Button(f"Action {i + 1}", variant=ButtonVariant.SECONDARY, size=ButtonSize.SMALL)
+            card_btn = Button(
+                f"Action {i + 1}", variant=ButtonVariant.SECONDARY, size=ButtonSize.SMALL
+            )
             card.add_widget(card_btn)
 
             card.setMinimumWidth(250)
@@ -1273,8 +1300,8 @@ class DemoWindow(BaseWindow):
 
     def _on_theme_changed(self, theme_name: str) -> None:
         """Handle theme change."""
-        self.config_manager.set('ui.theme', theme_name)
-        if hasattr(self, 'config_viewer'):
+        self.config_manager.set("ui.theme", theme_name)
+        if hasattr(self, "config_viewer"):
             self._update_config_viewer()
         self._update_config_tabs()
 
@@ -1296,15 +1323,13 @@ class DemoWindow(BaseWindow):
             self.notification_manager.notify(
                 "Sample Notification",
                 "This is a sample notification message",
-                NotificationType.SUCCESS
+                NotificationType.SUCCESS,
             )
 
     def _show_dialog(self) -> None:
         """Show various dialogs."""
         dialog = ConfirmDialog(
-            "Confirm Action",
-            "Are you sure you want to proceed with this action?",
-            self
+            "Confirm Action", "Are you sure you want to proceed with this action?", self
         )
         if dialog.exec():
             self._show_notification("Action confirmed!")
@@ -1334,31 +1359,33 @@ class DemoWindow(BaseWindow):
     def _on_state_change(self, state: dict) -> None:
         """Handle state changes."""
         # Update counter display
-        if hasattr(self, 'counter_label'):
+        if hasattr(self, "counter_label"):
             self.counter_label.setText(f"Counter: {state.get('counter', 0)}")
 
         # Update items list
-        if hasattr(self, 'items_list'):
+        if hasattr(self, "items_list"):
             self.items_list.clear()
-            self.items_list.addItems(state.get('items', []))
+            self.items_list.addItems(state.get("items", []))
 
         # Update state display
-        if hasattr(self, 'state_text'):
+        if hasattr(self, "state_text"):
             self._update_state_display()
 
     def _update_state_display(self) -> None:
         """Update the state display text."""
         import json
+
         state = self.store.get_state()
         self.state_text.setPlainText(json.dumps(state, indent=2))
 
     def _update_config_viewer(self) -> None:
         """Update the configuration viewer with current config."""
-        viewer = getattr(self, 'config_viewer', None)
+        viewer = getattr(self, "config_viewer", None)
         if not self._is_widget_valid(viewer):
             return
         try:
             import json
+
             config_data = self.config_manager.config.to_dict()
             formatted_json = json.dumps(config_data, indent=2)
             viewer.setPlainText(formatted_json)
@@ -1374,13 +1401,14 @@ class DemoWindow(BaseWindow):
             # Try to parse value as JSON for proper types
             try:
                 import json
+
                 parsed_value = json.loads(value)
             except (json.JSONDecodeError, ValueError):
                 # If not JSON, use as string
                 parsed_value = value
 
             self.config_manager.set(key, parsed_value)
-            if key in ('ui.theme', 'ui.font_size'):
+            if key in ("ui.theme", "ui.font_size"):
                 self._apply_runtime_config()
             self._show_notification(f"Configuration updated: {key} = {parsed_value}")
 
@@ -1389,7 +1417,7 @@ class DemoWindow(BaseWindow):
             value_input.clear()
 
             # Refresh the config viewer
-            if hasattr(self, 'config_viewer'):
+            if hasattr(self, "config_viewer"):
                 self._update_config_viewer()
 
     def _save_user_config(self) -> None:
@@ -1403,12 +1431,13 @@ class DemoWindow(BaseWindow):
 
             # Get current config excluding defaults
             current_config = self.config_manager.get_config(exclude_defaults=True)
-            if '$schema_version' not in current_config:
-                current_config['$schema_version'] = self.config_manager.get_config_schema_version()
+            if "$schema_version" not in current_config:
+                current_config["$schema_version"] = self.config_manager.get_config_schema_version()
 
             # Save to JSON file
             import json
-            with open(config_path, 'w', encoding='utf-8') as f:
+
+            with open(config_path, "w", encoding="utf-8") as f:
                 json.dump(current_config, f, indent=2)
 
             logger.info(f"Configuration saved to: {config_path}")
@@ -1441,24 +1470,24 @@ class DemoWindow(BaseWindow):
     def _update_config_tabs(self) -> None:
         """Update all config tab controls with current config values."""
         config_data = self.config_manager.get_all()
-        for prefix, tab in getattr(self, '_config_tab_pages', []):
+        for prefix, tab in getattr(self, "_config_tab_pages", []):
             if not self._is_widget_valid(tab):
                 continue
             tab.update_data(self._filter_config(config_data, prefix))
 
     def _apply_runtime_config(self) -> None:
         """Apply runtime configuration values to the live application."""
-        if not getattr(self, '_app', None):
+        if not getattr(self, "_app", None):
             return
 
-        theme_manager = getattr(self._app, 'theme_manager', None)
+        theme_manager = getattr(self._app, "theme_manager", None)
         if theme_manager:
-            theme_name = self.config_manager.get('ui.theme')
+            theme_name = self.config_manager.get("ui.theme")
             if theme_name:
                 current_theme = theme_manager.get_current_theme_name()
                 if current_theme != theme_name:
                     theme_manager.set_theme(theme_name)
-            font_size = self.config_manager.get('ui.font_size')
+            font_size = self.config_manager.get("ui.font_size")
             self._apply_font_settings(theme_manager, font_size)
 
     def _create_app_config_tab(self) -> QWidget:
@@ -1468,29 +1497,29 @@ class DemoWindow(BaseWindow):
 
         # App Name
         app_name_input = QLineEdit()
-        app_name_input.setText(self.config_manager.get('app.name', ''))
+        app_name_input.setText(self.config_manager.get("app.name", ""))
         app_name_input.setPlaceholderText("Application Name")
-        self.config_controls['app.name'] = app_name_input
+        self.config_controls["app.name"] = app_name_input
         layout.addRow("Application Name:", app_name_input)
 
         # App Version
         app_version_input = QLineEdit()
-        app_version_input.setText(self.config_manager.get('app.version', ''))
+        app_version_input.setText(self.config_manager.get("app.version", ""))
         app_version_input.setPlaceholderText("1.0.0")
-        self.config_controls['app.version'] = app_version_input
+        self.config_controls["app.version"] = app_version_input
         layout.addRow("Version:", app_version_input)
 
         # Organization
         org_input = QLineEdit()
-        org_input.setText(self.config_manager.get('app.organization', ''))
+        org_input.setText(self.config_manager.get("app.organization", ""))
         org_input.setPlaceholderText("Organization Name")
-        self.config_controls['app.organization'] = org_input
+        self.config_controls["app.organization"] = org_input
         layout.addRow("Organization:", org_input)
 
         # Debug Mode
         debug_check = QCheckBox()
-        debug_check.setChecked(self.config_manager.get('app.debug', False))
-        self.config_controls['app.debug'] = debug_check
+        debug_check.setChecked(self.config_manager.get("app.debug", False))
+        self.config_controls["app.debug"] = debug_check
         layout.addRow("Debug Mode:", debug_check)
 
         return tab
@@ -1503,67 +1532,67 @@ class DemoWindow(BaseWindow):
         # Theme Selection
         theme_combo = QComboBox()
         theme_combo.addItems(["light", "dark", "monokai"])
-        current_theme = self.config_manager.get('ui.theme', 'light')
+        current_theme = self.config_manager.get("ui.theme", "light")
         theme_combo.setCurrentText(current_theme)
-        self.config_controls['ui.theme'] = theme_combo
+        self.config_controls["ui.theme"] = theme_combo
         layout.addRow("Theme:", theme_combo)
 
         # Language
         language_combo = QComboBox()
         language_combo.addItems(["en", "es", "fr", "de", "ja", "zh"])
-        current_lang = self.config_manager.get('ui.language', 'en')
+        current_lang = self.config_manager.get("ui.language", "en")
         language_combo.setCurrentText(current_lang)
-        self.config_controls['ui.language'] = language_combo
+        self.config_controls["ui.language"] = language_combo
         layout.addRow("Language:", language_combo)
 
         # Font Size
         font_size_spin = QSpinBox()
         font_size_spin.setRange(8, 72)
-        font_size_spin.setValue(self.config_manager.get('ui.font_size', 12))
+        font_size_spin.setValue(self.config_manager.get("ui.font_size", 12))
         font_size_spin.setSuffix(" pt")
-        self.config_controls['ui.font_size'] = font_size_spin
+        self.config_controls["ui.font_size"] = font_size_spin
         layout.addRow("Font Size:", font_size_spin)
 
         # Window Width
         width_spin = QSpinBox()
         width_spin.setRange(800, 3840)
-        width_spin.setValue(self.config_manager.get('ui.window.width', 1400))
+        width_spin.setValue(self.config_manager.get("ui.window.width", 1400))
         width_spin.setSuffix(" px")
-        self.config_controls['ui.window.width'] = width_spin
+        self.config_controls["ui.window.width"] = width_spin
         layout.addRow("Window Width:", width_spin)
 
         # Window Height
         height_spin = QSpinBox()
         height_spin.setRange(600, 2160)
-        height_spin.setValue(self.config_manager.get('ui.window.height', 900))
+        height_spin.setValue(self.config_manager.get("ui.window.height", 900))
         height_spin.setSuffix(" px")
-        self.config_controls['ui.window.height'] = height_spin
+        self.config_controls["ui.window.height"] = height_spin
         layout.addRow("Window Height:", height_spin)
 
         # Remember Size
         remember_size_check = QCheckBox()
-        remember_size_check.setChecked(self.config_manager.get('ui.window.remember_size', True))
-        self.config_controls['ui.window.remember_size'] = remember_size_check
+        remember_size_check.setChecked(self.config_manager.get("ui.window.remember_size", True))
+        self.config_controls["ui.window.remember_size"] = remember_size_check
         layout.addRow("Remember Window Size:", remember_size_check)
 
         # Center on Startup
         center_check = QCheckBox()
-        center_check.setChecked(self.config_manager.get('ui.window.center_on_startup', True))
-        self.config_controls['ui.window.center_on_startup'] = center_check
+        center_check.setChecked(self.config_manager.get("ui.window.center_on_startup", True))
+        self.config_controls["ui.window.center_on_startup"] = center_check
         layout.addRow("Center on Startup:", center_check)
 
         # Animations Enabled
         animations_check = QCheckBox()
-        animations_check.setChecked(self.config_manager.get('ui.animations.enabled', True))
-        self.config_controls['ui.animations.enabled'] = animations_check
+        animations_check.setChecked(self.config_manager.get("ui.animations.enabled", True))
+        self.config_controls["ui.animations.enabled"] = animations_check
         layout.addRow("Enable Animations:", animations_check)
 
         # Animation Duration
         duration_spin = QSpinBox()
         duration_spin.setRange(50, 1000)
-        duration_spin.setValue(self.config_manager.get('ui.animations.duration', 250))
+        duration_spin.setValue(self.config_manager.get("ui.animations.duration", 250))
         duration_spin.setSuffix(" ms")
-        self.config_controls['ui.animations.duration'] = duration_spin
+        self.config_controls["ui.animations.duration"] = duration_spin
         layout.addRow("Animation Duration:", duration_spin)
 
         return tab
@@ -1575,15 +1604,15 @@ class DemoWindow(BaseWindow):
 
         # Feature toggles
         features = [
-            ('features.charts', 'Charts', True),
-            ('features.tables', 'Data Tables', True),
-            ('features.notifications', 'Notifications', True),
-            ('features.state_management', 'State Management', True),
-            ('features.routing', 'Routing', True),
-            ('features.plugins', 'Plugin System', True),
-            ('features.themes', 'Theme System', True),
-            ('features.auto_save', 'Auto Save', True),
-            ('features.developer_mode', 'Developer Mode', False),
+            ("features.charts", "Charts", True),
+            ("features.tables", "Data Tables", True),
+            ("features.notifications", "Notifications", True),
+            ("features.state_management", "State Management", True),
+            ("features.routing", "Routing", True),
+            ("features.plugins", "Plugin System", True),
+            ("features.themes", "Theme System", True),
+            ("features.auto_save", "Auto Save", True),
+            ("features.developer_mode", "Developer Mode", False),
         ]
 
         for key, label, default in features:
@@ -1603,7 +1632,7 @@ class DemoWindow(BaseWindow):
         cache_layout = QVBoxLayout()
         cache_spin = QSpinBox()
         cache_spin.setRange(10, 1000)
-        cache_spin.setValue(self.config_manager.get('performance.cache_size', 100))
+        cache_spin.setValue(self.config_manager.get("performance.cache_size", 100))
         cache_spin.setSuffix(" MB")
 
         cache_slider = QSlider(Qt.Horizontal)
@@ -1619,26 +1648,26 @@ class DemoWindow(BaseWindow):
         cache_widget = QWidget()
         cache_widget.setLayout(cache_layout)
 
-        self.config_controls['performance.cache_size'] = cache_spin
+        self.config_controls["performance.cache_size"] = cache_spin
         layout.addRow("Cache Size:", cache_widget)
 
         # Max Threads
         threads_spin = QSpinBox()
         threads_spin.setRange(1, 64)
-        threads_spin.setValue(self.config_manager.get('performance.max_threads', 4))
-        self.config_controls['performance.max_threads'] = threads_spin
+        threads_spin.setValue(self.config_manager.get("performance.max_threads", 4))
+        self.config_controls["performance.max_threads"] = threads_spin
         layout.addRow("Max Threads:", threads_spin)
 
         # Lazy Loading
         lazy_check = QCheckBox()
-        lazy_check.setChecked(self.config_manager.get('performance.lazy_loading', True))
-        self.config_controls['performance.lazy_loading'] = lazy_check
+        lazy_check.setChecked(self.config_manager.get("performance.lazy_loading", True))
+        self.config_controls["performance.lazy_loading"] = lazy_check
         layout.addRow("Lazy Loading:", lazy_check)
 
         # Prefetch Data
         prefetch_check = QCheckBox()
-        prefetch_check.setChecked(self.config_manager.get('performance.prefetch_data', False))
-        self.config_controls['performance.prefetch_data'] = prefetch_check
+        prefetch_check.setChecked(self.config_manager.get("performance.prefetch_data", False))
+        self.config_controls["performance.prefetch_data"] = prefetch_check
         layout.addRow("Prefetch Data:", prefetch_check)
 
         return tab
@@ -1650,15 +1679,15 @@ class DemoWindow(BaseWindow):
 
         # Show Welcome
         welcome_check = QCheckBox()
-        welcome_check.setChecked(self.config_manager.get('demo.show_welcome', True))
-        self.config_controls['demo.show_welcome'] = welcome_check
+        welcome_check.setChecked(self.config_manager.get("demo.show_welcome", True))
+        self.config_controls["demo.show_welcome"] = welcome_check
         layout.addRow("Show Welcome Screen:", welcome_check)
 
         # Sample Data Size with slider
         data_layout = QVBoxLayout()
         data_spin = QSpinBox()
         data_spin.setRange(100, 10000)
-        data_spin.setValue(self.config_manager.get('demo.sample_data_size', 1000))
+        data_spin.setValue(self.config_manager.get("demo.sample_data_size", 1000))
 
         data_slider = QSlider(Qt.Horizontal)
         data_slider.setRange(100, 10000)
@@ -1673,19 +1702,19 @@ class DemoWindow(BaseWindow):
         data_widget = QWidget()
         data_widget.setLayout(data_layout)
 
-        self.config_controls['demo.sample_data_size'] = data_spin
+        self.config_controls["demo.sample_data_size"] = data_spin
         layout.addRow("Sample Data Size:", data_widget)
 
         # Enable Tooltips
         tooltips_check = QCheckBox()
-        tooltips_check.setChecked(self.config_manager.get('demo.enable_tooltips', True))
-        self.config_controls['demo.enable_tooltips'] = tooltips_check
+        tooltips_check.setChecked(self.config_manager.get("demo.enable_tooltips", True))
+        self.config_controls["demo.enable_tooltips"] = tooltips_check
         layout.addRow("Enable Tooltips:", tooltips_check)
 
         # Highlight New Features
         highlight_check = QCheckBox()
-        highlight_check.setChecked(self.config_manager.get('demo.highlight_new_features', True))
-        self.config_controls['demo.highlight_new_features'] = highlight_check
+        highlight_check.setChecked(self.config_manager.get("demo.highlight_new_features", True))
+        self.config_controls["demo.highlight_new_features"] = highlight_check
         layout.addRow("Highlight New Features:", highlight_check)
 
         return tab
@@ -1694,29 +1723,28 @@ class DemoWindow(BaseWindow):
         """Apply all configuration changes from the GUI controls."""
         try:
             changes_made = False
-            for _prefix, tab in getattr(self, '_config_tab_pages', []):
+            for _prefix, tab in getattr(self, "_config_tab_pages", []):
                 if not self._is_widget_valid(tab):
                     continue
                 for key, new_value in tab.get_values().items():
                     current_value = self.config_manager.get(key)
                     if current_value != new_value:
                         self.config_manager.set(key, new_value)
-                        if key in ('ui.theme', 'ui.font_size'):
+                        if key in ("ui.theme", "ui.font_size"):
                             self._apply_runtime_config()
                         changes_made = True
 
             if changes_made:
-                if hasattr(self, 'config_viewer'):
+                if hasattr(self, "config_viewer"):
                     self._update_config_viewer()
                 self._apply_runtime_config()
-                self._show_notification('Configuration changes applied successfully!')
+                self._show_notification("Configuration changes applied successfully!")
             else:
-                self._show_notification('No changes to apply')
+                self._show_notification("No changes to apply")
 
         except Exception as exc:
-            self._show_notification(f'Error applying changes: {exc}')
-            logger.warning(f'Error applying configuration changes: {exc}')
-
+            self._show_notification(f"Error applying changes: {exc}")
+            logger.warning(f"Error applying configuration changes: {exc}")
 
     def _reset_config_to_defaults(self) -> None:
         """Reset all configuration values to their defaults."""
@@ -1725,21 +1753,22 @@ class DemoWindow(BaseWindow):
             if defaults_path.exists():
                 try:
                     import json
-                    with open(defaults_path, 'r', encoding='utf-8') as f:
+
+                    with open(defaults_path, encoding="utf-8") as f:
                         defaults = json.load(f)
                     self.config_manager.load_defaults(defaults)
                 except Exception as exc:
-                    logger.warning(f'Failed to reload defaults from {defaults_path}: {exc}')
+                    logger.warning(f"Failed to reload defaults from {defaults_path}: {exc}")
 
             self.config_manager.reset_to_defaults()
-            if hasattr(self, 'config_viewer'):
+            if hasattr(self, "config_viewer"):
                 self._update_config_viewer()
             self._update_config_tabs()
             self._apply_runtime_config()
-            self._show_notification('Configuration reset to defaults!')
+            self._show_notification("Configuration reset to defaults!")
         except Exception as exc:
-            self._show_notification(f'Error resetting config: {exc}')
-            logger.warning(f'Error resetting configuration: {exc}')
+            self._show_notification(f"Error resetting config: {exc}")
+            logger.warning(f"Error resetting configuration: {exc}")
 
     def _update_gui_controls(self) -> None:
         """Update all GUI controls with current config values."""
@@ -1784,12 +1813,12 @@ class DemoWindow(BaseWindow):
         typography.font_size_h6 = max(6, typography.font_size_h6 + delta)
 
         new_stylesheet = theme_manager.get_stylesheet()
-        if hasattr(self._app, '_apply_stylesheet'):
+        if hasattr(self._app, "_apply_stylesheet"):
             self._app._apply_stylesheet(new_stylesheet)
         elif new_stylesheet != self._app.styleSheet():
             self._app.setStyleSheet(new_stylesheet)
 
-    def _flatten_dict(self, d: dict, parent_key: str = '', sep: str = '.') -> dict:
+    def _flatten_dict(self, d: dict, parent_key: str = "", sep: str = ".") -> dict:
         """Flatten nested dictionary with dot notation keys."""
         items = []
         for k, v in d.items():
@@ -1804,18 +1833,18 @@ class DemoWindow(BaseWindow):
         """Set configuration value."""
         if key and value:
             self.config_manager.set(key, value)
-            if key in ('ui.theme', 'ui.font_size'):
+            if key in ("ui.theme", "ui.font_size"):
                 self._apply_runtime_config()
             self._show_notification(f"Configuration updated: {key} = {value}")
 
     def _on_route_changed(self, path: str, params: dict) -> None:
         """Handle route change."""
         # Update route label
-        if hasattr(self, 'route_label'):
+        if hasattr(self, "route_label"):
             self.route_label.setText(f"Current Route: {path}")
 
         # Update route content display
-        if hasattr(self, 'route_content'):
+        if hasattr(self, "route_content"):
             component = self.router.get_route_component()
             if component:
                 # Clear old content
@@ -1843,7 +1872,7 @@ class DemoWindow(BaseWindow):
 
     def _update_history_display(self) -> None:
         """Update the history list display."""
-        if hasattr(self, 'history_list'):
+        if hasattr(self, "history_list"):
             self.history_list.clear()
 
             # Add current path

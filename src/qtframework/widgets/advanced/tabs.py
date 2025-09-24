@@ -2,24 +2,22 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
-from PySide6.QtCore import Signal, Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QFormLayout,
-    QLineEdit,
-    QSpinBox,
-    QDoubleSpinBox,
     QCheckBox,
     QComboBox,
-    QSlider,
-    QLabel,
-    QPushButton,
+    QDoubleSpinBox,
+    QFormLayout,
     QGroupBox,
+    QLabel,
+    QLineEdit,
+    QSlider,
+    QSpinBox,
     QTabWidget,
+    QVBoxLayout,
+    QWidget,
 )
 
 from qtframework.widgets.base import Widget
@@ -66,7 +64,7 @@ class TabWidget(Widget):
         layout.addWidget(self._tab_widget)
 
         # Store tab metadata
-        self._tab_data: Dict[int, Dict[str, Any]] = {}
+        self._tab_data: dict[int, dict[str, Any]] = {}
 
     def add_tab(
         self,
@@ -75,7 +73,7 @@ class TabWidget(Widget):
         *,
         icon: Any = None,
         closeable: bool | None = None,
-        data: Dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
     ) -> int:
         """Add a tab to the widget.
 
@@ -101,8 +99,10 @@ class TabWidget(Widget):
         if closeable is not None:
             self._tab_widget.tabBar().setTabButton(
                 index,
-                self._tab_widget.tabBar().RightSide if closeable else self._tab_widget.tabBar().LeftSide,
-                None
+                self._tab_widget.tabBar().RightSide
+                if closeable
+                else self._tab_widget.tabBar().LeftSide,
+                None,
             )
 
         return index
@@ -114,7 +114,7 @@ class TabWidget(Widget):
         title: str,
         *,
         icon: Any = None,
-        data: Dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
     ) -> int:
         """Insert a tab at the specified index.
 
@@ -249,7 +249,7 @@ class TabWidget(Widget):
         """
         return self._tab_widget.count()
 
-    def get_tab_data(self, index: int) -> Dict[str, Any]:
+    def get_tab_data(self, index: int) -> dict[str, Any]:
         """Get metadata for a tab.
 
         Args:
@@ -260,7 +260,7 @@ class TabWidget(Widget):
         """
         return self._tab_data.get(index, {})
 
-    def set_tab_data(self, index: int, data: Dict[str, Any]) -> None:
+    def set_tab_data(self, index: int, data: dict[str, Any]) -> None:
         """Set metadata for a tab.
 
         Args:
@@ -276,10 +276,10 @@ class TabWidget(Widget):
             position: One of 'north', 'south', 'west', 'east'
         """
         position_map = {
-            'north': QTabWidget.TabPosition.North,
-            'south': QTabWidget.TabPosition.South,
-            'west': QTabWidget.TabPosition.West,
-            'east': QTabWidget.TabPosition.East,
+            "north": QTabWidget.TabPosition.North,
+            "south": QTabWidget.TabPosition.South,
+            "west": QTabWidget.TabPosition.West,
+            "east": QTabWidget.TabPosition.East,
         }
 
         if position in position_map:
@@ -298,7 +298,7 @@ class BaseTabPage(Widget):
 
     def __init__(
         self,
-        data: Dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
         parent: QWidget | None = None,
     ) -> None:
         """Initialize tab page.
@@ -310,7 +310,7 @@ class BaseTabPage(Widget):
         super().__init__(parent)
 
         self._data = data or {}
-        self._controls: Dict[str, QWidget] = {}
+        self._controls: dict[str, QWidget] = {}
 
         # Main layout
         self._layout = QVBoxLayout(self)
@@ -323,11 +323,9 @@ class BaseTabPage(Widget):
 
     def _setup_ui(self) -> None:
         """Setup the UI. Override in subclasses."""
-        pass
 
     def _connect_signals(self) -> None:
         """Connect control signals. Override in subclasses."""
-        pass
 
     def _load_values(self) -> None:
         """Load values from data into controls."""
@@ -354,26 +352,24 @@ class BaseTabPage(Widget):
         """Get value from a control widget."""
         if isinstance(control, QLineEdit):
             return control.text()
-        elif isinstance(control, QSpinBox):
+        if isinstance(control, QSpinBox) or isinstance(control, QDoubleSpinBox):
             return control.value()
-        elif isinstance(control, QDoubleSpinBox):
-            return control.value()
-        elif isinstance(control, QCheckBox):
+        if isinstance(control, QCheckBox):
             return control.isChecked()
-        elif isinstance(control, QComboBox):
+        if isinstance(control, QComboBox):
             return control.currentText()
-        elif isinstance(control, QSlider):
+        if isinstance(control, QSlider):
             return control.value()
         return None
 
-    def get_values(self) -> Dict[str, Any]:
+    def get_values(self) -> dict[str, Any]:
         """Get all values from the tab controls."""
         values = {}
         for key, control in self._controls.items():
             values[key] = self._get_control_value(control)
         return values
 
-    def update_data(self, data: Dict[str, Any]) -> None:
+    def update_data(self, data: dict[str, Any]) -> None:
         """Update data and refresh controls."""
         self._data = data
         self._load_values()
@@ -409,8 +405,6 @@ class BaseTabPage(Widget):
         slider.setValue(current_val)
 
         label = QLabel(f"{current_val}{suffix}")
-        slider.valueChanged.connect(
-            lambda v: label.setText(f"{v}{suffix}")
-        )
+        slider.valueChanged.connect(lambda v: label.setText(f"{v}{suffix}"))
 
         return slider, label

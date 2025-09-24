@@ -2,10 +2,20 @@
 Selection controls demonstration page.
 """
 
+from __future__ import annotations
+
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QButtonGroup, QCheckBox, QComboBox, QGroupBox,
-                               QHBoxLayout, QLabel, QRadioButton, QSlider,
-                               QVBoxLayout)
+from PySide6.QtWidgets import (
+    QButtonGroup,
+    QCheckBox,
+    QComboBox,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QRadioButton,
+    QSlider,
+    QVBoxLayout,
+)
 
 from .base import DemoPage
 

@@ -9,6 +9,7 @@ from PySide6.QtWidgets import QMainWindow, QWidget
 
 from qtframework.utils.logger import get_logger
 
+
 if TYPE_CHECKING:
     from qtframework.core.application import Application
 

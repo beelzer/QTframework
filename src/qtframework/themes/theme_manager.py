@@ -2,16 +2,14 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
-from typing import Dict, List, Optional, Union
 
-import yaml
 from PySide6.QtCore import QObject, Signal
 
 from qtframework.themes.builtin_themes import BUILTIN_THEMES
 from qtframework.themes.theme import Theme
 from qtframework.utils.logger import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -21,14 +19,14 @@ class ThemeManager(QObject):
 
     theme_changed = Signal(str)  # Emits theme name when changed
 
-    def __init__(self, themes_dir: Optional[Path] = None):
+    def __init__(self, themes_dir: Path | None = None):
         """Initialize theme manager.
 
         Args:
             themes_dir: Directory to load custom themes from (default: resources/themes)
         """
         super().__init__()
-        self._themes: Dict[str, Theme] = {}
+        self._themes: dict[str, Theme] = {}
         self._current_theme_name: str = "light"
         self._themes_dir = themes_dir or Path("resources/themes")
 
@@ -132,7 +130,7 @@ class ThemeManager(QObject):
         logger.debug(f"Unregistered theme: {theme_name}")
         return True
 
-    def get_theme(self, theme_name: Optional[str] = None) -> Optional[Theme]:
+    def get_theme(self, theme_name: str | None = None) -> Theme | None:
         """Get a theme by name.
 
         Args:
@@ -160,8 +158,8 @@ class ThemeManager(QObject):
             theme = self._themes.get("light")
             if not theme:
                 # Create a default light theme if even that's missing
-                from qtframework.themes.builtin_themes import \
-                    create_light_theme
+                from qtframework.themes.builtin_themes import create_light_theme
+
                 theme = create_light_theme()
                 self._themes["light"] = theme
         return theme
@@ -191,7 +189,7 @@ class ThemeManager(QObject):
         self.theme_changed.emit(theme_name)
         return True
 
-    def get_stylesheet(self, theme_name: Optional[str] = None) -> str:
+    def get_stylesheet(self, theme_name: str | None = None) -> str:
         """Get the stylesheet for a theme.
 
         Args:
@@ -211,7 +209,7 @@ class ThemeManager(QObject):
             logger.error(f"Failed to generate stylesheet for theme '{theme_name}': {e}")
             return ""
 
-    def list_themes(self) -> List[str]:
+    def list_themes(self) -> list[str]:
         """List all available theme names.
 
         Returns:
@@ -219,7 +217,7 @@ class ThemeManager(QObject):
         """
         return list(self._themes.keys())
 
-    def get_theme_info(self, theme_name: str) -> Optional[Dict[str, str]]:
+    def get_theme_info(self, theme_name: str) -> dict[str, str] | None:
         """Get information about a theme.
 
         Args:
@@ -240,9 +238,7 @@ class ThemeManager(QObject):
             "version": theme.version,
         }
 
-    def export_theme(
-        self, theme_name: str, export_path: Union[str, Path], format: str = "json"
-    ) -> bool:
+    def export_theme(self, theme_name: str, export_path: str | Path, format: str = "json") -> bool:
         """Export a theme to a file.
 
         Args:
@@ -279,10 +275,7 @@ class ThemeManager(QObject):
     def reload_themes(self) -> None:
         """Reload all custom themes from disk."""
         # Remove all custom themes (keep built-in ones)
-        custom_themes = [
-            name for name in self._themes.keys()
-            if name not in BUILTIN_THEMES
-        ]
+        custom_themes = [name for name in self._themes.keys() if name not in BUILTIN_THEMES]
 
         for theme_name in custom_themes:
             del self._themes[theme_name]
@@ -292,12 +285,7 @@ class ThemeManager(QObject):
         logger.info("Reloaded custom themes")
 
     def create_theme_from_colors(
-        self,
-        name: str,
-        primary_color: str,
-        background_color: str,
-        is_dark: bool = False,
-        **kwargs
+        self, name: str, primary_color: str, background_color: str, is_dark: bool = False, **kwargs
     ) -> Theme:
         """Create a simple theme from basic color values.
 

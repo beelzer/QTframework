@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import copy
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from PySide6.QtCore import QObject, Signal
 
@@ -11,6 +12,7 @@ from qtframework.state.actions import Action
 from qtframework.state.middleware import Middleware
 from qtframework.state.reducers import Reducer
 from qtframework.utils.logger import get_logger
+
 
 logger = get_logger(__name__)
 

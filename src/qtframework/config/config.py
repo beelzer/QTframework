@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import copy
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from PySide6.QtCore import QObject, Signal
 
 from qtframework.utils.logger import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -223,6 +225,7 @@ class Config(QObject):
         Returns:
             List of keys
         """
+
         def extract_keys(data: dict, parent: str = "") -> list[str]:
             keys = []
             for key, value in data.items():

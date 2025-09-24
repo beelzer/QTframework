@@ -5,9 +5,9 @@ from __future__ import annotations
 import os
 import platform
 from pathlib import Path
-from typing import Optional
 
 from qtframework.utils.logger import get_logger
+
 
 logger = get_logger(__name__)
 
@@ -103,7 +103,7 @@ def get_user_cache_dir(app_name: str) -> Path:
     return cache_dir
 
 
-def get_system_config_dir(app_name: str) -> Optional[Path]:
+def get_system_config_dir(app_name: str) -> Path | None:
     """Get system-wide config directory for the application.
 
     Args:
@@ -122,12 +122,11 @@ def get_system_config_dir(app_name: str) -> Optional[Path]:
     if system == "windows":
         # Windows doesn't have a standard system config location
         return None
-    elif system == "darwin":
+    if system == "darwin":
         # macOS: /Library/Application Support/AppName
         return Path("/Library/Application Support") / app_name
-    else:
-        # Linux/Unix: /etc/AppName
-        return Path("/etc") / app_name
+    # Linux/Unix: /etc/AppName
+    return Path("/etc") / app_name
 
 
 def ensure_directory(path: Path) -> bool:

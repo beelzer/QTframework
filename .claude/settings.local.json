@@ -1,28 +1,20 @@
 {
   "permissions": {
     "allow": [
-      "Bash(uv pip install:*)",
-      "Bash(ruff check:*)",
-      "Bash(mypy:*)",
-      "Bash(python test:*)",
-      "Bash(uv sync:*)",
+      "Bash(uv:*)",
       "Bash(python:*)",
-      "Bash(uv pip:*)",
-      "Bash(uv run:*)",
-      "Bash(dir:*)",
-      "Bash(findstr:*)",
-      "Bash(del \"C:\\dev\\python\\QTframework\\test_theme_consistency.py\")",
-      "Bash(del:*)",
-      "Bash(git add:*)",
-      "Bash(find:*)",
-      "Bash(uv add:*)",
-      "WebSearch",
       "Bash(ruff:*)",
-      "Bash(uv lock:*)",
-      "Bash(pre-commit run:*)",
+      "Bash(mypy:*)",
       "Bash(pre-commit:*)",
+      "Bash(git add:*)",
       "Bash(git check-ignore:*)",
-      "Bash(grep:*)"
+      "Bash(dir:*)",
+      "Bash(del:*)",
+      "Bash(find:*)",
+      "Bash(findstr:*)",
+      "Bash(grep:*)",
+      "Bash(detect-secrets:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

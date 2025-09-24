@@ -14,7 +14,7 @@ rules:
 
   # Allow truthy values like 'on', 'off'
   truthy:
-    allowed-values: ['true', 'false', 'on', 'off', 'yes', 'no']
+    allowed-values: ["true", "false", "on", "off", "yes", "no"]
     check-keys: false
 
   # More relaxed indentation

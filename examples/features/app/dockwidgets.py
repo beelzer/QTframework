@@ -2,11 +2,12 @@
 Dock widgets configuration for the showcase.
 """
 
+from __future__ import annotations
+
 from datetime import datetime
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QDockWidget, QHBoxLayout, QLabel, QTextEdit,
-                               QVBoxLayout, QWidget)
+from PySide6.QtWidgets import QDockWidget, QHBoxLayout, QLabel, QTextEdit, QVBoxLayout, QWidget
 
 
 def create_dock_widgets(window):
@@ -33,6 +34,7 @@ def _create_properties_dock(window):
 
     # Create scrollable area for properties
     from PySide6.QtWidgets import QScrollArea
+
     scroll = QScrollArea()
     scroll.setWidgetResizable(True)
 
@@ -68,14 +70,14 @@ def _create_output_dock(window):
 
 def log_output(window, message: str):
     """Log a message to the output panel."""
-    if hasattr(window, 'output_text'):
+    if hasattr(window, "output_text"):
         timestamp = datetime.now().strftime("%H:%M:%S")
         window.output_text.append(f"[{timestamp}] {message}")
 
 
 def _update_properties(window, component_name: str, description: str = ""):
     """Update the properties panel with component information."""
-    if not hasattr(window, 'properties_layout'):
+    if not hasattr(window, "properties_layout"):
         return
 
     # Clear existing content (but remember the code display if any)
@@ -99,6 +101,7 @@ def _update_properties(window, component_name: str, description: str = ""):
 
     # Add separator
     from PySide6.QtWidgets import QFrame
+
     separator = QFrame()
     separator.setFrameShape(QFrame.HLine)
     separator.setFrameShadow(QFrame.Sunken)
@@ -135,6 +138,7 @@ def _update_properties(window, component_name: str, description: str = ""):
 
         # Use the CodeDisplay widget for syntax highlighting
         from .widgets import CodeDisplay
+
         code_display = CodeDisplay(usage, "python")
         window.properties_layout.addWidget(code_display)
 
@@ -151,38 +155,38 @@ def _get_component_properties(component_name: str) -> dict:
             "Variants": "primary, success, warning, danger, info, ghost, outline, link",
             "Sizes": "small, medium, large",
             "States": "normal, hover, pressed, disabled",
-            "Events": "clicked, pressed, released"
+            "Events": "clicked, pressed, released",
         },
         "Inputs": {
             "Types": "text, password, email, number, date, time",
             "Validation": "required, min/max length, pattern",
-            "Events": "textChanged, editingFinished, returnPressed"
+            "Events": "textChanged, editingFinished, returnPressed",
         },
         "Tables": {
             "Features": "sorting, filtering, pagination, selection",
             "Rows": "alternating colors, hover effects",
-            "Columns": "resizable, reorderable, sortable"
+            "Columns": "resizable, reorderable, sortable",
         },
         "Dialogs": {
             "Types": "information, warning, error, question",
             "Buttons": "OK, Cancel, Yes, No, Apply",
-            "Modal": "true/false"
+            "Modal": "true/false",
         },
         "Theme Switcher": {
             "Themes": "light, dark, blue, green",
             "Live Preview": "enabled",
-            "Custom": "supported via JSON"
+            "Custom": "supported via JSON",
         },
         "State Demo": {
             "Pattern": "Redux-like",
             "Actions": "INCREMENT, DECREMENT, RESET",
-            "History": "last 10 actions"
+            "History": "last 10 actions",
         },
         "Animations": {
             "Types": "fade, slide, scale, rotate",
             "Easing": "linear, ease-in, ease-out, bounce",
-            "Duration": "customizable"
-        }
+            "Duration": "customizable",
+        },
     }
 
     return properties_map.get(component_name, {})
@@ -197,7 +201,7 @@ def _get_usage_example(component_name: str) -> str:
         "Dialogs": "QMessageBox.information(self, 'Title', 'Message')",
         "Theme Switcher": "theme_manager.set_theme('dark')\nstylesheet = theme_manager.get_stylesheet()\napp.setStyleSheet(stylesheet)",
         "State Demo": "store.dispatch(Action(type='INCREMENT'))\nstate = store.get_state()",
-        "Animations": "animation = QPropertyAnimation(widget, b'pos')\nanimation.setDuration(1000)\nanimation.start()"
+        "Animations": "animation = QPropertyAnimation(widget, b'pos')\nanimation.setDuration(1000)\nanimation.start()",
     }
 
     return examples.get(component_name, "")
@@ -226,7 +230,7 @@ def update_properties_for_page(window, page_name: str):
         "State Demo": "Redux-like state management",
         "Transitions": "Fade and slide transitions",
         "Progress": "Animated progress indicators",
-        "Effects": "Visual animation effects"
+        "Effects": "Visual animation effects",
     }
 
     description = descriptions.get(page_name, "")
@@ -236,5 +240,5 @@ def update_properties_for_page(window, page_name: str):
 def update_code_display_themes(window):
     """Update all code displays when theme changes."""
     # Update the current code display in properties panel
-    if hasattr(window, 'current_code_display') and window.current_code_display:
+    if hasattr(window, "current_code_display") and window.current_code_display:
         window.current_code_display.update_theme()
