@@ -2,97 +2,160 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 
+default_language_version:
+  python: python3.13
+
 repos:
-  # Pre-commit hooks
+  # Pre-commit hooks for general file fixes
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
       - id: end-of-file-fixer
       - id: check-yaml
+        args: [--unsafe]
       - id: check-json
       - id: check-toml
       - id: check-xml
       - id: check-added-large-files
-        args: [--maxkb=500]
+        args: [--maxkb=1000]
       - id: check-case-conflict
       - id: check-merge-conflict
+        args: [--assume-in-merge]
       - id: check-symlinks
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
       - id: debug-statements
       - id: detect-private-key
       - id: mixed-line-ending
         args: [--fix=lf]
+      - id: name-tests-test
+        args: [--pytest-test-first]
+      - id: requirements-txt-fixer
+      - id: fix-byte-order-marker
+      - id: check-docstring-first
+      - id: check-builtin-literals
+      - id: check-ast
+      - id: check-vcs-permalinks
+      - id: destroyed-symlinks
+      - id: forbid-submodules
+      - id: fix-encoding-pragma
+        args: [--remove]
 
-  # Python code formatting with ruff
+  # Python code formatting and linting with ruff
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.7
+    rev: v0.8.5
     hooks:
       # Run the linter
       - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
+        args: [--fix, --exit-non-zero-on-fix, --show-fixes]
+        types_or: [python, pyi, jupyter]
       # Run the formatter
       - id: ruff-format
+        types_or: [python, pyi, jupyter]
 
   # Type checking with mypy
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.1
+    rev: v1.14.1
     hooks:
       - id: mypy
         additional_dependencies:
-          - types-PyYAML
-          - types-setuptools
-          - types-requests
-          - PySide6-stubs
+          - types-PyYAML>=6.0.0
+          - types-setuptools>=75.0.0
+          - pandas-stubs>=2.2.0
+          - pydantic>=2.10.0
         args: [--config-file=pyproject.toml]
         exclude: ^(examples/|tests/|docs/)
+        pass_filenames: false
+        require_serial: true
 
-  # Security linting
+  # Security linting with bandit
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
+    rev: 1.8.0
     hooks:
       - id: bandit
         args: ['-c', 'pyproject.toml']
         additional_dependencies: ['bandit[toml]']
         exclude: ^(tests/|examples/)
 
-  # Documentation
+  # Documentation style checking
   - repo: https://github.com/pycqa/pydocstyle
     rev: 6.3.0
     hooks:
       - id: pydocstyle
         args: [--config=pyproject.toml]
         exclude: ^(tests/|examples/)
+        additional_dependencies: [tomli]
 
-  # Import sorting
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+  # Check for common security issues
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
     hooks:
-      - id: isort
-        args: [--settings-path=pyproject.toml]
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]
+        exclude: .*\.lock$|package-lock\.json$
 
-  # Additional Python checks
+  # Spell checking
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.3.0
+    hooks:
+      - id: codespell
+        args: ['--skip=*.lock,package-lock.json,yarn.lock,.git,*.min.js,*.min.css']
+        additional_dependencies: [tomli]
+
+  # Validate pyproject.toml
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.23
+    hooks:
+      - id: validate-pyproject
+
+  # Check for outdated Python syntax
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.20.0
+    hooks:
+      - id: pyupgrade
+        args: [--py313-plus]
+
+  # Additional formatting tools
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        types_or: [json, yaml, markdown]
+        exclude: ^(package-lock\.json|\.vscode/|.*\.lock$)
+        additional_dependencies:
+          - prettier@3.4.2
+          - prettier-plugin-toml
+
+  # YAML linting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.36.1
+    hooks:
+      - id: yamllint
+        args: [-c=.yamllint.yaml]
+
+  # Remove CRLF and tabs
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.4
+    rev: v1.5.5
     hooks:
       - id: remove-crlf
       - id: remove-tabs
         args: [--whitespaces-count, '4']
+        exclude: ^(.*\.tsv|Makefile)$
 
-  # JSON formatting
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.3
+  # Check GitHub Actions workflow files
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.5
     hooks:
-      - id: prettier
-        types: [json]
-        exclude: ^(package-lock\.json|\.vscode/)
+      - id: actionlint
 
-  # YAML formatting
-  - repo: https://github.com/adrienverge/yamllint
-    rev: v1.33.0
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.43.0
     hooks:
-      - id: yamllint
-        args: [-c=.yamllint.yaml]
+      - id: markdownlint
+        args: [--fix, --disable, MD013, MD024, MD033, MD041]
 
 # Configuration for ci
 ci:
@@ -104,5 +167,5 @@ ci:
   autoupdate_branch: ''
   autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
   autoupdate_schedule: weekly
-  skip: []
+  skip: [actionlint]  # Skip actionlint until GitHub Actions are added
   submodules: false

@@ -16,7 +16,13 @@
       "Bash(git add:*)",
       "Bash(find:*)",
       "Bash(uv add:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(ruff:*)",
+      "Bash(uv lock:*)",
+      "Bash(pre-commit run:*)",
+      "Bash(pre-commit:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []
