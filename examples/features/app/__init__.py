@@ -1,0 +1,1 @@
+"""Feature showcase application package."""

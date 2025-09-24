@@ -163,11 +163,30 @@
     "typography": {
       "font_family_default": "'Consolas', 'Monaco', 'Courier New', monospace",
       "font_family_mono": "'Consolas', 'Monaco', 'Courier New', monospace",
+      "font_family_code": "Consolas",
       "font_size_md": 14
     },
     "borders": {
       "radius_md": 4,
       "radius_lg": 6
+    },
+    "syntax": {
+      "keyword": "#F92672",
+      "class_name": "#66D9EF",
+      "function": "#A6E22E",
+      "string": "#E6DB74",
+      "comment": "#75715E",
+      "number": "#AE81FF",
+      "operator": "#F92672",
+      "decorator": "#A6E22E",
+      "constant": "#AE81FF",
+      "variable": "#F8F8F2",
+      "parameter": "#FD971F",
+      "type": "#66D9EF",
+      "namespace": "#66D9EF",
+      "error": "#F92672",
+      "warning": "#FD971F",
+      "info": "#66D9EF"
     }
   },
   "custom_styles": {}

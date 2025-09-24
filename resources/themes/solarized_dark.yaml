@@ -180,4 +180,25 @@ tokens:
     chart_grid: "#586e75"
     chart_axis: "#657b83"
 
+  typography:
+    font_family_code: "Consolas"
+
+  syntax:
+    keyword: "#859900"      # green
+    class_name: "#268bd2"   # blue
+    function: "#b58900"     # yellow
+    string: "#2aa198"       # cyan
+    comment: "#586e75"      # base01
+    number: "#d33682"       # magenta
+    operator: "#839496"     # base0
+    decorator: "#b58900"    # yellow
+    constant: "#cb4b16"     # orange
+    variable: "#839496"     # base0
+    parameter: "#93a1a1"    # base1
+    type: "#268bd2"         # blue
+    namespace: "#268bd2"    # blue
+    error: "#dc322f"        # red
+    warning: "#cb4b16"      # orange
+    info: "#268bd2"         # blue
+
 custom_styles: {}

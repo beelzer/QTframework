@@ -221,6 +221,9 @@ class Typography(BaseModel):
     font_family_mono: str = Field(
         default="'Cascadia Code', 'Consolas', 'Monaco', 'Courier New', monospace"
     )
+    font_family_code: str = Field(
+        default="Consolas"  # Single font name for Qt QFont
+    )
 
     # Font sizes
     font_size_xs: int = Field(default=11)
@@ -301,6 +304,32 @@ class Transitions(BaseModel):
     transition_slow: str = Field(default="350ms ease-in-out")
 
 
+class SyntaxColors(BaseModel):
+    """Syntax highlighting color tokens."""
+
+    # Core syntax elements
+    keyword: str = Field(default="#0000FF")
+    class_name: str = Field(default="#267F99")
+    function: str = Field(default="#795E26")
+    string: str = Field(default="#A31515")
+    comment: str = Field(default="#008000")
+    number: str = Field(default="#098658")
+    operator: str = Field(default="#000000")
+
+    # Additional elements
+    decorator: str = Field(default="#AA0000")
+    constant: str = Field(default="#0000FF")
+    variable: str = Field(default="#001080")
+    parameter: str = Field(default="#001080")
+    type: str = Field(default="#267F99")
+    namespace: str = Field(default="#267F99")
+
+    # Special
+    error: str = Field(default="#FF0000")
+    warning: str = Field(default="#FFA500")
+    info: str = Field(default="#0000FF")
+
+
 @dataclass
 class DesignTokens:
     """Complete design token system."""
@@ -313,6 +342,7 @@ class DesignTokens:
     borders: BorderRadius = field(default_factory=BorderRadius)
     shadows: Shadows = field(default_factory=Shadows)
     transitions: Transitions = field(default_factory=Transitions)
+    syntax: SyntaxColors = field(default_factory=SyntaxColors)
 
     def resolve_token(self, token_path: str) -> Optional[str]:
         """Resolve a token path to its value.
@@ -361,6 +391,7 @@ class DesignTokens:
             "borders": self.borders.model_dump(),
             "shadows": self.shadows.model_dump(),
             "transitions": self.transitions.model_dump(),
+            "syntax": self.syntax.model_dump(),
         }
 
     @classmethod
@@ -375,4 +406,5 @@ class DesignTokens:
             borders=BorderRadius(**data.get("borders", {})),
             shadows=Shadows(**data.get("shadows", {})),
             transitions=Transitions(**data.get("transitions", {})),
+            syntax=SyntaxColors(**data.get("syntax", {})),
         )

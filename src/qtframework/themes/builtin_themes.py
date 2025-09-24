@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from qtframework.themes.theme import Theme
 from qtframework.themes.tokens import (ComponentColors, DesignTokens,
-                                       PrimitiveColors, SemanticColors)
+                                       PrimitiveColors, SemanticColors,
+                                       SyntaxColors, Typography)
 
 
 def create_light_theme() -> Theme:
@@ -112,6 +113,31 @@ def create_light_theme() -> Theme:
         chart_6="#00BCD4",  # Cyan
         chart_grid=tokens.primitive.gray_200,
         chart_axis=tokens.primitive.gray_600,
+    )
+
+    # Configure typography for light theme
+    tokens.typography = Typography(
+        font_family_code="Consolas"  # Windows default monospace
+    )
+
+    # Configure syntax highlighting colors for light theme
+    tokens.syntax = SyntaxColors(
+        keyword="#0000FF",  # Blue
+        class_name="#267F99",  # Teal
+        function="#795E26",  # Brown
+        string="#A31515",  # Red
+        comment="#008000",  # Green
+        number="#098658",  # Dark green
+        operator="#000000",  # Black
+        decorator="#AA0000",  # Dark red
+        constant="#0000FF",  # Blue
+        variable="#001080",  # Dark blue
+        parameter="#001080",  # Dark blue
+        type="#267F99",  # Teal
+        namespace="#267F99",  # Teal
+        error="#FF0000",  # Red
+        warning="#FFA500",  # Orange
+        info="#0000FF",  # Blue
     )
 
     return Theme(
@@ -328,6 +354,31 @@ def create_dark_theme() -> Theme:
         chart_axis=tokens.primitive.gray_600,
     )
 
+    # Configure typography for dark theme
+    tokens.typography = Typography(
+        font_family_code="Cascadia Code"  # Modern monospace font
+    )
+
+    # Configure syntax highlighting colors for dark theme (VS Code Dark style)
+    tokens.syntax = SyntaxColors(
+        keyword="#569CD6",  # Light blue
+        class_name="#4EC9B0",  # Cyan
+        function="#DCDCAA",  # Yellow
+        string="#CE9178",  # Orange
+        comment="#6A9955",  # Green
+        number="#B5CEA8",  # Light green
+        operator="#D4D4D4",  # Light gray
+        decorator="#DCDCAA",  # Yellow
+        constant="#569CD6",  # Light blue
+        variable="#9CDCFE",  # Light blue
+        parameter="#9CDCFE",  # Light blue
+        type="#4EC9B0",  # Cyan
+        namespace="#4EC9B0",  # Cyan
+        error="#F44747",  # Red
+        warning="#FFCC00",  # Yellow
+        info="#569CD6",  # Light blue
+    )
+
     return Theme(
         name="dark",
         display_name="Dark",
@@ -453,6 +504,31 @@ def create_high_contrast_theme() -> Theme:
         tab_bg=tokens.primitive.gray_100,
         tab_fg=tokens.primitive.black,
         chart_grid=tokens.primitive.gray_400,
+    )
+
+    # Configure typography for high contrast theme
+    tokens.typography = Typography(
+        font_family_code="Consolas"  # Clear monospace font
+    )
+
+    # Configure syntax highlighting colors for high contrast
+    tokens.syntax = SyntaxColors(
+        keyword="#0000FF",  # Blue
+        class_name="#267F99",  # Teal
+        function="#795E26",  # Brown
+        string="#A31515",  # Red
+        comment="#008000",  # Green
+        number="#098658",  # Dark green
+        operator="#000000",  # Black
+        decorator="#AA0000",  # Dark red
+        constant="#0000FF",  # Blue
+        variable="#001080",  # Dark blue
+        parameter="#001080",  # Dark blue
+        type="#267F99",  # Teal
+        namespace="#267F99",  # Teal
+        error="#FF0000",  # Red
+        warning="#FFA500",  # Orange
+        info="#0000FF",  # Blue
     )
 
     return Theme(

@@ -94,6 +94,19 @@ QLabel[secondary="true"] {{
 
 QLabel[disabled="true"] {{
     color: {tokens.semantic.fg_tertiary};
+}}
+
+/* Code blocks */
+QLabel[codeblock="true"], QTextEdit[codeblock="true"] {{
+    background-color: {tokens.semantic.bg_tertiary};
+    color: {tokens.semantic.fg_primary};
+    padding: 8px;
+    border: 1px solid {tokens.semantic.border_subtle};
+    border-radius: {tokens.borders.radius_sm}px;
+}}
+
+QTextEdit[codeblock="true"] {{
+    font-family: "Consolas", "Monaco", "Courier New", monospace;
 }}"""
 
     def _generate_button_styles(self, tokens: DesignTokens) -> str:
@@ -358,6 +371,33 @@ QSlider::handle:horizontal:hover {{
 }}
 
 QSlider::sub-page:horizontal {{
+    background-color: {tokens.semantic.action_primary};
+    border-radius: 2px;
+}}
+
+/* Vertical Slider */
+QSlider::groove:vertical {{
+    background-color: {tokens.semantic.bg_tertiary};
+    width: 4px;
+    border-radius: 2px;
+}}
+
+QSlider::handle:vertical {{
+    background-color: {tokens.semantic.action_primary};
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    margin: 0 -6px;
+}}
+
+QSlider::handle:vertical:hover {{
+    background-color: {tokens.semantic.action_primary_hover};
+    width: 18px;
+    height: 18px;
+    margin: 0 -7px;
+}}
+
+QSlider::add-page:vertical {{
     background-color: {tokens.semantic.action_primary};
     border-radius: 2px;
 }}"""
