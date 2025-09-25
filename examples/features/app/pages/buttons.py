@@ -1,16 +1,18 @@
 """
-Buttons demonstration page.
+Buttons demonstration page with responsive layout.
 """
 
 from __future__ import annotations
 
 from PySide6.QtWidgets import QGroupBox, QHBoxLayout, QPushButton, QToolButton, QVBoxLayout
 
+from qtframework.layouts import FlowLayout
+
 from .base import DemoPage
 
 
 class ButtonsPage(DemoPage):
-    """Page demonstrating button components."""
+    """Page demonstrating button components with responsive flow layout."""
 
     def __init__(self):
         """Initialize the buttons page."""
@@ -34,41 +36,34 @@ class ButtonsPage(DemoPage):
         self.add_stretch()
 
     def _create_standard_buttons(self):
-        """Create standard button variants."""
+        """Create standard button variants with responsive flow layout."""
         group = QGroupBox("Standard Buttons")
-        layout = QVBoxLayout()
+        layout = FlowLayout(margin=10, h_spacing=10, v_spacing=10)
 
         # Primary variants
-        row1 = QHBoxLayout()
-        row1.addWidget(self._create_button("Default"))
-        row1.addWidget(self._create_button("Primary", "primary"))
-        row1.addWidget(self._create_button("Success", "success"))
-        row1.addWidget(self._create_button("Warning", "warning"))
-        row1.addWidget(self._create_button("Danger", "danger"))
-        row1.addWidget(self._create_button("Info", "info"))
-        row1.addStretch()
-        layout.addLayout(row1)
+        layout.addWidget(self._create_button("Default"))
+        layout.addWidget(self._create_button("Primary", "primary"))
+        layout.addWidget(self._create_button("Success", "success"))
+        layout.addWidget(self._create_button("Warning", "warning"))
+        layout.addWidget(self._create_button("Danger", "danger"))
+        layout.addWidget(self._create_button("Info", "info"))
 
         # Style variants
-        row2 = QHBoxLayout()
-        row2.addWidget(self._create_button("Ghost", "ghost"))
-        row2.addWidget(self._create_button("Outline", "outline"))
-        row2.addWidget(self._create_button("Link", "link"))
+        layout.addWidget(self._create_button("Ghost", "ghost"))
+        layout.addWidget(self._create_button("Outline", "outline"))
+        layout.addWidget(self._create_button("Link", "link"))
 
         disabled_btn = self._create_button("Disabled")
         disabled_btn.setEnabled(False)
-        row2.addWidget(disabled_btn)
-
-        row2.addStretch()
-        layout.addLayout(row2)
+        layout.addWidget(disabled_btn)
 
         group.setLayout(layout)
         return group
 
     def _create_size_variants(self):
-        """Create size variant buttons."""
+        """Create size variant buttons with responsive flow layout."""
         group = QGroupBox("Size Variants")
-        layout = QHBoxLayout()
+        layout = FlowLayout(margin=10, h_spacing=10, v_spacing=10)
 
         small_btn = self._create_button("Small")
         small_btn.setProperty("size", "small")
@@ -80,22 +75,31 @@ class ButtonsPage(DemoPage):
         large_btn.setProperty("size", "large")
         layout.addWidget(large_btn)
 
-        layout.addStretch()
+        # Add more examples to show wrapping
+        for size in ["Extra Small", "Default", "Extra Large"]:
+            btn = self._create_button(size)
+            if size == "Extra Small":
+                btn.setProperty("size", "xs")
+            elif size == "Extra Large":
+                btn.setProperty("size", "xl")
+            layout.addWidget(btn)
+
         group.setLayout(layout)
         return group
 
     def _create_icon_buttons(self):
-        """Create icon buttons."""
+        """Create icon buttons with responsive flow layout."""
         group = QGroupBox("Icon Buttons")
-        layout = QHBoxLayout()
+        layout = FlowLayout(margin=10, h_spacing=10, v_spacing=10)
 
-        icons = ["⚙", "📁", "🔍", "✏️", "🗑️", "⭐"]
+        # Add more icons to demonstrate wrapping
+        icons = ["⚙", "📁", "🔍", "✏️", "🗑️", "⭐", "💾", "📊", "🔔", "🏠", "👤", "📧"]
         for icon in icons:
             btn = QToolButton()
             btn.setText(icon)
+            btn.setMinimumSize(40, 40)  # Ensure consistent button size
             layout.addWidget(btn)
 
-        layout.addStretch()
         group.setLayout(layout)
         return group
 

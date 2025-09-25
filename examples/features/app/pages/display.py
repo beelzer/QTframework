@@ -1,10 +1,13 @@
 """
-Display elements demonstration page.
+Display elements demonstration page with responsive layout.
 """
 
 from __future__ import annotations
 
 from PySide6.QtWidgets import QGroupBox, QHBoxLayout, QLabel, QProgressBar, QVBoxLayout
+
+from qtframework.layouts import FlowLayout
+from qtframework.widgets import Badge, BadgeVariant, CountBadge
 
 from .base import DemoPage
 
@@ -23,9 +26,13 @@ class DisplayPage(DemoPage):
         progress_group = self._create_progress_bars()
         self.add_section("", progress_group)
 
-        # Labels and badges
-        labels_group = self._create_labels()
-        self.add_section("", labels_group)
+        # Status/Label badges
+        badges_group = self._create_badges()
+        self.add_section("", badges_group)
+
+        # Notification count badges
+        count_badges_group = self._create_count_badges()
+        self.add_section("", count_badges_group)
 
         # Typography
         typography_group = self._create_typography()
@@ -67,27 +74,50 @@ class DisplayPage(DemoPage):
         group.setLayout(layout)
         return group
 
-    def _create_labels(self):
-        """Create label and badge examples."""
-        group = QGroupBox("Labels & Badges")
-        layout = QHBoxLayout()
+    def _create_badges(self):
+        """Create badge examples with responsive flow layout."""
+        group = QGroupBox("Status Badges")
+        layout = FlowLayout(margin=10, h_spacing=10, v_spacing=10)
 
+        # Create badges with different variants
         badges = [
-            ("Default", None),
-            ("Primary", "primary"),
-            ("Success", "success"),
-            ("Warning", "warning"),
-            ("Danger", "danger"),
-            ("Info", "info"),
+            ("Default", BadgeVariant.DEFAULT),
+            ("Primary", BadgeVariant.PRIMARY),
+            ("Secondary", BadgeVariant.SECONDARY),
+            ("Success", BadgeVariant.SUCCESS),
+            ("Warning", BadgeVariant.WARNING),
+            ("Danger", BadgeVariant.DANGER),
+            ("Info", BadgeVariant.INFO),
+            ("Light", BadgeVariant.LIGHT),
+            ("Dark", BadgeVariant.DARK),
         ]
 
         for text, variant in badges:
-            label = QLabel(text)
-            if variant:
-                label.setProperty("badge", variant)
-            layout.addWidget(label)
+            badge = Badge(text, variant)
+            layout.addWidget(badge)
 
-        layout.addStretch()
+        group.setLayout(layout)
+        return group
+
+    def _create_count_badges(self):
+        """Create count/notification badge examples."""
+        group = QGroupBox("Notification Badges")
+        layout = FlowLayout(margin=10, h_spacing=10, v_spacing=10)
+
+        # Create count badges - these are now visually distinct, compact circles/pills
+        counts = [
+            (1, BadgeVariant.DANGER),  # Single digit - circular
+            (5, BadgeVariant.PRIMARY),
+            (23, BadgeVariant.SUCCESS),  # Double digit - oval
+            (99, BadgeVariant.WARNING),
+            (150, BadgeVariant.DANGER),  # Will show as 99+ - pill shaped
+            (1234, BadgeVariant.INFO),  # Will show as 99+
+        ]
+
+        for count, variant in counts:
+            count_badge = CountBadge(count, variant)
+            layout.addWidget(count_badge)
+
         group.setLayout(layout)
         return group
 

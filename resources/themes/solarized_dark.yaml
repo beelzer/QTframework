@@ -180,6 +180,43 @@ tokens:
     chart_grid: "#586e75"
     chart_axis: "#657b83"
 
+    # Badge colors
+    badge_default_bg: "#073642"
+    badge_default_fg: "#93a1a1"
+    badge_default_border: "#586e75"
+
+    badge_primary_bg: "#268bd2"
+    badge_primary_fg: "#fdf6e3"
+    badge_primary_border: "#268bd2"
+
+    badge_secondary_bg: "#586e75"
+    badge_secondary_fg: "#fdf6e3"
+    badge_secondary_border: "#657b83"
+
+    badge_success_bg: "#859900"
+    badge_success_fg: "#fdf6e3"
+    badge_success_border: "#859900"
+
+    badge_warning_bg: "#b58900"
+    badge_warning_fg: "#002b36"
+    badge_warning_border: "#b58900"
+
+    badge_danger_bg: "#dc322f"
+    badge_danger_fg: "#fdf6e3"
+    badge_danger_border: "#dc322f"
+
+    badge_info_bg: "#2aa198"
+    badge_info_fg: "#fdf6e3"
+    badge_info_border: "#2aa198"
+
+    badge_light_bg: "#eee8d5"
+    badge_light_fg: "#002b36"
+    badge_light_border: "#93a1a1"
+
+    badge_dark_bg: "#002b36"
+    badge_dark_fg: "#93a1a1"
+    badge_dark_border: "#073642"
+
   typography:
     font_family_code: "Consolas"
 

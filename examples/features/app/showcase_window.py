@@ -33,8 +33,14 @@ class ShowcaseWindow(QMainWindow):
 
     def _setup_managers(self):
         """Initialize framework managers."""
-        resources_path = Path(__file__).parent.parent.parent.parent / "resources"
-        self.theme_manager = ThemeManager(resources_path / "themes")
+        # Use the theme manager from the Application instance
+        app = QApplication.instance()
+        if hasattr(app, "theme_manager"):
+            self.theme_manager = app.theme_manager
+        else:
+            # Fallback in case Application is not used
+            resources_path = Path(__file__).parent.parent.parent.parent / "resources"
+            self.theme_manager = ThemeManager(resources_path / "themes")
         self.config_manager = ConfigManager()
 
         # Create a simple reducer for the demo

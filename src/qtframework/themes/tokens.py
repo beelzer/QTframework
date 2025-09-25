@@ -210,6 +210,43 @@ class ComponentColors(BaseModel):
     chart_grid: str = Field(default="")
     chart_axis: str = Field(default="")
 
+    # Badge colors
+    badge_default_bg: str = Field(default="")
+    badge_default_fg: str = Field(default="")
+    badge_default_border: str = Field(default="")
+
+    badge_primary_bg: str = Field(default="")
+    badge_primary_fg: str = Field(default="")
+    badge_primary_border: str = Field(default="")
+
+    badge_secondary_bg: str = Field(default="")
+    badge_secondary_fg: str = Field(default="")
+    badge_secondary_border: str = Field(default="")
+
+    badge_success_bg: str = Field(default="")
+    badge_success_fg: str = Field(default="")
+    badge_success_border: str = Field(default="")
+
+    badge_warning_bg: str = Field(default="")
+    badge_warning_fg: str = Field(default="")
+    badge_warning_border: str = Field(default="")
+
+    badge_danger_bg: str = Field(default="")
+    badge_danger_fg: str = Field(default="")
+    badge_danger_border: str = Field(default="")
+
+    badge_info_bg: str = Field(default="")
+    badge_info_fg: str = Field(default="")
+    badge_info_border: str = Field(default="")
+
+    badge_light_bg: str = Field(default="")
+    badge_light_fg: str = Field(default="")
+    badge_light_border: str = Field(default="")
+
+    badge_dark_bg: str = Field(default="")
+    badge_dark_fg: str = Field(default="")
+    badge_dark_border: str = Field(default="")
+
 
 class Typography(BaseModel):
     """Typography tokens."""

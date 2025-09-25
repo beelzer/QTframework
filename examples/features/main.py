@@ -12,12 +12,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from app.showcase_window import ShowcaseWindow
-from PySide6.QtWidgets import QApplication
+from qtframework.core import Application
 
 
 def main():
     """Run the showcase application."""
-    app = QApplication(sys.argv)
+    app = Application(sys.argv)
     app.setApplicationName("Qt Framework Showcase")
     app.setOrganizationName("Qt Framework")
     app.setStyle("Fusion")

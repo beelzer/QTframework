@@ -1,5 +1,5 @@
 """
-Selection controls demonstration page.
+Selection controls demonstration page with responsive layout.
 """
 
 from __future__ import annotations
@@ -14,8 +14,11 @@ from PySide6.QtWidgets import (
     QLabel,
     QRadioButton,
     QSlider,
+    QSpinBox,
     QVBoxLayout,
 )
+
+from qtframework.layouts import FlowLayout
 
 from .base import DemoPage
 
@@ -25,7 +28,7 @@ class SelectionsPage(DemoPage):
 
     def __init__(self):
         """Initialize the selections page."""
-        super().__init__("Selection Components")
+        super().__init__("Selection Controls")
         self._create_content()
 
     def _create_content(self):
@@ -86,9 +89,9 @@ class SelectionsPage(DemoPage):
         return group
 
     def _create_checkboxes(self):
-        """Create checkbox examples."""
+        """Create checkbox examples with responsive flow layout."""
         group = QGroupBox("Checkboxes")
-        layout = QHBoxLayout()
+        layout = FlowLayout(margin=10, h_spacing=15, v_spacing=10)
 
         check1 = QCheckBox("Unchecked")
         layout.addWidget(check1)
@@ -106,14 +109,21 @@ class SelectionsPage(DemoPage):
         check4.setEnabled(False)
         layout.addWidget(check4)
 
-        layout.addStretch()
+        # Add more checkbox examples
+        check5 = QCheckBox("Required")
+        check5.setStyleSheet("QCheckBox { font-weight: bold; }")
+        layout.addWidget(check5)
+
+        check6 = QCheckBox("Optional")
+        layout.addWidget(check6)
+
         group.setLayout(layout)
         return group
 
     def _create_radio_buttons(self):
-        """Create radio button examples."""
+        """Create radio button examples with responsive flow layout."""
         group = QGroupBox("Radio Buttons")
-        layout = QHBoxLayout()
+        layout = FlowLayout(margin=10, h_spacing=15, v_spacing=10)
 
         radio_group = QButtonGroup()
 
@@ -134,46 +144,57 @@ class SelectionsPage(DemoPage):
         radio4.setEnabled(False)
         layout.addWidget(radio4)
 
-        layout.addStretch()
+        # Add more radio button examples
+        radio5 = QRadioButton("Option 4")
+        radio_group.addButton(radio5)
+        layout.addWidget(radio5)
+
+        radio6 = QRadioButton("Option 5")
+        radio_group.addButton(radio6)
+        layout.addWidget(radio6)
+
         group.setLayout(layout)
         return group
 
     def _create_sliders(self):
         """Create slider examples."""
-        group = QGroupBox("Sliders")
+        group = QGroupBox("Sliders & Spinners")
         layout = QVBoxLayout()
 
         # Horizontal slider
         row1 = QHBoxLayout()
         row1.addWidget(QLabel("Horizontal:"))
-        h_slider = QSlider(Qt.Horizontal)
-        h_slider.setRange(0, 100)
-        h_slider.setValue(50)
-        h_slider.setTickPosition(QSlider.TicksBelow)
-        h_slider.setTickInterval(10)
-        row1.addWidget(h_slider)
-
-        h_value = QLabel("50")
-        h_slider.valueChanged.connect(lambda v: h_value.setText(str(v)))
-        row1.addWidget(h_value)
+        slider1 = QSlider(Qt.Horizontal)
+        slider1.setRange(0, 100)
+        slider1.setValue(50)
+        row1.addWidget(slider1)
+        spin1 = QSpinBox()
+        spin1.setRange(0, 100)
+        spin1.setValue(50)
+        slider1.valueChanged.connect(spin1.setValue)
+        spin1.valueChanged.connect(slider1.setValue)
+        row1.addWidget(spin1)
         layout.addLayout(row1)
 
-        # Vertical slider
+        # Vertical slider section
         row2 = QHBoxLayout()
         row2.addWidget(QLabel("Vertical:"))
-        v_slider = QSlider(Qt.Vertical)
-        v_slider.setRange(0, 100)
-        v_slider.setValue(75)
-        v_slider.setTickPosition(QSlider.TicksLeft)
-        v_slider.setTickInterval(10)
-        v_slider.setFixedHeight(150)
-        row2.addWidget(v_slider)
-
-        v_value = QLabel("75")
-        v_slider.valueChanged.connect(lambda v: v_value.setText(str(v)))
-        row2.addWidget(v_value)
+        slider2 = QSlider(Qt.Vertical)
+        slider2.setRange(0, 100)
+        slider2.setValue(75)
+        slider2.setMinimumHeight(100)
+        row2.addWidget(slider2)
         row2.addStretch()
         layout.addLayout(row2)
+
+        # Disabled slider
+        row3 = QHBoxLayout()
+        row3.addWidget(QLabel("Disabled:"))
+        slider3 = QSlider(Qt.Horizontal)
+        slider3.setEnabled(False)
+        slider3.setValue(30)
+        row3.addWidget(slider3)
+        layout.addLayout(row3)
 
         group.setLayout(layout)
         return group
