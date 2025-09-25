@@ -6,8 +6,100 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QDockWidget, QHBoxLayout, QLabel, QTextEdit, QVBoxLayout, QWidget
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtWidgets import (
+    QDockWidget,
+    QHBoxLayout,
+    QLabel,
+    QScrollArea,
+    QSizePolicy,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
+
+
+class DynamicScrollArea(QScrollArea):
+    """Custom scroll area that dynamically adjusts content margins for scrollbar."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._adjustment_timer = QTimer()
+        self._adjustment_timer.setSingleShot(True)
+        self._adjustment_timer.timeout.connect(self._do_adjust_margins)
+
+        # Install event filter on vertical scrollbar to catch visibility changes
+        v_bar = self.verticalScrollBar()
+        if v_bar:
+            v_bar.installEventFilter(self)
+
+    def resizeEvent(self, event):
+        """Handle resize events to adjust for scrollbar visibility."""
+        super().resizeEvent(event)
+        # Debounce the adjustment to avoid too many calls
+        self._adjustment_timer.stop()
+        self._adjustment_timer.start(10)
+
+    def showEvent(self, event):
+        """Handle show events to adjust margins."""
+        super().showEvent(event)
+        self._adjustment_timer.start(10)
+
+    def setWidget(self, widget):
+        """Override setWidget to trigger adjustment when content changes."""
+        super().setWidget(widget)
+        if widget:
+            # Connect to layout changes
+            self._adjustment_timer.start(10)
+
+    def _do_adjust_margins(self):
+        """Actually perform the margin adjustment."""
+        widget = self.widget()
+        if not widget or not widget.layout():
+            return
+
+        # Get the vertical scrollbar
+        v_bar = self.verticalScrollBar()
+        if not v_bar:
+            return
+
+        # Check actual scrollbar visibility (more reliable than calculating)
+        scrollbar_visible = v_bar.isVisible()
+
+        # Get current margins
+        margins = widget.layout().contentsMargins()
+        current_right_margin = margins.right()
+
+        if scrollbar_visible:
+            # Get actual scrollbar width
+            scrollbar_width = v_bar.width()
+            # Add a small extra buffer (2-3px) to prevent any overlap
+            target_right_margin = 10 + scrollbar_width + 3
+        else:
+            # No scrollbar, use base margin
+            target_right_margin = 10
+
+        # Only update if margin needs to change
+        if current_right_margin != target_right_margin:
+            widget.layout().setContentsMargins(
+                margins.left(), margins.top(), target_right_margin, margins.bottom()
+            )
+            # Force a layout update to apply changes immediately
+            widget.layout().update()
+
+    def _adjust_content_margins(self):
+        """Public method to trigger margin adjustment."""
+        self._adjustment_timer.start(10)
+
+    def eventFilter(self, watched, event):
+        """Filter events to catch scrollbar visibility changes."""
+        from PySide6.QtCore import QEvent
+
+        if watched == self.verticalScrollBar():
+            if event.type() in (QEvent.Show, QEvent.Hide):
+                # Scrollbar visibility changed, adjust margins
+                self._adjustment_timer.start(10)
+        return super().eventFilter(watched, event)
 
 
 def create_dock_widgets(window):
@@ -32,12 +124,25 @@ def _create_properties_dock(window):
     title_label.setProperty("heading", "h3")
     layout.addWidget(title_label)
 
-    # Create scrollable area for properties
-    from PySide6.QtWidgets import QScrollArea
-
-    scroll = QScrollArea()
+    # Create scrollable area for properties using our custom class
+    scroll = DynamicScrollArea()
     scroll.setWidgetResizable(True)
-    scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+    scroll.setHorizontalScrollBarPolicy(
+        Qt.ScrollBarAlwaysOff
+    )  # No horizontal scrollbar needed with wrapping
+    scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+
+    # Style the scroll area to ensure proper content visibility
+    scroll.setStyleSheet("""
+        QScrollArea {
+            border: none;
+        }
+        QScrollBar:vertical {
+            background: palette(mid);
+            width: 12px;
+            margin: 0;
+        }
+    """)
 
     # Store reference to scroll area for updates
     window.properties_scroll = scroll
@@ -87,6 +192,9 @@ def _update_properties(window, component_name: str, description: str = ""):
     new_content = QWidget()
     new_layout = QVBoxLayout(new_content)
 
+    # Set normal margins - we'll adjust dynamically for scrollbar
+    new_layout.setContentsMargins(10, 10, 10, 10)  # left, top, right, bottom
+
     # Store references
     window.properties_content = new_content
     window.properties_layout = new_layout
@@ -122,13 +230,18 @@ def _update_properties(window, component_name: str, description: str = ""):
 
         for prop_name, prop_value in properties.items():
             prop_layout = QHBoxLayout()
+            prop_layout.setContentsMargins(0, 2, 0, 2)  # Small vertical spacing
             prop_name_label = QLabel(f"{prop_name}:")
-            prop_name_label.setFixedWidth(100)
+            prop_name_label.setMinimumWidth(100)
+            prop_name_label.setMaximumWidth(100)
+            prop_name_label.setAlignment(Qt.AlignTop)
             prop_value_label = QLabel(str(prop_value))
             prop_value_label.setProperty("secondary", "true")
+            prop_value_label.setWordWrap(True)  # Enable word wrapping for long values
+            prop_value_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
             prop_layout.addWidget(prop_name_label)
-            prop_layout.addWidget(prop_value_label)
-            prop_layout.addStretch()
+            prop_layout.addWidget(prop_value_label, 1)  # Give it stretch factor
+            prop_layout.setSpacing(10)
 
             prop_widget = QWidget()
             prop_widget.setLayout(prop_layout)
@@ -155,6 +268,10 @@ def _update_properties(window, component_name: str, description: str = ""):
     # Set the new widget in the scroll area
     # This completely replaces the old widget and forces proper recalculation
     window.properties_scroll.setWidget(new_content)
+
+    # Trigger margin adjustment after content change
+    if isinstance(window.properties_scroll, DynamicScrollArea):
+        QTimer.singleShot(10, window.properties_scroll._adjust_content_margins)
 
 
 def _get_component_properties(component_name: str) -> dict:
