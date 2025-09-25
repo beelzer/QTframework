@@ -79,3 +79,32 @@ class ContentArea(QStackedWidget):
         """Show a specific page by name."""
         if name in self.pages:
             self.setCurrentIndex(self.pages[name])
+
+            # Force layout updates on the new page, especially for FlowLayouts
+            current_widget = self.currentWidget()
+            if current_widget:
+                # Schedule a deferred update to ensure layouts are properly calculated
+                from PySide6.QtCore import QTimer
+
+                def update_page_layouts():
+                    # Find and update all FlowLayouts in the page
+                    from qtframework.layouts import FlowLayout
+                    from PySide6.QtWidgets import QWidget
+
+                    def update_flow_layouts(widget):
+                        if widget.layout() and isinstance(widget.layout(), FlowLayout):
+                            widget.layout().invalidate()
+                            widget.layout().activate()
+                            widget.adjustSize()
+
+                        for child in widget.findChildren(QWidget):
+                            if child.layout() and isinstance(child.layout(), FlowLayout):
+                                child.layout().invalidate()
+                                child.layout().activate()
+                                child.adjustSize()
+
+                    update_flow_layouts(current_widget)
+                    current_widget.updateGeometry()
+
+                # Small delay to let the page become visible first
+                QTimer.singleShot(0, update_page_layouts)

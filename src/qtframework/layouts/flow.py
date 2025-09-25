@@ -79,13 +79,23 @@ class FlowLayout(QLayout):
 
     def heightForWidth(self, width: int) -> int:
         """Calculate the height needed for a given width."""
+        # Ensure we have valid width
+        if width <= 0:
+            return self.minimumSize().height()
         height = self._do_layout(QRect(0, 0, width, 0), test=True)
-        return height
+        return max(height, self.minimumSize().height())
 
     def setGeometry(self, rect: QRect) -> None:
         """Set the geometry of the layout."""
         super().setGeometry(rect)
         self._do_layout(rect, test=False)
+
+    def invalidate(self) -> None:
+        """Invalidate the layout to force recalculation."""
+        super().invalidate()
+        # Force immediate re-layout if we have a valid geometry
+        if self.geometry().isValid():
+            self._do_layout(self.geometry(), test=False)
 
     def sizeHint(self) -> QSize:
         """Return the preferred size of the layout."""
@@ -117,6 +127,15 @@ class FlowLayout(QLayout):
         right: int = margins[2] if margins else 0
         bottom: int = margins[3] if margins else 0
         effective_rect = rect.adjusted(left, top, -right, -bottom)
+
+        # Ensure we have a valid rect to work with
+        if effective_rect.width() <= 0:
+            # If we don't have a valid width yet, use parent's width if available
+            if self.parent():
+                effective_rect.setWidth(self.parent().width() - left - right)
+            if effective_rect.width() <= 0:
+                return 0  # Can't layout without valid width
+
         x = effective_rect.x()
         y = effective_rect.y()
         line_height = 0
@@ -132,20 +151,25 @@ class FlowLayout(QLayout):
             space_x = h_space
             space_y = v_space
 
-            next_x = x + item.sizeHint().width() + space_x
+            item_size = item.sizeHint()
+            next_x = x + item_size.width() + space_x
 
             if next_x - space_x > effective_rect.right() and line_height > 0:
                 # Start a new line
                 x = effective_rect.x()
                 y = y + line_height + space_y
-                next_x = x + item.sizeHint().width() + space_x
+                next_x = x + item_size.width() + space_x
                 line_height = 0
 
             if not test:
-                item.setGeometry(QRect(QPoint(x, y), item.sizeHint()))
+                item.setGeometry(QRect(QPoint(x, y), item_size))
+                # Ensure the widget is shown and properly updated
+                if widget:
+                    widget.show()
+                    widget.raise_()
 
             x = next_x
-            line_height = max(line_height, item.sizeHint().height())
+            line_height = max(line_height, item_size.height())
 
         return y + line_height - rect.y() + bottom
 

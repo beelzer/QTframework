@@ -37,15 +37,18 @@ def _create_properties_dock(window):
 
     scroll = QScrollArea()
     scroll.setWidgetResizable(True)
+    scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-    # Properties content widget
-    window.properties_content = QWidget()
-    window.properties_layout = QVBoxLayout(window.properties_content)
+    # Store reference to scroll area for updates
+    window.properties_scroll = scroll
+
+    # Properties content widget - will be created in _update_properties
+    window.properties_content = None
+    window.properties_layout = None
 
     # Default content
     _update_properties(window, "Buttons", "Core component for user interactions")
 
-    scroll.setWidget(window.properties_content)
     layout.addWidget(scroll)
 
     dock.setWidget(widget)
@@ -77,27 +80,29 @@ def log_output(window, message: str):
 
 def _update_properties(window, component_name: str, description: str = ""):
     """Update the properties panel with component information."""
-    if not hasattr(window, "properties_layout"):
+    if not hasattr(window, "properties_scroll"):
         return
 
-    # Clear existing content (but remember the code display if any)
+    # Create a completely new content widget
+    new_content = QWidget()
+    new_layout = QVBoxLayout(new_content)
+
+    # Store references
+    window.properties_content = new_content
+    window.properties_layout = new_layout
     window.current_code_display = None
-    while window.properties_layout.count():
-        child = window.properties_layout.takeAt(0)
-        if child.widget():
-            child.widget().deleteLater()
 
     # Component name
     name_label = QLabel(f"Component: {component_name}")
     name_label.setStyleSheet("font-weight: bold;")
-    window.properties_layout.addWidget(name_label)
+    new_layout.addWidget(name_label)
 
     # Description
     if description:
         desc_label = QLabel(description)
         desc_label.setWordWrap(True)
         desc_label.setProperty("secondary", "true")
-        window.properties_layout.addWidget(desc_label)
+        new_layout.addWidget(desc_label)
 
     # Add separator
     from PySide6.QtWidgets import QFrame
@@ -105,7 +110,7 @@ def _update_properties(window, component_name: str, description: str = ""):
     separator = QFrame()
     separator.setFrameShape(QFrame.HLine)
     separator.setFrameShadow(QFrame.Sunken)
-    window.properties_layout.addWidget(separator)
+    new_layout.addWidget(separator)
 
     # Component-specific properties
     properties = _get_component_properties(component_name)
@@ -113,7 +118,7 @@ def _update_properties(window, component_name: str, description: str = ""):
     if properties:
         props_label = QLabel("Properties:")
         props_label.setStyleSheet("font-weight: bold; margin-top: 10px;")
-        window.properties_layout.addWidget(props_label)
+        new_layout.addWidget(props_label)
 
         for prop_name, prop_value in properties.items():
             prop_layout = QHBoxLayout()
@@ -127,25 +132,29 @@ def _update_properties(window, component_name: str, description: str = ""):
 
             prop_widget = QWidget()
             prop_widget.setLayout(prop_layout)
-            window.properties_layout.addWidget(prop_widget)
+            new_layout.addWidget(prop_widget)
 
     # Usage example
     usage = _get_usage_example(component_name)
     if usage:
         usage_label = QLabel("Usage Example:")
         usage_label.setStyleSheet("font-weight: bold; margin-top: 10px;")
-        window.properties_layout.addWidget(usage_label)
+        new_layout.addWidget(usage_label)
 
         # Use the CodeDisplay widget for syntax highlighting
         from .widgets import CodeDisplay
 
         code_display = CodeDisplay(usage, "python")
-        window.properties_layout.addWidget(code_display)
+        new_layout.addWidget(code_display)
 
         # Store reference for theme updates
         window.current_code_display = code_display
 
-    window.properties_layout.addStretch()
+    new_layout.addStretch()
+
+    # Set the new widget in the scroll area
+    # This completely replaces the old widget and forces proper recalculation
+    window.properties_scroll.setWidget(new_content)
 
 
 def _get_component_properties(component_name: str) -> dict:
