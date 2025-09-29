@@ -27,14 +27,15 @@ runs:
           pyproject.toml
           requirements*.txt
 
-    - name: Install system dependencies (Linux)
-      if: runner.os == 'Linux'
+    - name: Install Qt system dependencies (Linux)
+      if: runner.os == 'Linux' && (inputs.install-type == 'dev' || inputs.install-type == 'minimal')
       shell: bash
       run: |
         sudo apt-get update
         sudo apt-get install -y \
           libgl1-mesa-dri \
           libglib2.0-0 \
+          libegl1-mesa \
           libxcb-xinerama0 \
           libxcb-icccm4 \
           libxcb-image0 \
