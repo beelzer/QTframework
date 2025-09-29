@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QPushButton, QTextEdit
 
@@ -343,9 +343,14 @@ class SearchInput(Widget):
         self._input.clear()
         self.cleared.emit()
 
-    def setFocus(self) -> None:
+    def setFocus(self, focus_reason: FocusReason | None = None) -> None:
         """Set focus to input."""
-        self._input.setFocus()
+        if focus_reason is None:
+            self._input.setFocus()
+        else:
+            if not isinstance(focus_reason, Qt.FocusReason):
+                raise TypeError("focus_reason must be an instance of Qt.FocusReason")
+            self._input.setFocus(focus_reason)
 
 
 class TextArea(QTextEdit):
@@ -402,3 +407,6 @@ class TextArea(QTextEdit):
         if self._max_length:
             text = text[: self._max_length]
         super().setPlainText(text)
+
+
+type FocusReason = Qt.FocusReason

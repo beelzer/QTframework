@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from functools import wraps
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QAction
@@ -398,7 +398,7 @@ def setup_widget_translations(widget: QWidget) -> TranslationHelper:
         TranslationHelper instance
     """
     helper = TranslationHelper(widget)
-    widget._translation_helper = helper
+    cast("Any", widget)._translation_helper = helper
     return helper
 
 

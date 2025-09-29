@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from PySide6.QtCore import QPoint, QRect, QSize, Qt
-from PySide6.QtWidgets import QLayout, QSizePolicy
+from PySide6.QtWidgets import QLayout, QStyle, QWidget
 
 
 if TYPE_CHECKING:
-    from PySide6.QtWidgets import QLayoutItem, QWidget
+    from PySide6.QtWidgets import QLayoutItem
 
 
 class FlowLayout(QLayout):
@@ -51,13 +51,13 @@ class FlowLayout(QLayout):
         """Get horizontal spacing between widgets."""
         if self._h_space >= 0:
             return self._h_space
-        return self._smart_spacing(QSizePolicy.Horizontal)  # type: ignore[attr-defined]
+        return self._smart_spacing(horizontal=True)
 
     def verticalSpacing(self) -> int:
         """Get vertical spacing between widgets."""
         if self._v_space >= 0:
             return self._v_space
-        return self._smart_spacing(QSizePolicy.Vertical)  # type: ignore[attr-defined]
+        return self._smart_spacing(horizontal=False)
 
     def count(self) -> int:
         """Return the number of items in the layout."""
@@ -69,11 +69,11 @@ class FlowLayout(QLayout):
             return self._item_list[index]
         return None
 
-    def takeAt(self, index: int) -> QLayoutItem | None:  # type: ignore[override]
+    def takeAt(self, index: int) -> QLayoutItem:
         """Remove and return the item at the given index."""
         if 0 <= index < len(self._item_list):
             return self._item_list.pop(index)
-        return None
+        return cast("QLayoutItem", None)
 
     def expandingDirections(self) -> Qt.Orientation:
         """Return the expanding directions."""
@@ -127,24 +127,18 @@ class FlowLayout(QLayout):
         Returns:
             The height used by the layout
         """
-        margins = self.getContentsMargins()
-        if margins and len(margins) >= 4:
-            left, top, right, bottom = (
-                int(margins[0]),
-                int(margins[1]),
-                int(margins[2]),
-                int(margins[3]),
-            )
-        else:
-            left = top = right = bottom = 0
+        left = top = right = bottom = 0
+        margins = cast("tuple[int, int, int, int]", self.getContentsMargins())
+        if margins:
+            left, top, right, bottom = margins
         effective_rect = rect.adjusted(left, top, -right, -bottom)
 
         # Ensure we have a valid rect to work with
         if effective_rect.width() <= 0:
             # If we don't have a valid width yet, use parent's width if available
-            parent = self.parent()
-            if parent and hasattr(parent, "width"):
-                effective_rect.setWidth(parent.width() - left - right)
+            parent_widget = self.parentWidget()
+            if parent_widget is not None:
+                effective_rect.setWidth(parent_widget.width() - left - right)
             if effective_rect.width() <= 0:
                 return 0  # Can't layout without valid width
 
@@ -185,20 +179,23 @@ class FlowLayout(QLayout):
 
         return int(y + line_height - rect.y() + bottom)
 
-    def _smart_spacing(self, orientation: QSizePolicy.ControlType) -> int:
+    def _smart_spacing(self, *, horizontal: bool) -> int:
         """Calculate smart spacing based on parent widget style."""
         parent = self.parent()
-        if not parent:
+        if not isinstance(parent, QWidget):
             return -1
 
-        if orientation == QSizePolicy.Horizontal:  # type: ignore[attr-defined]
-            return int(
-                parent.style().pixelMetric(  # type: ignore[attr-defined]
-                    parent.style().PM_LayoutHorizontalSpacing,
-                    None,
-                    parent,  # type: ignore[attr-defined]
-                )
+        style = parent.style()
+        if horizontal:
+            metric = style.pixelMetric(
+                QStyle.PixelMetric.PM_LayoutHorizontalSpacing,
+                None,
+                parent,
             )
-        return int(
-            parent.style().pixelMetric(parent.style().PM_LayoutVerticalSpacing, None, parent)
-        )  # type: ignore[attr-defined]
+        else:
+            metric = style.pixelMetric(
+                QStyle.PixelMetric.PM_LayoutVerticalSpacing,
+                None,
+                parent,
+            )
+        return int(metric)

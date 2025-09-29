@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import collections
 import re
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from PySide6.QtCore import QObject, Signal
 
@@ -12,8 +13,6 @@ from qtframework.utils.logger import get_logger
 
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
     from PySide6.QtWidgets import QWidget
 
 
@@ -25,11 +24,11 @@ class Route:
     """Route definition."""
 
     path: str
-    component: type[QWidget] | Callable[..., QWidget]
+    component: type[QWidget] | collections.abc.Callable[..., QWidget]
     name: str | None = None
     params: dict[str, Any] = field(default_factory=dict)
     meta: dict[str, Any] = field(default_factory=dict)
-    guards: list[Callable[[Route], bool]] = field(default_factory=list)
+    guards: list[collections.abc.Callable[[Route], bool]] = field(default_factory=list)
     children: list[Route] = field(default_factory=list)
     redirect: str | None = None
 
@@ -89,8 +88,8 @@ class Router(QObject):
         self._history: list[str] = []
         self._future: list[str] = []
         self._route_map: dict[str, Route] = {}
-        self._before_hooks: list[Callable[[str, str], bool]] = []
-        self._after_hooks: list[Callable[[Route], None]] = []
+        self._before_hooks: list[collections.abc.Callable[[str, str], bool]] = []
+        self._after_hooks: list[collections.abc.Callable[[Route], None]] = []
 
         self._build_route_map()
 
@@ -183,8 +182,8 @@ class Router(QObject):
         self.route_changed.emit(path, route_params)
 
         # After hooks
-        for hook in self._after_hooks:
-            hook(route)  # type: ignore[arg-type]
+        for after_hook in self._after_hooks:
+            after_hook(route)
 
         return True
 
@@ -306,25 +305,29 @@ class Router(QObject):
         if not self._current_route:
             return None
 
-        component = self._current_route.component
-        if callable(component):
-            return component()
-        return None  # pragma: no cover
+        component_callable = cast(
+            "collections.abc.Callable[[], QWidget]", self._current_route.component
+        )
+        return component_callable()
 
-    def add_before_hook(self, hook: Callable[[str, str], bool]) -> None:
+    def add_before_hook(self, hook: collections.abc.Callable[[str, str], bool]) -> None:
         """Add before navigation hook.
 
         Args:
             hook: Hook function (from_path, to_path) -> bool
         """
+        if not callable(hook):
+            raise TypeError("Before hook must be callable")
         self._before_hooks.append(hook)
 
-    def add_after_hook(self, hook: Callable[[Route], None]) -> None:
+    def add_after_hook(self, hook: collections.abc.Callable[[Route], None]) -> None:
         """Add after navigation hook.
 
         Args:
             hook: Hook function
         """
+        if not callable(hook):
+            raise TypeError("After hook must be callable")
         self._after_hooks.append(hook)
 
     def get_history(self) -> list[str]:

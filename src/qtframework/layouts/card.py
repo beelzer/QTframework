@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, override
+from typing import Any
 
 from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget
 
@@ -183,7 +183,6 @@ class CardLayout(QWidget):
         for col in range(self._columns):
             self._layout.set_column_stretch(col, 1)
 
-    @override
     def resizeEvent(self, event: Any) -> None:
         """Handle resize event.
 

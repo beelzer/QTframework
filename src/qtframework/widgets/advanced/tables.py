@@ -525,7 +525,9 @@ class TreeTable(QWidget):
 
         # Apply to all root items
         for i in range(self.tree.topLevelItemCount()):
-            filter_item(self.tree.topLevelItem(i), search_text)
+            item = self.tree.topLevelItem(i)
+            if item is not None:
+                filter_item(item, search_text)
 
     def _expand_all(self) -> None:
         """Expand all tree items."""

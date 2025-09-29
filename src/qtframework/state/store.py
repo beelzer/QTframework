@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import collections
 import copy
 from typing import TYPE_CHECKING, Any
 
@@ -12,8 +13,6 @@ from qtframework.utils.logger import get_logger
 
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
     from qtframework.state.middleware import Middleware
     from qtframework.state.reducers import Reducer
 
@@ -44,11 +43,17 @@ class Store(QObject):
         self._reducer = reducer
         self._state = initial_state or {}
         self._middleware = middleware or []
-        self._subscribers: list[Callable[[dict[str, Any]], None]] = []
+        self._subscribers: list[collections.abc.Callable[[dict[str, Any]], None]] = []
         self._is_dispatching = False
         self._history: list[dict[str, Any]] = []
         self._history_index = -1
         self._max_history = 100
+
+        if not callable(reducer):
+            raise TypeError("Reducer must be callable")
+        for mw in self._middleware:
+            if not callable(mw):
+                raise TypeError("Middleware entries must be callable")
 
         # Initialize state
         self._state = self._reducer(self._state, Action(type="@@INIT"))
@@ -85,7 +90,7 @@ class Store(QObject):
         logger.debug(f"Dispatching action: {action.type}")
 
         # Apply middleware
-        dispatch_func = self._dispatch_core
+        dispatch_func: collections.abc.Callable[[Action], Action] = self._dispatch_core
         for middleware in reversed(self._middleware):
             dispatch_func = middleware(self)(dispatch_func)
 
@@ -118,7 +123,9 @@ class Store(QObject):
 
         return action
 
-    def subscribe(self, callback: Callable[[dict[str, Any]], None]) -> Callable[[], None]:
+    def subscribe(
+        self, callback: collections.abc.Callable[[dict[str, Any]], None]
+    ) -> collections.abc.Callable[[], None]:
         """Subscribe to state changes.
 
         Args:
@@ -224,7 +231,7 @@ class Store(QObject):
         """
         return copy.deepcopy(self._history)
 
-    def select(self, selector: Callable[[dict[str, Any]], Any]) -> Any:
+    def select(self, selector: collections.abc.Callable[[dict[str, Any]], Any]) -> Any:
         """Select a value from state.
 
         Args:

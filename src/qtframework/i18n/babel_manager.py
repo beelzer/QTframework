@@ -5,7 +5,7 @@ from __future__ import annotations
 from contextlib import contextmanager, suppress
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from babel import Locale
 from babel.dates import format_date, format_datetime, format_time
@@ -72,7 +72,7 @@ class BabelI18nManager(QObject):
             locale_dir = Path(__file__).parent / "locale"
 
         self.locale_dir = Path(locale_dir)
-        self.domain = domain
+        self._domain = domain
         self._current_locale = default_locale
         self._default_locale = default_locale
         self._fallback_locales = fallback_locales or ["en_US", "en"]
@@ -130,32 +130,35 @@ class BabelI18nManager(QObject):
             return self._translations[locale]
 
         locale_chain = self._get_locale_chain(locale)
-        translations = None
+        base_translation: Translations | None = None
 
         for loc in locale_chain:
             locale_path = self.locale_dir / loc / "LC_MESSAGES"
             if locale_path.exists():
                 try:
                     # Load using Babel's support
-                    trans = Translations.load(
-                        dirname=str(self.locale_dir), locales=[loc], domain=self.domain
+                    trans = cast(
+                        "Translations",
+                        Translations.load(
+                            dirname=str(self.locale_dir), locales=[loc], domain=self._domain
+                        ),
                     )
 
-                    if translations is None:
-                        translations = trans
+                    if base_translation is None:
+                        base_translation = trans
                     else:
                         # Merge with fallback
-                        translations.merge(trans)
+                        base_translation.merge(trans)
 
                 except Exception as e:
                     print(f"Failed to load translations for {loc}: {e}")
 
         # If no translations found, create null translations
-        if translations is None:
-            translations = Translations()
+        if base_translation is None:
+            base_translation = Translations()
 
-        self._translations[locale] = translations
-        return translations
+        self._translations[locale] = base_translation
+        return base_translation
 
     def _get_locale_object(self, locale_code: str) -> Locale:
         """Get or create a Babel Locale object."""
@@ -201,6 +204,11 @@ class BabelI18nManager(QObject):
         """Get the current Babel Locale object."""
         return self._get_locale_object(self._current_locale)
 
+    @property
+    def domain_name(self) -> str:
+        """Return the active gettext domain."""
+        return self._domain
+
     def get_available_locales(self) -> list[str]:
         """Get list of available locales."""
         locales = []
@@ -209,8 +217,8 @@ class BabelI18nManager(QObject):
             for path in self.locale_dir.iterdir():
                 if path.is_dir():
                     # Check if it has translation files
-                    mo_file = path / "LC_MESSAGES" / f"{self.domain}.mo"
-                    po_file = path / "LC_MESSAGES" / f"{self.domain}.po"
+                    mo_file = path / "LC_MESSAGES" / f"{self._domain}.mo"
+                    po_file = path / "LC_MESSAGES" / f"{self._domain}.po"
 
                     if mo_file.exists() or po_file.exists():
                         locales.append(path.name)
@@ -417,8 +425,8 @@ class BabelI18nManager(QObject):
             with i18n.domain('emails'):
                 subject = i18n.t('welcome_subject')
         """
-        old_domain = self.domain
-        self.domain = domain
+        old_domain = self._domain
+        self._domain = domain
         # Clear cache for new domain
         self._get_translation_cached.cache_clear()
         self._translations.clear()
@@ -427,7 +435,7 @@ class BabelI18nManager(QObject):
         try:
             yield
         finally:
-            self.domain = old_domain
+            self._domain = old_domain
             self._get_translation_cached.cache_clear()
             self._translations.clear()
             self.set_locale(self._current_locale)
@@ -451,8 +459,8 @@ class BabelI18nManager(QObject):
 
             for locale_dir in self.locale_dir.iterdir():
                 if locale_dir.is_dir():
-                    po_file = locale_dir / "LC_MESSAGES" / f"{self.domain}.po"
-                    mo_file = locale_dir / "LC_MESSAGES" / f"{self.domain}.mo"
+                    po_file = locale_dir / "LC_MESSAGES" / f"{self._domain}.po"
+                    mo_file = locale_dir / "LC_MESSAGES" / f"{self._domain}.mo"
 
                     if po_file.exists():
                         # Check if .mo needs updating

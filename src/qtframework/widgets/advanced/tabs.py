@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QSlider,
     QSpinBox,
+    QTabBar,
     QTabWidget,
     QVBoxLayout,
 )
@@ -102,13 +103,11 @@ class TabWidget(Widget):
 
         # Set tab-specific closeable state if provided
         if closeable is not None:
-            self._tab_widget.tabBar().setTabButton(
-                index,
-                self._tab_widget.tabBar().RightSide
-                if closeable
-                else self._tab_widget.tabBar().LeftSide,
-                None,
+            tab_bar = self._tab_widget.tabBar()
+            position = (
+                QTabBar.ButtonPosition.RightSide if closeable else QTabBar.ButtonPosition.LeftSide
             )
+            tab_bar.setTabButton(index, position, None)
 
         return int(index)
 
@@ -395,7 +394,7 @@ class BaseTabPage(Widget):
         """Add a control to a group with proper labeling."""
         self._controls[key] = control
         layout = group.layout()
-        if layout is not None:
+        if isinstance(layout, QFormLayout):
             layout.addRow(label, control)
 
     def _create_slider_with_label(

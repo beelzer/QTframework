@@ -475,9 +475,9 @@ class ConfigManager:
                     else:
                         self._sources.pop(source, None)
                 else:
-                    data = self._sources.get(source)
-                    if data:
-                        self._config.merge(data)
+                    existing_data = self._sources.get(source)
+                    if isinstance(existing_data, dict):
+                        self._config.merge(existing_data)
             except ConfigurationError:
                 raise
             except Exception as exc:

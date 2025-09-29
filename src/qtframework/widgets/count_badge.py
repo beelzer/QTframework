@@ -61,7 +61,7 @@ class CountBadge(QLabel):
     def _setup_widget(self) -> None:
         """Setup the widget properties."""
         # Set alignment
-        self.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Make font bold and slightly smaller than default
         font = self.font()
@@ -199,9 +199,9 @@ class CountBadge(QLabel):
         # Last resort: use minimal theme-aware colors
         palette = self.palette()
         return {
-            "bg": palette.color(QPalette.Highlight).name(),  # type: ignore[attr-defined]
-            "fg": palette.color(QPalette.HighlightedText).name(),  # type: ignore[attr-defined]
-            "border": palette.color(QPalette.Highlight).name(),  # type: ignore[attr-defined]
+            "bg": palette.color(QPalette.ColorRole.Highlight).name(),
+            "fg": palette.color(QPalette.ColorRole.HighlightedText).name(),
+            "border": palette.color(QPalette.ColorRole.Highlight).name(),
         }
 
     def _apply_variant_style(self) -> None:

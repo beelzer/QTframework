@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Any
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, cast
 
-from PySide6.QtCore import QSettings, Signal, qInstallMessageHandler
+from PySide6.QtCore import QMessageLogContext, QSettings, QtMsgType, Signal, qInstallMessageHandler
 from PySide6.QtGui import QGuiApplication, QPalette
 from PySide6.QtWidgets import QApplication
 
@@ -18,15 +19,15 @@ if TYPE_CHECKING:
     from qtframework.core.window import BaseWindow
 
 logger = get_logger(__name__)
+_MessageHandler = Callable[[QtMsgType, QMessageLogContext, str], None]
 
 
-_original_qt_message_handler = None
+_original_qt_message_handler: _MessageHandler | None = None
 
 
-def _qt_message_filter(mode, context, message) -> None:
-    if message != "Could not parse application stylesheet":
-        if _original_qt_message_handler is not None:
-            _original_qt_message_handler(mode, context, message)
+def _qt_message_filter(mode: QtMsgType, context: QMessageLogContext, message: str) -> None:
+    if message != "Could not parse application stylesheet" and _original_qt_message_handler:
+        _original_qt_message_handler(mode, context, message)
 
 
 class Application(QApplication):
@@ -68,7 +69,8 @@ class Application(QApplication):
     def _install_stylesheet_warning_filter(self) -> None:
         global _original_qt_message_handler
         if _original_qt_message_handler is None:
-            _original_qt_message_handler = qInstallMessageHandler(_qt_message_filter)
+            handler = qInstallMessageHandler(_qt_message_filter)
+            _original_qt_message_handler = cast("_MessageHandler", handler)
 
     def _initialize(self) -> None:
         """Initialize application components."""
@@ -201,10 +203,13 @@ class Application(QApplication):
             self._windows.remove(window)
             logger.debug(f"Unregistered window: {window.windowTitle()}")
 
-    def exec(self) -> int:
+    @staticmethod
+    def exec() -> int:
         """Execute the application."""
-        logger.info(f"Starting {self.applicationName()}")
-        return int(super().exec())
+        app = QApplication.instance()
+        if isinstance(app, Application):
+            logger.info(f"Starting {app.applicationName()}")
+        return int(QApplication.exec())
 
     @classmethod
     def create_and_run(

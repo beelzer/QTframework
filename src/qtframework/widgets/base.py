@@ -95,7 +95,7 @@ class Widget(QWidget):
             classes.remove(class_name)
         else:
             classes.append(class_name)
-        self.styleClass = " ".join(classes)
+        self._set_style_class(" ".join(classes))
 
     def has_style_class(self, class_name: str) -> bool:
         """Check if widget has a style class.

@@ -186,8 +186,8 @@ class Notification(QFrame):
         self.show()
         self.raise_()
 
-        parent = self.parent()
-        if not parent:
+        parent = self.parentWidget()
+        if parent is None:
             return
 
         parent_rect = parent.rect()
@@ -246,10 +246,11 @@ class Notification(QFrame):
             # If no opacity effect, just delete
             self.deleteLater()
 
-    def close(self) -> None:
+    def close(self) -> bool:
         """Close notification."""
         self.closed.emit()
         self.animate_out()
+        return True
 
     def mousePressEvent(self, event: Any) -> None:
         """Handle mouse press.

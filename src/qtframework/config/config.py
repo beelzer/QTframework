@@ -19,6 +19,9 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 
+_MISSING = object()
+
+
 class Config(QObject):
     """Configuration container with dot notation access."""
 
@@ -46,7 +49,7 @@ class Config(QObject):
             Configuration value
         """
         keys = key.split(".")
-        value = self._data
+        value: Any = self._data
 
         for k in keys:
             if not isinstance(value, dict):
@@ -113,7 +116,8 @@ class Config(QObject):
         Returns:
             True if exists
         """
-        return self.get(key, object()) is not object()
+        sentinel = _MISSING
+        return self.get(key, sentinel) is not sentinel
 
     def watch(self, key: str, callback: Callable[[Any], None]) -> Callable[[], None]:
         """Watch configuration value changes.

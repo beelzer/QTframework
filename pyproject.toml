@@ -221,6 +221,8 @@ unfixable = ["F401"]  # Don't auto-remove imports
 "examples/**/*.py" = ["ALL"]  # Examples are for demonstration, not production
 "**/__init__.py" = ["F401", "D104"]  # __init__ can re-export
 "scripts/**/*.py" = ["S603", "S607", "T201"]  # Shell commands ok in scripts
+"src/qtframework/navigation/router.py" = ["TC003"]
+"src/qtframework/state/store.py" = ["TC003"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["qtframework"]
@@ -292,6 +294,7 @@ module = [
     "polib.*",
     "watchdog.*",
     "babel.*",
+    "dotenv.*",
 ]
 ignore_missing_imports = true
 

@@ -66,7 +66,7 @@ class Badge(QLabel):
     def _setup_widget(self) -> None:
         """Setup the widget properties."""
         # Set alignment
-        self.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Set size policy to fit content
         self.setScaledContents(False)
@@ -208,21 +208,21 @@ class Badge(QLabel):
         # Use palette colors - no hardcoded values!
         if self._variant == BadgeVariant.LIGHT:
             return {
-                "bg": palette.color(QPalette.Window).name(),  # type: ignore[attr-defined]
-                "fg": palette.color(QPalette.WindowText).name(),  # type: ignore[attr-defined]
-                "border": palette.color(QPalette.Mid).name(),  # type: ignore[attr-defined]
+                "bg": palette.color(QPalette.ColorRole.Window).name(),
+                "fg": palette.color(QPalette.ColorRole.WindowText).name(),
+                "border": palette.color(QPalette.ColorRole.Mid).name(),
             }
         if self._variant == BadgeVariant.DARK:
             return {
-                "bg": palette.color(QPalette.Shadow).name(),  # type: ignore[attr-defined]
-                "fg": palette.color(QPalette.BrightText).name(),  # type: ignore[attr-defined]
-                "border": palette.color(QPalette.Dark).name(),  # type: ignore[attr-defined]
+                "bg": palette.color(QPalette.ColorRole.Shadow).name(),
+                "fg": palette.color(QPalette.ColorRole.BrightText).name(),
+                "border": palette.color(QPalette.ColorRole.Dark).name(),
             }
         # For all other variants, use button colors as a reasonable default
         return {
-            "bg": palette.color(QPalette.Button).name(),  # type: ignore[attr-defined]
-            "fg": palette.color(QPalette.ButtonText).name(),  # type: ignore[attr-defined]
-            "border": palette.color(QPalette.Mid).name(),  # type: ignore[attr-defined]
+            "bg": palette.color(QPalette.ColorRole.Button).name(),
+            "fg": palette.color(QPalette.ColorRole.ButtonText).name(),
+            "border": palette.color(QPalette.ColorRole.Mid).name(),
         }
 
     def _apply_variant_style(self) -> None:
