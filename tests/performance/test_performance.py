@@ -36,8 +36,8 @@ class TestConfigPerformance:
         config_file.write_text(yaml.dump(large_config))
 
         with PerformanceTimer("Config Load") as timer:
-            manager = ConfigManager(str(config_file))
-            manager.load()
+            manager = ConfigManager()
+            manager.load_file(config_file)
 
         # Should load in reasonable time
         assert timer.elapsed_ms < 1000  # Less than 1 second
