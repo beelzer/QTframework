@@ -1,5 +1,7 @@
 # Qt Framework Documentation
 
+Welcome to the Qt Framework documentation! This framework provides modern, modular Qt application development tools.
+
 ```{toctree}
 :caption: Getting Started
 :maxdepth: 2
