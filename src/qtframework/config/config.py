@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 import copy
-from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel
 from PySide6.QtCore import QObject, Signal
 
 from qtframework.utils.logger import get_logger
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from pydantic import BaseModel
 
 
 logger = get_logger(__name__)
@@ -45,11 +49,10 @@ class Config(QObject):
         value = self._data
 
         for k in keys:
-            if isinstance(value, dict):
-                value = value.get(k)
-                if value is None:
-                    return default
-            else:
+            if not isinstance(value, dict):
+                return default
+            value = value.get(k)
+            if value is None:
                 return default
 
         return value
@@ -146,7 +149,7 @@ class Config(QObject):
                 try:
                     callback(value)
                 except Exception as e:
-                    logger.error(f"Watcher error for {key}: {e}")
+                    logger.exception("Watcher error for %s: %s", key, e)
 
         # Parent watchers (watch entire sections)
         parts = key.split(".")
@@ -158,7 +161,7 @@ class Config(QObject):
                     try:
                         callback(parent_value)
                     except Exception as e:
-                        logger.error(f"Parent watcher error for {parent_key}: {e}")
+                        logger.exception("Parent watcher error for %s: %s", parent_key, e)
 
     def merge(self, data: dict[str, Any], deep: bool = True) -> None:
         """Merge configuration data.

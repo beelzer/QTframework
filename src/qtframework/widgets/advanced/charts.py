@@ -4,10 +4,15 @@ from __future__ import annotations
 
 import math
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QPointF, QRectF, Qt
-from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPaintEvent, QPen
+from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen
 from PySide6.QtWidgets import QApplication, QWidget
+
+
+if TYPE_CHECKING:
+    from PySide6.QtGui import QPaintEvent
 
 
 class ChartType(Enum):
@@ -73,7 +78,7 @@ class ChartWidget(QWidget):
         """Get colors from the current theme."""
         # Get theme from application
         app = QApplication.instance()
-        if hasattr(app, "theme_manager"):
+        if app and hasattr(app, "theme_manager"):
             theme = app.theme_manager.get_theme()
             if theme and theme.colors:
                 colors = theme.colors
@@ -100,7 +105,7 @@ class ChartWidget(QWidget):
 
         # Get theme from application
         app = QApplication.instance()
-        if hasattr(app, "theme_manager"):
+        if app and hasattr(app, "theme_manager"):
             theme = app.theme_manager.get_theme()
             if theme and theme.colors:
                 colors = theme.colors

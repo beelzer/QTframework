@@ -2,15 +2,17 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QMainWindow, QWidget
+from PySide6.QtWidgets import QMainWindow
 
 from qtframework.utils.logger import get_logger
 
 
 if TYPE_CHECKING:
+    from PySide6.QtWidgets import QWidget
+
     from qtframework.core.application import Application
 
 logger = get_logger(__name__)
@@ -76,8 +78,7 @@ class BaseWindow(QMainWindow):
         """Get parent application."""
         return self._app
 
-    @override
-    def closeEvent(self, event: Any) -> None:  # type: ignore[override]
+    def closeEvent(self, event: Any) -> None:
         """Handle window close event.
 
         Args:

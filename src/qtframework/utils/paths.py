@@ -38,8 +38,7 @@ def get_user_config_dir(app_name: str) -> Path:
         # Linux/Unix: ~/.config/AppName (XDG Base Directory)
         base = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
 
-    config_dir = base / app_name
-    return config_dir
+    return base / app_name
 
 
 def get_user_data_dir(app_name: str) -> Path:
@@ -68,8 +67,7 @@ def get_user_data_dir(app_name: str) -> Path:
         # Linux/Unix: ~/.local/share/AppName (XDG Base Directory)
         base = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share"))
 
-    data_dir = base / app_name
-    return data_dir
+    return base / app_name
 
 
 def get_user_cache_dir(app_name: str) -> Path:
@@ -140,10 +138,10 @@ def ensure_directory(path: Path) -> bool:
     """
     try:
         path.mkdir(parents=True, exist_ok=True)
-        logger.debug(f"Ensured directory exists: {path}")
+        logger.debug("Ensured directory exists: %s", path)
         return True
     except Exception as e:
-        logger.error(f"Failed to create directory {path}: {e}")
+        logger.exception("Failed to create directory %s: %s", path, e)
         return False
 
 
@@ -165,20 +163,20 @@ def find_config_files(app_name: str, config_filename: str = "config.json") -> li
         system_config = system_dir / config_filename
         if system_config.exists():
             config_files.append(system_config)
-            logger.debug(f"Found system config: {system_config}")
+            logger.debug("Found system config: %s", system_config)
 
     # 2. User config directory (medium priority)
     user_dir = get_user_config_dir(app_name)
     user_config = user_dir / config_filename
     if user_config.exists():
         config_files.append(user_config)
-        logger.debug(f"Found user config: {user_config}")
+        logger.debug("Found user config: %s", user_config)
 
     # 3. Current working directory (highest priority)
     local_config = Path.cwd() / config_filename
     if local_config.exists():
         config_files.append(local_config)
-        logger.debug(f"Found local config: {local_config}")
+        logger.debug("Found local config: %s", local_config)
 
     return config_files
 

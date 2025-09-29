@@ -19,7 +19,7 @@ class ThemeManager(QObject):
 
     theme_changed = Signal(str)  # Emits theme name when changed
 
-    def __init__(self, themes_dir: Path | None = None):
+    def __init__(self, themes_dir: Path | None = None) -> None:
         """Initialize theme manager.
 
         Args:
@@ -42,9 +42,9 @@ class ThemeManager(QObject):
             try:
                 theme = theme_factory()
                 self._themes[theme_name] = theme
-                logger.debug(f"Loaded built-in theme: {theme_name}")
+                logger.debug("Loaded built-in theme: %s", theme_name)
             except Exception as e:
-                logger.error(f"Failed to load built-in theme '{theme_name}': {e}")
+                logger.exception("Failed to load built-in theme '%s': %s", theme_name, e)
 
     def _load_custom_themes(self) -> None:
         """Load custom themes from the themes directory."""
@@ -64,7 +64,7 @@ class ThemeManager(QObject):
         """
         try:
             if theme_file.suffix != ".yaml":
-                logger.warning(f"Theme files must use .yaml extension: {theme_file}")
+                logger.warning("Theme files must use .yaml extension: %s", theme_file)
                 return
 
             theme = Theme.from_yaml(theme_file)
@@ -81,7 +81,7 @@ class ThemeManager(QObject):
             logger.info(f"Loaded custom theme '{theme.name}' from {theme_file}")
 
         except Exception as e:
-            logger.error(f"Failed to load theme from {theme_file}: {e}")
+            logger.exception("Failed to load theme from %s: %s", theme_file, e)
 
     def register_theme(self, theme: Theme) -> bool:
         """Register a theme programmatically.
@@ -110,7 +110,7 @@ class ThemeManager(QObject):
             True if unregistered successfully
         """
         if theme_name not in self._themes:
-            logger.warning(f"Theme '{theme_name}' not found")
+            logger.warning("Theme '%s' not found", theme_name)
             return False
 
         if theme_name == self._current_theme_name:
@@ -118,7 +118,7 @@ class ThemeManager(QObject):
             return False
 
         del self._themes[theme_name]
-        logger.debug(f"Unregistered theme: {theme_name}")
+        logger.debug("Unregistered theme: %s", theme_name)
         return True
 
     def get_theme(self, theme_name: str | None = None) -> Theme | None:
@@ -165,16 +165,16 @@ class ThemeManager(QObject):
             True if theme was set successfully
         """
         if theme_name not in self._themes:
-            logger.error(f"Theme '{theme_name}' not found")
+            logger.error("Theme '%s' not found", theme_name)
             return False
 
         if theme_name == self._current_theme_name:
-            logger.debug(f"Theme '{theme_name}' is already active")
+            logger.debug("Theme '%s' is already active", theme_name)
             return True
 
         old_theme = self._current_theme_name
         self._current_theme_name = theme_name
-        logger.info(f"Theme changed from '{old_theme}' to '{theme_name}'")
+        logger.info("Theme changed from '%s' to '%s'", old_theme, theme_name)
 
         # Emit signal for theme change
         self.theme_changed.emit(theme_name)
@@ -191,13 +191,13 @@ class ThemeManager(QObject):
         """
         theme = self.get_theme(theme_name)
         if not theme:
-            logger.error(f"Theme '{theme_name}' not found")
+            logger.error("Theme '%s' not found", theme_name)
             return ""
 
         try:
             return theme.generate_stylesheet()
         except Exception as e:
-            logger.error(f"Failed to generate stylesheet for theme '{theme_name}': {e}")
+            logger.exception("Failed to generate stylesheet for theme '%s': %s", theme_name, e)
             return ""
 
     def list_themes(self) -> list[str]:
@@ -242,29 +242,29 @@ class ThemeManager(QObject):
         """
         theme = self.get_theme(theme_name)
         if not theme:
-            logger.error(f"Theme '{theme_name}' not found")
+            logger.error("Theme '%s' not found", theme_name)
             return False
 
         export_path = Path(export_path)
 
         try:
-            if format not in ("yaml", "yml"):
-                logger.error(f"Only YAML export is supported. Got: {format}")
+            if format not in {"yaml", "yml"}:
+                logger.error("Only YAML export is supported. Got: %s", format)
                 return False
 
             theme.save_yaml(export_path)
 
-            logger.info(f"Exported theme '{theme_name}' to {export_path}")
+            logger.info("Exported theme '%s' to %s", theme_name, export_path)
             return True
 
         except Exception as e:
-            logger.error(f"Failed to export theme '{theme_name}': {e}")
+            logger.exception("Failed to export theme '%s': %s", theme_name, e)
             return False
 
     def reload_themes(self) -> None:
         """Reload all custom themes from disk."""
         # Remove all custom themes (keep built-in ones)
-        custom_themes = [name for name in self._themes.keys() if name not in BUILTIN_THEMES]
+        custom_themes = [name for name in self._themes if name not in BUILTIN_THEMES]
 
         for theme_name in custom_themes:
             del self._themes[theme_name]
@@ -309,7 +309,7 @@ class ThemeManager(QObject):
                 # ... other colors would be derived
             )
 
-        theme = Theme(
+        return Theme(
             name=name,
             display_name=kwargs.get("display_name", name.title()),
             description=kwargs.get("description", f"Custom theme: {name}"),
@@ -317,5 +317,3 @@ class ThemeManager(QObject):
             version=kwargs.get("version", "1.0.0"),
             tokens=tokens,
         )
-
-        return theme

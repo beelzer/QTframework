@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any
 
 from PySide6.QtCore import QSettings, Signal, qInstallMessageHandler
 from PySide6.QtGui import QGuiApplication, QPalette
@@ -23,11 +23,10 @@ logger = get_logger(__name__)
 _original_qt_message_handler = None
 
 
-def _qt_message_filter(mode, context, message):
-    if message == "Could not parse application stylesheet":
-        return
-    if _original_qt_message_handler is not None:
-        _original_qt_message_handler(mode, context, message)
+def _qt_message_filter(mode, context, message) -> None:
+    if message != "Could not parse application stylesheet":
+        if _original_qt_message_handler is not None:
+            _original_qt_message_handler(mode, context, message)
 
 
 class Application(QApplication):
@@ -99,7 +98,7 @@ class Application(QApplication):
         self._theme_manager.set_theme(theme_name)
         self._apply_stylesheet(self._theme_manager.get_stylesheet())
 
-    def _apply_stylesheet(self, stylesheet: str) -> None:
+    def _apply_stylesheet(self, stylesheet: str | None) -> None:
         """Apply stylesheet if it changed to avoid redundant parsing."""
         if stylesheet is None:
             stylesheet = ""
@@ -119,7 +118,7 @@ class Application(QApplication):
         Args:
             theme_name: New theme name
         """
-        logger.info(f"Changing theme to: {theme_name}")
+        logger.info("Changing theme to: %s", theme_name)
         self._context.set("theme", theme_name)
         self._apply_stylesheet(self._theme_manager.get_stylesheet())
         self.theme_changed.emit(theme_name)
@@ -202,11 +201,10 @@ class Application(QApplication):
             self._windows.remove(window)
             logger.debug(f"Unregistered window: {window.windowTitle()}")
 
-    @override
     def exec(self) -> int:
         """Execute the application."""
         logger.info(f"Starting {self.applicationName()}")
-        return super().exec()
+        return int(super().exec())
 
     @classmethod
     def create_and_run(

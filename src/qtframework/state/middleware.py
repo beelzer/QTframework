@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import time
 from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from qtframework.state.actions import Action, AsyncAction
 from qtframework.utils.logger import get_logger
 
+
+if TYPE_CHECKING:
+    from qtframework.state.store import Store
 
 logger = get_logger(__name__)
 
@@ -18,12 +21,12 @@ Middleware = Callable[["Store"], Callable[[Callable], Callable[[Action], Action]
 def logger_middleware() -> Middleware:
     """Middleware that logs all actions."""
 
-    def middleware(store: Any) -> Callable:
+    def middleware(store: Store) -> Callable[[Callable], Callable[[Action], Action]]:
         def next_wrapper(next_dispatch: Callable) -> Callable:
             def dispatch(action: Action) -> Action:
                 logger.debug(f"Action: {action.type}")
                 logger.debug(f"Payload: {action.payload}")
-                result = next_dispatch(action)
+                result: Action = next_dispatch(action)
                 logger.debug(f"New state: {store.get_state()}")
                 return result
 
@@ -37,7 +40,7 @@ def logger_middleware() -> Middleware:
 def thunk_middleware() -> Middleware:
     """Middleware for handling thunk actions (functions)."""
 
-    def middleware(store: Any) -> Callable:
+    def middleware(store: Store) -> Callable[[Callable], Callable[[Action], Action]]:
         def next_wrapper(next_dispatch: Callable) -> Callable:
             def dispatch(action: Action | Callable) -> Any:
                 if callable(action) and not isinstance(action, Action):
@@ -54,7 +57,7 @@ def thunk_middleware() -> Middleware:
 def promise_middleware() -> Middleware:
     """Middleware for handling promise-based async actions."""
 
-    def middleware(store: Any) -> Callable:
+    def middleware(store: Store) -> Callable[[Callable], Callable[[Action], Action]]:
         def next_wrapper(next_dispatch: Callable) -> Callable:
             def dispatch(action: Action) -> Action:
                 if isinstance(action, AsyncAction) and action.promise:
@@ -93,7 +96,7 @@ def promise_middleware() -> Middleware:
 
                     return action
 
-                return next_dispatch(action)
+                return next_dispatch(action)  # type: ignore[no-any-return]
 
             return dispatch
 
@@ -105,14 +108,14 @@ def promise_middleware() -> Middleware:
 def timing_middleware() -> Middleware:
     """Middleware that measures action processing time."""
 
-    def middleware(store: Any) -> Callable:
+    def middleware(store: Store) -> Callable[[Callable], Callable[[Action], Action]]:
         def next_wrapper(next_dispatch: Callable) -> Callable:
             def dispatch(action: Action) -> Action:
                 start_time = time.perf_counter()
                 result = next_dispatch(action)
                 elapsed = (time.perf_counter() - start_time) * 1000
                 logger.debug(f"Action {action.type} took {elapsed:.2f}ms")
-                return result
+                return result  # type: ignore[no-any-return]
 
             return dispatch
 
@@ -124,13 +127,13 @@ def timing_middleware() -> Middleware:
 def crash_reporter_middleware() -> Middleware:
     """Middleware that reports crashes."""
 
-    def middleware(store: Any) -> Callable:
+    def middleware(store: Store) -> Callable[[Callable], Callable[[Action], Action]]:
         def next_wrapper(next_dispatch: Callable) -> Callable:
             def dispatch(action: Action) -> Action:
                 try:
-                    return next_dispatch(action)
+                    return next_dispatch(action)  # type: ignore[no-any-return]
                 except Exception as e:
-                    logger.error(f"Action {action.type} caused error: {e}")
+                    logger.exception(f"Action {action.type} caused error: {e}")
                     # Dispatch error action
                     next_dispatch(
                         Action(
@@ -158,17 +161,17 @@ def validation_middleware(validators: dict[str, Callable[[Action], bool]]) -> Mi
         Middleware function
     """
 
-    def middleware(store: Any) -> Callable:
+    def middleware(store: Store) -> Callable[[Callable], Callable[[Action], Action]]:
         def next_wrapper(next_dispatch: Callable) -> Callable:
             def dispatch(action: Action) -> Action:
                 action_type = action.type if isinstance(action.type, str) else action.type.value
                 validator = validators.get(action_type)
 
                 if validator and not validator(action):
-                    logger.warning(f"Action {action_type} failed validation")
+                    logger.warning("Action %s failed validation", action_type)
                     return action
 
-                return next_dispatch(action)
+                return next_dispatch(action)  # type: ignore[no-any-return]
 
             return dispatch
 
@@ -180,7 +183,7 @@ def validation_middleware(validators: dict[str, Callable[[Action], bool]]) -> Mi
 def devtools_middleware() -> Middleware:
     """Middleware for Redux DevTools integration."""
 
-    def middleware(store: Any) -> Callable:
+    def middleware(store: Store) -> Callable[[Callable], Callable[[Action], Action]]:
         def next_wrapper(next_dispatch: Callable) -> Callable:
             def dispatch(action: Action) -> Action:
                 # Before action
@@ -194,7 +197,7 @@ def devtools_middleware() -> Middleware:
 
                 # Send to devtools (if integrated)
                 # This would connect to browser devtools or standalone app
-                devtools_data = {
+                {
                     "action": action.to_dict(),
                     "prevState": prev_state,
                     "nextState": next_state,
@@ -202,7 +205,7 @@ def devtools_middleware() -> Middleware:
                 }
                 # TODO: Send devtools_data to devtools connection
 
-                return result
+                return result  # type: ignore[no-any-return]
 
             return dispatch
 

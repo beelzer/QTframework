@@ -184,7 +184,7 @@ class CardLayout(QWidget):
             self._layout.set_column_stretch(col, 1)
 
     @override
-    def resizeEvent(self, event: Any) -> None:  # type: ignore[override]
+    def resizeEvent(self, event: Any) -> None:
         """Handle resize event.
 
         Args:

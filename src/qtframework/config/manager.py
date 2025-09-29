@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import copy
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from qtframework.config.config import Config
 from qtframework.utils.exceptions import ConfigurationError
@@ -16,6 +16,10 @@ from qtframework.utils.paths import (
     get_user_config_dir,
 )
 from qtframework.utils.validation import ValidatorChain
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 logger = get_logger(__name__)
@@ -32,7 +36,7 @@ class ConfigManager:
         self._load_order: list[str] = []
         self._validators: dict[str, ValidatorChain] = {}
         self._current_schema_version = "1.0.0"
-        self._migration_handlers: dict[str, callable] = {}
+        self._migration_handlers: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {}
         self._setup_default_validators()
         self._setup_schema_migrations()
 
@@ -84,7 +88,7 @@ class ConfigManager:
         """
         path = Path(path)
         if not path.exists():
-            logger.warning(f"Configuration file not found: {path}")
+            logger.warning("Configuration file not found: %s", path)
             return False
 
         # Validate file security
@@ -120,7 +124,7 @@ class ConfigManager:
             }
             if source_key not in self._load_order:
                 self._load_order.append(source_key)
-            logger.info(f"Loaded config from: {path}")
+            logger.info("Loaded config from: %s", path)
             return True
 
         except ConfigurationError:
@@ -140,17 +144,17 @@ class ConfigManager:
         try:
             # Check file size (prevent loading huge files)
             if path.stat().st_size > 10 * 1024 * 1024:  # 10MB limit
-                logger.error(f"Configuration file too large: {path}")
+                logger.error("Configuration file too large: %s", path)
                 return False
 
             # Check file permissions (basic check)
             if not path.is_file():
-                logger.error(f"Path is not a file: {path}")
+                logger.error("Path is not a file: %s", path)
                 return False
 
             return True
         except Exception as e:
-            logger.error(f"Error validating config file security: {e}")
+            logger.exception("Error validating config file security: %s", e)
             return False
 
     def _load_file_data(self, path: Path, format: str) -> dict[str, Any]:
@@ -170,12 +174,12 @@ class ConfigManager:
             if format == "json":
                 import json
 
-                with open(path, encoding="utf-8") as f:
+                with Path(path).open(encoding="utf-8") as f:
                     data = json.load(f)
-            elif format in ["yaml", "yml"]:
+            elif format in {"yaml", "yml"}:
                 import yaml
 
-                with open(path, encoding="utf-8") as f:
+                with Path(path).open(encoding="utf-8") as f:
                     data = yaml.safe_load(f)
             elif format == "ini":
                 import configparser
@@ -285,7 +289,7 @@ class ConfigManager:
 
         # If schema version matches current, no migration needed
         if schema_version == self._current_schema_version:
-            logger.debug(f"Config schema version {schema_version} is current for {source}")
+            logger.debug("Config schema version %s is current for %s", schema_version, source)
             return data
 
         # Check if migration is possible
@@ -320,7 +324,9 @@ class ConfigManager:
 
         # If we get here, it's an unknown version - allow but warn
         logger.warning(
-            f"Unknown config schema version {schema_version} for {source}, proceeding without migration"
+            "Unknown config schema version %s for %s, proceeding without migration",
+            schema_version,
+            source,
         )
         return data
 
@@ -344,7 +350,9 @@ class ConfigManager:
                 return 1
             return 0
         except (ValueError, IndexError) as e:
-            logger.warning(f"Failed to parse version strings '{version1}' and '{version2}': {e}")
+            logger.warning(
+                "Failed to parse version strings '%s' and '%s': %s", version1, version2, e
+            )
             return 0  # Treat as equal if parsing fails
 
     def _collect_env_data(self, prefix: str = "") -> dict[str, Any]:
@@ -418,22 +426,22 @@ class ConfigManager:
             if format == "json":
                 import json
 
-                with open(path, "w", encoding="utf-8") as f:
+                with Path(path).open("w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2)
-            elif format in ["yaml", "yml"]:
+            elif format in {"yaml", "yml"}:
                 import yaml
 
-                with open(path, "w", encoding="utf-8") as f:
+                with Path(path).open("w", encoding="utf-8") as f:
                     yaml.safe_dump(data, f, default_flow_style=False)
             else:
-                logger.error(f"Unsupported save format: {format}")
+                logger.error("Unsupported save format: %s", format)
                 return False
 
-            logger.info(f"Saved config to: {path}")
+            logger.info("Saved config to: %s", path)
             return True
 
         except Exception as e:
-            logger.error(f"Failed to save config to {path}: {e}")
+            logger.exception("Failed to save config to %s: %s", path, e)
             return False
 
     def reload(self) -> None:
@@ -450,7 +458,7 @@ class ConfigManager:
                     validate = metadata.get("validate", True)
                     config_path = Path(path_str)
                     if not config_path.exists():
-                        logger.warning(f"Configuration source missing: {path_str}")
+                        logger.warning("Configuration source missing: %s", path_str)
                         continue
                     data = self._load_file_data(config_path, resolved_format)
                     data = self._validate_schema_version(data, path_str)
@@ -473,7 +481,7 @@ class ConfigManager:
             except ConfigurationError:
                 raise
             except Exception as exc:
-                logger.error(f"Failed to reload configuration source {source}: {exc}")
+                logger.exception("Failed to reload configuration source %s: %s", source, exc)
 
         logger.info("Reloaded all configuration sources")
 
@@ -523,9 +531,7 @@ class ConfigManager:
             else:
                 sources.append(source)
         # Include any ad-hoc sources not present in load order
-        for source in self._sources.keys():
-            if source not in self._load_order:
-                sources.append(source)
+        sources.extend(source for source in self._sources if source not in self._load_order)
         return sources
 
     def load_defaults(self, defaults: dict[str, Any]) -> None:
@@ -593,13 +599,13 @@ class ConfigManager:
                 if self.load_file(config_file, validate=True):
                     loaded_count += 1
             except ConfigurationError as e:
-                logger.warning(f"Failed to load config from {config_file}: {e}")
+                logger.warning("Failed to load config from %s: %s", config_file, e)
 
         # 3. Load environment variables (highest priority)
         env_prefix = f"{app_name.upper()}_"
         self.load_env(env_prefix)
 
-        logger.info(f"Loaded configuration from {loaded_count} sources for app '{app_name}'")
+        logger.info("Loaded configuration from %s sources for app '%s'", loaded_count, app_name)
         return loaded_count
 
     def save_user_config(
@@ -635,7 +641,7 @@ class ConfigManager:
                 return True
 
             # Temporarily create a config with filtered data for saving
-            temp_config = Config(filtered_data)
+            Config(filtered_data)
 
             # Save filtered data
             try:
@@ -644,12 +650,12 @@ class ConfigManager:
                 # Ensure schema version is included in saved config
                 if "$schema_version" not in filtered_data:
                     filtered_data["$schema_version"] = self._current_schema_version
-                with open(config_path, "w", encoding="utf-8") as f:
+                with Path(config_path).open("w", encoding="utf-8") as f:
                     json.dump(filtered_data, f, indent=2)
-                logger.info(f"Saved user config to: {config_path}")
+                logger.info("Saved user config to: %s", config_path)
                 return True
             except Exception as e:
-                logger.error(f"Failed to save user config to {config_path}: {e}")
+                logger.exception("Failed to save user config to %s: %s", config_path, e)
                 return False
         else:
             # Save all current config
@@ -735,9 +741,12 @@ class ConfigManager:
         Returns:
             Schema version from the configuration, or current version if not set
         """
-        return self.get("$schema_version", self._current_schema_version)
+        result = self.get("$schema_version", self._current_schema_version)
+        return str(result) if result is not None else self._current_schema_version
 
-    def register_migration_handler(self, from_version: str, migration_func: callable) -> None:
+    def register_migration_handler(
+        self, from_version: str, migration_func: Callable[[dict[str, Any]], dict[str, Any]]
+    ) -> None:
         """Register a custom migration handler for a specific version.
 
         Args:
@@ -751,7 +760,7 @@ class ConfigManager:
             >>> config_manager.register_migration_handler("1.0.0", migrate_1_0_to_1_1)
         """
         self._migration_handlers[from_version] = migration_func
-        logger.info(f"Registered migration handler for version {from_version}")
+        logger.info("Registered migration handler for version %s", from_version)
 
     def get_supported_versions(self) -> list[str]:
         """Get list of supported configuration versions.
@@ -761,7 +770,7 @@ class ConfigManager:
         """
         versions = [self._current_schema_version]
         versions.extend(self._migration_handlers.keys())
-        return sorted(set(versions), key=lambda v: self._parse_version(v), reverse=True)
+        return sorted(set(versions), key=self._parse_version, reverse=True)
 
     def _parse_version(self, version: str) -> tuple[int, int, int]:
         """Parse a version string into tuple for comparison.

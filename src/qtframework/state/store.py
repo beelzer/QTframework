@@ -3,15 +3,19 @@
 from __future__ import annotations
 
 import copy
-from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from PySide6.QtCore import QObject, Signal
 
 from qtframework.state.actions import Action
-from qtframework.state.middleware import Middleware
-from qtframework.state.reducers import Reducer
 from qtframework.utils.logger import get_logger
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from qtframework.state.middleware import Middleware
+    from qtframework.state.reducers import Reducer
 
 
 logger = get_logger(__name__)
@@ -138,7 +142,7 @@ class Store(QObject):
             try:
                 subscriber(state)
             except Exception as e:
-                logger.error(f"Subscriber error: {e}")
+                logger.exception("Subscriber error: %s", e)
 
     def replace_reducer(self, reducer: Reducer) -> None:
         """Replace the root reducer.

@@ -173,10 +173,11 @@ def create_slice_reducer(
     def slice_reducer(state: Any | None = None, action: Action = Action(type="")) -> Any:
         if state is None:
             state = initial_state
-        if not action.type.startswith(f"{slice_name}/"):
+        action_type_str = str(action.type)
+        if not action_type_str.startswith(f"{slice_name}/"):
             return state
 
-        action_name = action.type[len(f"{slice_name}/") :]
+        action_name = action_type_str[len(f"{slice_name}/") :]
         if action_name in reducers:
             return reducers[action_name](state, action.payload)
 

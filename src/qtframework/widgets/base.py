@@ -38,8 +38,7 @@ class Widget(QWidget):
 
         self._custom_properties: dict[str, Any] = {}
 
-    @Property(str, notify=style_changed)
-    def styleClass(self) -> str:  # noqa: N802
+    def _get_style_class(self) -> str:
         """Get style class.
 
         Returns:
@@ -47,8 +46,7 @@ class Widget(QWidget):
         """
         return self._style_class
 
-    @styleClass.setter
-    def styleClass(self, value: str) -> None:  # noqa: N802
+    def _set_style_class(self, value: str) -> None:
         """Set style class.
 
         Args:
@@ -62,6 +60,8 @@ class Widget(QWidget):
             self.style().polish(self)
             self.update()
 
+    styleClass = Property(str, _get_style_class, _set_style_class)  # noqa: N815
+
     def add_style_class(self, class_name: str) -> None:
         """Add a style class.
 
@@ -71,7 +71,7 @@ class Widget(QWidget):
         classes = self._style_class.split() if self._style_class else []
         if class_name not in classes:
             classes.append(class_name)
-            self.styleClass = " ".join(classes)
+            self._set_style_class(" ".join(classes))
 
     def remove_style_class(self, class_name: str) -> None:
         """Remove a style class.
@@ -82,7 +82,7 @@ class Widget(QWidget):
         classes = self._style_class.split() if self._style_class else []
         if class_name in classes:
             classes.remove(class_name)
-            self.styleClass = " ".join(classes)
+            self._set_style_class(" ".join(classes))
 
     def toggle_style_class(self, class_name: str) -> None:
         """Toggle a style class.

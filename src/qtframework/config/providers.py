@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pathlib
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -44,8 +45,9 @@ class JsonProvider(FileProvider):
         import json
 
         try:
-            with open(self.path, encoding="utf-8") as f:
-                return json.load(f)
+            with pathlib.Path(self.path).open(encoding="utf-8") as f:
+                data: dict[str, Any] = json.load(f)
+                return data
         except:
             return {}
 
@@ -58,8 +60,9 @@ class YamlProvider(FileProvider):
         try:
             import yaml
 
-            with open(self.path, encoding="utf-8") as f:
-                return yaml.safe_load(f)
+            with pathlib.Path(self.path).open(encoding="utf-8") as f:
+                data: dict[str, Any] = yaml.safe_load(f) or {}
+                return data
         except:
             return {}
 

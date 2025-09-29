@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Any
@@ -11,6 +10,8 @@ from PySide6.QtCore import QObject, Signal
 
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from qtframework.core.application import Application
 
 

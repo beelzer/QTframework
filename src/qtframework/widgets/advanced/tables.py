@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QBrush, QColor
+from PySide6.QtGui import QBrush
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
@@ -21,6 +21,10 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+
+if TYPE_CHECKING:
+    from PySide6.QtGui import QColor
 
 
 class DataTable(QWidget):
@@ -97,7 +101,7 @@ class DataTable(QWidget):
         """Apply theme-based styling to the table."""
         # Get theme from application
         app = QApplication.instance()
-        if hasattr(app, "theme_manager"):
+        if app and hasattr(app, "theme_manager"):
             theme = app.theme_manager.get_theme()
             if theme and theme.colors:
                 colors = theme.colors
@@ -148,7 +152,7 @@ class DataTable(QWidget):
     def _connect_theme_signals(self) -> None:
         """Connect to theme change signals."""
         app = QApplication.instance()
-        if hasattr(app, "theme_manager"):
+        if app and hasattr(app, "theme_manager"):
             app.theme_manager.theme_changed.connect(self._on_theme_changed)
 
     def _on_theme_changed(self, theme_name: str) -> None:
@@ -212,7 +216,7 @@ class DataTable(QWidget):
 
     def remove_selected_rows(self) -> None:
         """Remove selected rows."""
-        rows = set()
+        rows: set[int] = set()
         rows.update(item.row() for item in self.table.selectedItems())
 
         for row in sorted(rows, reverse=True):
@@ -230,7 +234,7 @@ class DataTable(QWidget):
 
     def get_selected_rows(self) -> list[int]:
         """Get list of selected row indices."""
-        rows = set()
+        rows: set[int] = set()
         rows.update(item.row() for item in self.table.selectedItems())
         return sorted(rows)
 
@@ -364,7 +368,7 @@ class TreeTable(QWidget):
         """Apply theme-based styling to the tree."""
         # Get theme from application
         app = QApplication.instance()
-        if hasattr(app, "theme_manager"):
+        if app and hasattr(app, "theme_manager"):
             theme = app.theme_manager.get_theme()
             if theme and theme.colors:
                 colors = theme.colors
@@ -413,7 +417,7 @@ class TreeTable(QWidget):
     def _connect_theme_signals(self) -> None:
         """Connect to theme change signals."""
         app = QApplication.instance()
-        if hasattr(app, "theme_manager"):
+        if app and hasattr(app, "theme_manager"):
             app.theme_manager.theme_changed.connect(self._on_theme_changed)
 
     def _on_theme_changed(self, theme_name: str) -> None:
@@ -627,7 +631,7 @@ class PivotTable(QWidget):
         agg_func: str,
     ) -> dict[str, dict[str, float]]:
         """Calculate pivot table data."""
-        pivot = {}
+        pivot: dict[str, dict[str, Any]] = {}
 
         for record in self._source_data:
             row_val = str(record.get(row_field, ""))
@@ -669,15 +673,15 @@ class PivotTable(QWidget):
     ) -> None:
         """Display pivot data in table."""
         # Get unique column values
-        col_values = set()
+        col_values: set[str] = set()
         for row_data in pivot_data.values():
             col_values.update(row_data.keys())
-        col_values = sorted(col_values)
+        col_values_sorted = sorted(col_values)
 
         # Set up table
         self.table.setRowCount(len(pivot_data))
-        self.table.setColumnCount(len(col_values) + 1)
-        self.table.setHorizontalHeaderLabels([row_label] + col_values)
+        self.table.setColumnCount(len(col_values_sorted) + 1)
+        self.table.setHorizontalHeaderLabels([row_label, *col_values_sorted])
 
         # Fill table
         for row_idx, (row_val, row_data) in enumerate(sorted(pivot_data.items())):
@@ -685,7 +689,7 @@ class PivotTable(QWidget):
             self.table.setItem(row_idx, 0, QTableWidgetItem(row_val))
 
             # Data cells
-            for col_idx, col_val in enumerate(col_values):
+            for col_idx, col_val in enumerate(col_values_sorted):
                 value = row_data.get(col_val, 0)
                 item = QTableWidgetItem(f"{value:.2f}")
                 self.table.setItem(row_idx, col_idx + 1, item)

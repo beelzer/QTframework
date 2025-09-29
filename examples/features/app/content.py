@@ -11,6 +11,7 @@ from .pages.buttons import ButtonsPage
 from .pages.dialogs import DialogsPage
 from .pages.display import DisplayPage
 from .pages.forms import FormsPage
+from .pages.i18n import I18nPage
 from .pages.inputs import InputsPage
 from .pages.layouts import LayoutsPage
 from .pages.selections import SelectionsPage
@@ -67,6 +68,9 @@ class ContentArea(QStackedWidget):
         self.add_page("Progress", AnimationsPage("progress"))
         self.add_page("Effects", AnimationsPage("effects"))
 
+        # Internationalization
+        self.add_page("i18n", I18nPage())
+
         # Show first page (Buttons) by default
         self.setCurrentIndex(0)
 
@@ -88,8 +92,9 @@ class ContentArea(QStackedWidget):
 
                 def update_page_layouts():
                     # Find and update all FlowLayouts in the page
-                    from qtframework.layouts import FlowLayout
                     from PySide6.QtWidgets import QWidget
+
+                    from qtframework.layouts import FlowLayout
 
                     def update_flow_layouts(widget):
                         if widget.layout() and isinstance(widget.layout(), FlowLayout):

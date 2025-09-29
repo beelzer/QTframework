@@ -3,9 +3,14 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QBoxLayout, QGridLayout as QtGridLayout, QWidget
+from PySide6.QtWidgets import QBoxLayout, QGridLayout as QtGridLayout
+
+
+if TYPE_CHECKING:
+    from PySide6.QtWidgets import QWidget
 
 
 class Direction(Enum):

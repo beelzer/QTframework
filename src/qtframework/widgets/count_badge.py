@@ -2,11 +2,17 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPalette
-from PySide6.QtWidgets import QApplication, QLabel, QWidget
+from PySide6.QtWidgets import QApplication, QLabel
 
 from .badge import BadgeVariant
+
+
+if TYPE_CHECKING:
+    from PySide6.QtWidgets import QWidget
 
 
 class CountBadge(QLabel):
@@ -26,7 +32,7 @@ class CountBadge(QLabel):
         variant: BadgeVariant | str = BadgeVariant.DANGER,
         parent: QWidget | None = None,
         max_count: int = 99,
-    ):
+    ) -> None:
         """Initialize the count badge.
 
         Args:
@@ -55,7 +61,7 @@ class CountBadge(QLabel):
     def _setup_widget(self) -> None:
         """Setup the widget properties."""
         # Set alignment
-        self.setAlignment(Qt.AlignCenter)
+        self.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
 
         # Make font bold and slightly smaller than default
         font = self.font()
@@ -87,7 +93,7 @@ class CountBadge(QLabel):
         # Try to get theme manager
         try:
             app = QApplication.instance()
-            if hasattr(app, "theme_manager"):
+            if app and hasattr(app, "theme_manager"):
                 theme = app.theme_manager.get_current_theme()
                 if theme and theme.tokens and theme.tokens.components:
                     components = theme.tokens.components
@@ -128,7 +134,7 @@ class CountBadge(QLabel):
         """
         try:
             app = QApplication.instance()
-            if hasattr(app, "theme_manager"):
+            if app and hasattr(app, "theme_manager"):
                 theme = app.theme_manager.get_current_theme()
                 if theme and theme.tokens:
                     tokens = theme.tokens
@@ -193,9 +199,9 @@ class CountBadge(QLabel):
         # Last resort: use minimal theme-aware colors
         palette = self.palette()
         return {
-            "bg": palette.color(QPalette.Highlight).name(),
-            "fg": palette.color(QPalette.HighlightedText).name(),
-            "border": palette.color(QPalette.Highlight).name(),
+            "bg": palette.color(QPalette.Highlight).name(),  # type: ignore[attr-defined]
+            "fg": palette.color(QPalette.HighlightedText).name(),  # type: ignore[attr-defined]
+            "border": palette.color(QPalette.Highlight).name(),  # type: ignore[attr-defined]
         }
 
     def _apply_variant_style(self) -> None:
@@ -302,7 +308,7 @@ class CountBadge(QLabel):
         """Connect to theme manager signals for automatic style updates."""
         try:
             app = QApplication.instance()
-            if hasattr(app, "theme_manager"):
+            if app and hasattr(app, "theme_manager"):
                 app.theme_manager.theme_changed.connect(self._on_theme_changed)
         except Exception:  # noqa: S110  # nosec B110
             pass

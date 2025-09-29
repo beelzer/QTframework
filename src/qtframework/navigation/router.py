@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from PySide6.QtCore import QObject, Signal
-from PySide6.QtWidgets import QWidget
 
 from qtframework.utils.logger import get_logger
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from PySide6.QtWidgets import QWidget
 
 
 logger = get_logger(__name__)
@@ -63,10 +67,7 @@ class Route:
         Returns:
             True if all guards pass
         """
-        for guard in self.guards:
-            if not guard(self):
-                return False
-        return True
+        return all(guard(self) for guard in self.guards)
 
 
 class Router(QObject):
@@ -139,24 +140,24 @@ class Router(QObject):
         Returns:
             True if navigation successful
         """
-        logger.info(f"Navigating to: {path}")
+        logger.info("Navigating to: %s", path)
 
         # Check before hooks
         for hook in self._before_hooks:
             if not hook(self._current_path, path):
-                logger.warning(f"Navigation blocked by hook: {path}")
+                logger.warning("Navigation blocked by hook: %s", path)
                 self.navigation_blocked.emit(self._current_path, path)
                 return False
 
         # Find matching route
         route = self._find_route(path)
         if not route:
-            logger.error(f"No route found for path: {path}")
+            logger.error("No route found for path: %s", path)
             return False
 
         # Check route guards
         if not route.can_activate():
-            logger.warning(f"Route guard blocked: {path}")
+            logger.warning("Route guard blocked: %s", path)
             self.navigation_blocked.emit(self._current_path, path)
             return False
 
@@ -165,10 +166,9 @@ class Router(QObject):
             return self.navigate(route.redirect, params)
 
         # Update history only for normal navigation (not back/forward)
-        if not _internal:
-            if self._current_path and self._current_path != path:
-                self._history.append(self._current_path)
-                self._future.clear()
+        if not _internal and self._current_path and self._current_path != path:
+            self._history.append(self._current_path)
+            self._future.clear()
 
         # Update current state
         self._current_path = path
@@ -184,7 +184,7 @@ class Router(QObject):
 
         # After hooks
         for hook in self._after_hooks:
-            hook(route)
+            hook(route)  # type: ignore[arg-type]
 
         return True
 
@@ -232,7 +232,7 @@ class Router(QObject):
         """
         route = self._route_map.get(name)
         if not route:
-            logger.error(f"No route found with name: {name}")
+            logger.error("No route found with name: %s", name)
             return False
 
         # Build path from params
@@ -307,10 +307,9 @@ class Router(QObject):
             return None
 
         component = self._current_route.component
-        if callable(component) or isinstance(component, type):
+        if callable(component):
             return component()
-
-        return None
+        return None  # pragma: no cover
 
     def add_before_hook(self, hook: Callable[[str, str], bool]) -> None:
         """Add before navigation hook.

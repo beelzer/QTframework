@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
@@ -17,10 +17,15 @@ from PySide6.QtWidgets import (
     QSpinBox,
     QTabWidget,
     QVBoxLayout,
-    QWidget,
 )
 
 from qtframework.widgets.base import Widget
+
+
+if TYPE_CHECKING:
+    from PySide6.QtWidgets import (
+        QWidget,
+    )
 
 
 class TabWidget(Widget):
@@ -105,7 +110,7 @@ class TabWidget(Widget):
                 None,
             )
 
-        return index
+        return int(index)
 
     def insert_tab(
         self,
@@ -144,7 +149,7 @@ class TabWidget(Widget):
         new_tab_data[actual_index] = data or {}
         self._tab_data = new_tab_data
 
-        return actual_index
+        return int(actual_index)
 
     def remove_tab(self, index: int) -> None:
         """Remove tab at the specified index.
@@ -184,7 +189,7 @@ class TabWidget(Widget):
         Returns:
             Tab title
         """
-        return self._tab_widget.tabText(index)
+        return str(self._tab_widget.tabText(index))
 
     def set_tab_enabled(self, index: int, enabled: bool) -> None:
         """Enable or disable a tab.
@@ -204,7 +209,7 @@ class TabWidget(Widget):
         Returns:
             True if tab is enabled
         """
-        return self._tab_widget.isTabEnabled(index)
+        return bool(self._tab_widget.isTabEnabled(index))
 
     def set_current_index(self, index: int) -> None:
         """Set the current tab by index.
@@ -220,7 +225,7 @@ class TabWidget(Widget):
         Returns:
             Current tab index
         """
-        return self._tab_widget.currentIndex()
+        return int(self._tab_widget.currentIndex())
 
     def current_widget(self) -> QWidget | None:
         """Get the current tab widget.
@@ -247,7 +252,7 @@ class TabWidget(Widget):
         Returns:
             Number of tabs
         """
-        return self._tab_widget.count()
+        return int(self._tab_widget.count())
 
     def get_tab_data(self, index: int) -> dict[str, Any]:
         """Get metadata for a tab.
@@ -337,7 +342,7 @@ class BaseTabPage(Widget):
         """Set value of a control widget."""
         if isinstance(control, QLineEdit):
             control.setText(str(value))
-        elif isinstance(control, (QSpinBox, QDoubleSpinBox)):
+        elif isinstance(control, QSpinBox | QDoubleSpinBox):
             control.setValue(value)
         elif isinstance(control, QCheckBox):
             control.setChecked(bool(value))
@@ -352,7 +357,7 @@ class BaseTabPage(Widget):
         """Get value from a control widget."""
         if isinstance(control, QLineEdit):
             return control.text()
-        if isinstance(control, QSpinBox) or isinstance(control, QDoubleSpinBox):
+        if isinstance(control, QSpinBox | QDoubleSpinBox):
             return control.value()
         if isinstance(control, QCheckBox):
             return control.isChecked()
@@ -389,7 +394,9 @@ class BaseTabPage(Widget):
     ) -> None:
         """Add a control to a group with proper labeling."""
         self._controls[key] = control
-        group.layout().addRow(label, control)
+        layout = group.layout()
+        if layout is not None:
+            layout.addRow(label, control)
 
     def _create_slider_with_label(
         self,

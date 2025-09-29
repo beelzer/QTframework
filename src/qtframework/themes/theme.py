@@ -23,7 +23,7 @@ class Theme:
         version: str = "1.0.0",
         tokens: DesignTokens | None = None,
         custom_styles: dict[str, str] | None = None,
-    ):
+    ) -> None:
         """Initialize theme.
 
         Args:

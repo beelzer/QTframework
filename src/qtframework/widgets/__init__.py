@@ -12,9 +12,9 @@ from qtframework.widgets.inputs import Input, PasswordInput, SearchInput, TextAr
 __all__ = [
     "Badge",
     "BadgeVariant",
-    "CountBadge",
     "Button",
     "CloseButton",
+    "CountBadge",
     "IconButton",
     "Input",
     "PasswordInput",

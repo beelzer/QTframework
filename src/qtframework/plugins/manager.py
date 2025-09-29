@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import importlib
 import importlib.util
-from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -16,6 +15,8 @@ from qtframework.utils.logger import get_logger
 
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from qtframework.core.application import Application
 
 logger = get_logger(__name__)
@@ -50,7 +51,7 @@ class PluginManager(QObject):
         path = Path(path)
         if path.exists() and path not in self._plugin_paths:
             self._plugin_paths.append(path)
-            logger.info(f"Added plugin path: {path}")
+            logger.info("Added plugin path: %s", path)
 
     def discover_plugins(self) -> list[PluginMetadata]:
         """Discover available plugins.
@@ -83,11 +84,11 @@ class PluginManager(QObject):
             import json
 
             try:
-                with open(metadata_file, encoding="utf-8") as f:
+                with Path(metadata_file).open(encoding="utf-8") as f:
                     data = json.load(f)
                 return PluginMetadata(**data)
             except Exception as e:
-                logger.error(f"Failed to load metadata from {metadata_file}: {e}")
+                logger.exception("Failed to load metadata from %s: %s", metadata_file, e)
         return None
 
     def load_plugin(self, plugin_id: str, plugin_path: Path | None = None) -> bool:
@@ -108,7 +109,7 @@ class PluginManager(QObject):
             raise PluginError("Plugin ID must be a non-empty string", plugin_id=plugin_id)
 
         if plugin_id in self._plugins:
-            logger.warning(f"Plugin {plugin_id} already loaded")
+            logger.warning("Plugin %s already loaded", plugin_id)
             return True
 
         try:
@@ -129,12 +130,13 @@ class PluginManager(QObject):
                 self._validate_plugin_instance(plugin, plugin_id)
 
                 self._plugins[plugin_id] = plugin
-                plugin.set_application(self._app)
+                if self._app is not None:
+                    plugin.set_application(self._app)
                 plugin.set_state(PluginState.LOADED)
 
                 if plugin.initialize():
                     self.plugin_loaded.emit(plugin_id)
-                    logger.info(f"Plugin {plugin_id} loaded successfully")
+                    logger.info("Plugin %s loaded successfully", plugin_id)
                     return True
                 plugin.set_state(PluginState.ERROR)
                 del self._plugins[plugin_id]
@@ -178,7 +180,9 @@ class PluginManager(QObject):
             spec.loader.exec_module(module)
 
             if hasattr(module, "create_plugin"):
-                return module.create_plugin()
+                plugin = module.create_plugin()
+                if isinstance(plugin, Plugin):
+                    return plugin
         return None
 
     def _find_and_load_plugin(self, plugin_id: str) -> Plugin | None:
@@ -207,23 +211,23 @@ class PluginManager(QObject):
         """
         plugin = self._plugins.get(plugin_id)
         if not plugin:
-            logger.error(f"Plugin {plugin_id} not found")
+            logger.error("Plugin %s not found", plugin_id)
             return False
 
         if plugin.state == PluginState.ACTIVE:
-            logger.warning(f"Plugin {plugin_id} already active")
+            logger.warning("Plugin %s already active", plugin_id)
             return True
 
         try:
             if plugin.activate():
                 plugin.set_state(PluginState.ACTIVE)
                 self.plugin_activated.emit(plugin_id)
-                logger.info(f"Plugin {plugin_id} activated")
+                logger.info("Plugin %s activated", plugin_id)
                 return True
             plugin.set_state(PluginState.ERROR)
             return False
         except Exception as e:
-            logger.error(f"Failed to activate plugin {plugin_id}: {e}")
+            logger.exception("Failed to activate plugin %s: %s", plugin_id, e)
             plugin.set_state(PluginState.ERROR)
             self.plugin_error.emit(plugin_id, str(e))
             return False
@@ -239,22 +243,22 @@ class PluginManager(QObject):
         """
         plugin = self._plugins.get(plugin_id)
         if not plugin:
-            logger.error(f"Plugin {plugin_id} not found")
+            logger.error("Plugin %s not found", plugin_id)
             return False
 
         if plugin.state != PluginState.ACTIVE:
-            logger.warning(f"Plugin {plugin_id} not active")
+            logger.warning("Plugin %s not active", plugin_id)
             return True
 
         try:
             if plugin.deactivate():
                 plugin.set_state(PluginState.LOADED)
                 self.plugin_deactivated.emit(plugin_id)
-                logger.info(f"Plugin {plugin_id} deactivated")
+                logger.info("Plugin %s deactivated", plugin_id)
                 return True
             return False
         except Exception as e:
-            logger.error(f"Failed to deactivate plugin {plugin_id}: {e}")
+            logger.exception("Failed to deactivate plugin %s: %s", plugin_id, e)
             self.plugin_error.emit(plugin_id, str(e))
             return False
 
@@ -277,10 +281,10 @@ class PluginManager(QObject):
         try:
             plugin.cleanup()
             del self._plugins[plugin_id]
-            logger.info(f"Plugin {plugin_id} unloaded")
+            logger.info("Plugin %s unloaded", plugin_id)
             return True
         except Exception as e:
-            logger.error(f"Failed to unload plugin {plugin_id}: {e}")
+            logger.exception("Failed to unload plugin %s: %s", plugin_id, e)
             return False
 
     def get_plugin(self, plugin_id: str) -> Plugin | None:
@@ -340,7 +344,7 @@ class PluginManager(QObject):
                     result = callback(*args, **kwargs)
                     results.append((plugin_id, result))
                 except Exception as e:
-                    logger.error(f"Hook error in {plugin_id}.{hook_name}: {e}")
+                    logger.exception("Hook error in %s.%s: %s", plugin_id, hook_name, e)
         return results
 
     def _validate_plugin_path_security(self, path: Path) -> bool:
@@ -355,7 +359,7 @@ class PluginManager(QObject):
         try:
             # Ensure path exists and is a directory
             if not path.exists() or not path.is_dir():
-                logger.warning(f"Plugin path does not exist or is not a directory: {path}")
+                logger.warning("Plugin path does not exist or is not a directory: %s", path)
                 return False
 
             # Check for restricted directories
@@ -373,7 +377,7 @@ class PluginManager(QObject):
             for restricted in restricted_paths:
                 try:
                     if path.is_relative_to(restricted):
-                        logger.warning(f"Plugin path in restricted directory: {path}")
+                        logger.warning("Plugin path in restricted directory: %s", path)
                         return False
                 except (ValueError, TypeError):
                     continue
@@ -381,20 +385,20 @@ class PluginManager(QObject):
             # Check plugin directory size (prevent loading huge plugins)
             total_size = sum(f.stat().st_size for f in path.rglob("*") if f.is_file())
             if total_size > 50 * 1024 * 1024:  # 50MB limit
-                logger.warning(f"Plugin directory too large: {path} ({total_size} bytes)")
+                logger.warning("Plugin directory too large: %s (%s bytes)", path, total_size)
                 return False
 
             # Check for main.py file
             main_file = path / "main.py"
             if not main_file.exists():
-                logger.warning(f"Plugin missing main.py file: {path}")
+                logger.warning("Plugin missing main.py file: %s", path)
                 return False
 
             # Basic security scan of main.py
             return self._validate_plugin_file_content(main_file)
 
         except Exception as e:
-            logger.error(f"Error validating plugin path security: {e}")
+            logger.exception("Error validating plugin path security: %s", e)
             return False
 
     def _validate_plugin_file_content(self, file_path: Path) -> bool:
@@ -429,14 +433,14 @@ class PluginManager(QObject):
             for pattern in suspicious_patterns:
                 if pattern in content:
                     logger.warning(
-                        f"Suspicious pattern '{pattern}' found in plugin file: {file_path}"
+                        "Suspicious pattern '%s' found in plugin file: %s", pattern, file_path
                     )
                     return False
 
             return True
 
         except Exception as e:
-            logger.error(f"Error reading plugin file for security validation: {e}")
+            logger.exception("Error reading plugin file for security validation: %s", e)
             return False
 
     def _validate_plugin_instance(self, plugin: Plugin, plugin_id: str) -> None:

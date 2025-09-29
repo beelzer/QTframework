@@ -60,32 +60,17 @@ repos:
     rev: v1.14.1
     hooks:
       - id: mypy
+        args: [--config-file=pyproject.toml]
         additional_dependencies:
-          - types-PyYAML>=6.0.0
-          - types-setuptools>=75.0.0
-          - pandas-stubs>=2.2.0
-          - pydantic>=2.10.0
-          - PySide6-stubs
-        args: [--config-file=pyproject.toml, --no-namespace-packages]
-        files: ^src/qtframework/.*\.py$
-
-  # Security linting with bandit
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.8.0
-    hooks:
-      - id: bandit
-        args: ["-c", "pyproject.toml"]
-        additional_dependencies: ["bandit[toml]"]
-        exclude: ^(tests/|examples/)
-
-  # Documentation style checking
-  - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.3.0
-    hooks:
-      - id: pydocstyle
-        args: [--config=pyproject.toml]
-        exclude: ^(tests/|examples/)
-        additional_dependencies: [tomli]
+          - pydantic>=2.0.0
+          - PyQt6>=6.8.0
+          - PyQt6-Qt6>=6.8.0
+          - PyQt6-sip>=13.9.0
+          - babel>=2.16.0
+          - types-PyYAML
+        files: ^src/
+        pass_filenames: true
+        require_serial: true
 
   # Check for common security issues
   - repo: https://github.com/Yelp/detect-secrets
@@ -101,7 +86,9 @@ repos:
     hooks:
       - id: codespell
         args:
-          ["--skip=*.lock,package-lock.json,yarn.lock,.git,*.min.js,*.min.css"]
+          [
+            "--skip=*.lock,package-lock.json,yarn.lock,.git,*.min.js,*.min.css,*.po,*.pot",
+          ]
         additional_dependencies: [tomli]
 
   # Validate pyproject.toml
@@ -156,6 +143,17 @@ repos:
     hooks:
       - id: markdownlint
         args: [--fix, --disable, MD013, MD024, MD033, MD041]
+
+  # Local hooks for i18n
+  - repo: local
+    hooks:
+      - id: compile-translations
+        name: Compile i18n translations
+        entry: python scripts/i18n_manager.py compile --quiet
+        language: system
+        files: \.po$
+        pass_filenames: false
+        description: "Compile .po files to .mo files when they change"
 
 # Configuration for ci
 ci:

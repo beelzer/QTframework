@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import re
 from abc import ABC, abstractmethod
-from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from qtframework.utils.exceptions import ValidationError
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class Validator(ABC):
@@ -20,7 +23,7 @@ class Validator(ABC):
         Args:
             message: Custom error message
         """
-        self.message = message
+        self.message: str = message or "Validation failed"
 
     @abstractmethod
     def validate(self, value: Any, field_name: str = "") -> bool:
@@ -249,7 +252,7 @@ class PathValidator(Validator):
 
     def validate(self, value: Any, field_name: str = "") -> bool:
         """Validate path."""
-        if not isinstance(value, (str, Path)):
+        if not isinstance(value, str | Path):
             raise ValidationError(
                 "Path must be a string or Path object",
                 field_name=field_name,
@@ -449,7 +452,7 @@ class FormValidator:
 # Predefined validator chains for common use cases
 def required_string(min_length: int = 1, max_length: int | None = None) -> ValidatorChain:
     """Create validator chain for required string."""
-    validators = [RequiredValidator()]
+    validators: list[Validator] = [RequiredValidator()]
     if min_length > 1 or max_length:
         validators.append(LengthValidator(min_length, max_length))
     return ValidatorChain(validators)
@@ -457,7 +460,7 @@ def required_string(min_length: int = 1, max_length: int | None = None) -> Valid
 
 def optional_string(max_length: int | None = None) -> ValidatorChain:
     """Create validator chain for optional string."""
-    validators = []
+    validators: list[Validator] = []
     if max_length:
         validators.append(LengthValidator(max_length=max_length))
     return ValidatorChain(validators)

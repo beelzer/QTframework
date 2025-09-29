@@ -2,15 +2,21 @@
 
 from __future__ import annotations
 
-from typing import Any, override
+from typing import TYPE_CHECKING, Any
 
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QPushButton, QTextEdit, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QPushButton, QTextEdit
 
-from qtframework.utils.validation import ValidationResult, ValidatorChain
+from qtframework.utils.validation import ValidatorChain
 from qtframework.widgets.base import Widget
 from qtframework.widgets.buttons import CloseButton
+
+
+if TYPE_CHECKING:
+    from PySide6.QtWidgets import QWidget
+
+    from qtframework.utils.validation import ValidationResult, Validator
 
 
 class Input(QLineEdit):
@@ -322,9 +328,9 @@ class SearchInput(Widget):
         Returns:
             Search text
         """
-        return self._input.text()
+        return str(self._input.text())
 
-    def setText(self, text: str) -> None:  # noqa: N802
+    def setText(self, text: str) -> None:
         """Set search text.
 
         Args:
@@ -337,7 +343,7 @@ class SearchInput(Widget):
         self._input.clear()
         self.cleared.emit()
 
-    def setFocus(self) -> None:  # noqa: N802
+    def setFocus(self) -> None:
         """Set focus to input."""
         self._input.setFocus()
 
@@ -387,7 +393,6 @@ class TextArea(QTextEdit):
             cursor = self.textCursor()
             cursor.deletePreviousChar()
 
-    @override
     def setPlainText(self, text: str) -> None:
         """Set plain text.
 

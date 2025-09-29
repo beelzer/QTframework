@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
-from qtframework.themes.tokens import DesignTokens
+from typing import TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from qtframework.themes.tokens import DesignTokens
 
 
 class StylesheetGenerator:

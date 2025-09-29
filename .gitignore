@@ -66,6 +66,9 @@ Desktop.ini
 # =====================
 docs/_build/
 docs/.doctrees/
+docs/_static/
+docs/_templates/
+docs/api/generated/
 
 # =====================
 # Temporary
@@ -78,3 +81,16 @@ tmp/
 # =====================
 *.autosave
 ui_*.py
+
+# =====================
+# i18n/Localization
+# =====================
+# Compiled translation files
+*.mo
+
+# Translation template (regenerated)
+# *.pot
+
+# Translation backups
+*.po~
+*.po.bak

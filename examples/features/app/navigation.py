@@ -65,6 +65,7 @@ class NavigationPanel(QFrame):
             "State": ["State Demo", "Actions", "Reducers"],
             "Navigation": ["Router", "Breadcrumbs", "Tabs"],
             "Animations": ["Transitions", "Progress", "Effects"],
+            "Internationalization": ["i18n"],
         }
 
     def _filter_tree(self, text: str):

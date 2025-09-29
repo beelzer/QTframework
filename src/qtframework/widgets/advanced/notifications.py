@@ -2,15 +2,20 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from PySide6.QtCore import QObject, QPropertyAnimation, Qt, QTimer, Signal
 from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout
 
 from qtframework.widgets.buttons import CloseButton
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from PySide6.QtWidgets import QWidget
 
 
 class NotificationType(Enum):
@@ -126,10 +131,9 @@ class Notification(QFrame):
 
         app = QApplication.instance()
 
-        theme = None
         theme_name = "light"
-        if hasattr(app, "theme_manager"):
-            theme = app.theme_manager.get_theme()
+        if app and hasattr(app, "theme_manager"):
+            app.theme_manager.get_theme()
             theme_name = app.theme_manager.get_current_theme_name()
 
         # Use basic colors for notification types
@@ -358,11 +362,11 @@ class NotificationManager(QObject):
         current_y = y
 
         for notification in self._notifications:
-            if self._position in [
+            if self._position in {
                 NotificationPosition.TOP_LEFT,
                 NotificationPosition.TOP_CENTER,
                 NotificationPosition.TOP_RIGHT,
-            ]:
+            }:
                 notification.show_at(self._position, (x, current_y))
                 current_y += notification.height() + self._spacing
             else:

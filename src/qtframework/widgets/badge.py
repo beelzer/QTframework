@@ -3,10 +3,15 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPalette
-from PySide6.QtWidgets import QApplication, QLabel, QWidget
+from PySide6.QtWidgets import QApplication, QLabel
+
+
+if TYPE_CHECKING:
+    from PySide6.QtWidgets import QWidget
 
 
 class BadgeVariant(Enum):
@@ -36,7 +41,7 @@ class Badge(QLabel):
         text: str = "",
         variant: BadgeVariant | str = BadgeVariant.DEFAULT,
         parent: QWidget | None = None,
-    ):
+    ) -> None:
         """Initialize the badge.
 
         Args:
@@ -61,7 +66,7 @@ class Badge(QLabel):
     def _setup_widget(self) -> None:
         """Setup the widget properties."""
         # Set alignment
-        self.setAlignment(Qt.AlignCenter)
+        self.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
 
         # Set size policy to fit content
         self.setScaledContents(False)
@@ -84,7 +89,7 @@ class Badge(QLabel):
         # Try to get theme manager
         try:
             app = QApplication.instance()
-            if hasattr(app, "theme_manager"):
+            if app and hasattr(app, "theme_manager"):
                 theme = app.theme_manager.get_current_theme()
                 if theme and theme.tokens and theme.tokens.components:
                     components = theme.tokens.components
@@ -125,7 +130,7 @@ class Badge(QLabel):
         """
         try:
             app = QApplication.instance()
-            if hasattr(app, "theme_manager"):
+            if app and hasattr(app, "theme_manager"):
                 theme = app.theme_manager.get_current_theme()
                 if theme and theme.tokens:
                     tokens = theme.tokens
@@ -203,21 +208,21 @@ class Badge(QLabel):
         # Use palette colors - no hardcoded values!
         if self._variant == BadgeVariant.LIGHT:
             return {
-                "bg": palette.color(QPalette.Window).name(),
-                "fg": palette.color(QPalette.WindowText).name(),
-                "border": palette.color(QPalette.Mid).name(),
+                "bg": palette.color(QPalette.Window).name(),  # type: ignore[attr-defined]
+                "fg": palette.color(QPalette.WindowText).name(),  # type: ignore[attr-defined]
+                "border": palette.color(QPalette.Mid).name(),  # type: ignore[attr-defined]
             }
         if self._variant == BadgeVariant.DARK:
             return {
-                "bg": palette.color(QPalette.Shadow).name(),
-                "fg": palette.color(QPalette.BrightText).name(),
-                "border": palette.color(QPalette.Dark).name(),
+                "bg": palette.color(QPalette.Shadow).name(),  # type: ignore[attr-defined]
+                "fg": palette.color(QPalette.BrightText).name(),  # type: ignore[attr-defined]
+                "border": palette.color(QPalette.Dark).name(),  # type: ignore[attr-defined]
             }
         # For all other variants, use button colors as a reasonable default
         return {
-            "bg": palette.color(QPalette.Button).name(),
-            "fg": palette.color(QPalette.ButtonText).name(),
-            "border": palette.color(QPalette.Mid).name(),
+            "bg": palette.color(QPalette.Button).name(),  # type: ignore[attr-defined]
+            "fg": palette.color(QPalette.ButtonText).name(),  # type: ignore[attr-defined]
+            "border": palette.color(QPalette.Mid).name(),  # type: ignore[attr-defined]
         }
 
     def _apply_variant_style(self) -> None:
@@ -298,7 +303,7 @@ class Badge(QLabel):
         """Connect to theme manager signals for automatic style updates."""
         try:
             app = QApplication.instance()
-            if hasattr(app, "theme_manager"):
+            if app and hasattr(app, "theme_manager"):
                 app.theme_manager.theme_changed.connect(self._on_theme_changed)
         except Exception:  # noqa: S110  # nosec B110
             pass

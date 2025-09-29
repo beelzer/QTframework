@@ -1,0 +1,532 @@
+# Qt Framework Spanish Translation
+# Copyright (C) 2025
+# This file is distributed under the same license as the Qt Framework package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Qt Framework 1.0.0\n"
+"POT-Creation-Date: 2025-09-29 12:00\n"
+"PO-Revision-Date: 2025-09-29 12:00\n"
+"Last-Translator: Qt Framework Team\n"
+"Language: es_ES\n"
+"Language-Team: Spanish <es@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Common UI Actions
+msgid "OK"
+msgstr "Aceptar"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Apply"
+msgstr "Aplicar"
+
+msgid "Close"
+msgstr "Cerrar"
+
+msgid "Save"
+msgstr "Guardar"
+
+msgid "Save As..."
+msgstr "Guardar como..."
+
+msgid "Open"
+msgstr "Abrir"
+
+msgid "Open..."
+msgstr "Abrir..."
+
+msgid "Delete"
+msgstr "Eliminar"
+
+msgid "Remove"
+msgstr "Quitar"
+
+msgid "Add"
+msgstr "Añadir"
+
+msgid "Edit"
+msgstr "Editar"
+
+msgid "Copy"
+msgstr "Copiar"
+
+msgid "Cut"
+msgstr "Cortar"
+
+msgid "Paste"
+msgstr "Pegar"
+
+msgid "Undo"
+msgstr "Deshacer"
+
+msgid "Redo"
+msgstr "Rehacer"
+
+msgid "Select All"
+msgstr "Seleccionar todo"
+
+msgid "Find"
+msgstr "Buscar"
+
+msgid "Find..."
+msgstr "Buscar..."
+
+msgid "Replace"
+msgstr "Reemplazar"
+
+msgid "Replace..."
+msgstr "Reemplazar..."
+
+msgid "Search"
+msgstr "Buscar"
+
+msgid "Filter"
+msgstr "Filtrar"
+
+msgid "Refresh"
+msgstr "Actualizar"
+
+msgid "Reload"
+msgstr "Recargar"
+
+msgid "Yes"
+msgstr "Sí"
+
+msgid "No"
+msgstr "No"
+
+msgid "Confirm"
+msgstr "Confirmar"
+
+msgid "Back"
+msgstr "Atrás"
+
+msgid "Next"
+msgstr "Siguiente"
+
+msgid "Previous"
+msgstr "Anterior"
+
+msgid "Finish"
+msgstr "Finalizar"
+
+msgid "Help"
+msgstr "Ayuda"
+
+msgid "About"
+msgstr "Acerca de"
+
+msgid "Settings"
+msgstr "Configuración"
+
+msgid "Preferences"
+msgstr "Preferencias"
+
+msgid "Options"
+msgstr "Opciones"
+
+msgid "Exit"
+msgstr "Salir"
+
+msgid "Quit"
+msgstr "Salir"
+
+# Menu Items
+msgid "File"
+msgstr "Archivo"
+
+msgid "View"
+msgstr "Ver"
+
+msgid "Tools"
+msgstr "Herramientas"
+
+msgid "Window"
+msgstr "Ventana"
+
+msgid "New"
+msgstr "Nuevo"
+
+msgid "Recent Files"
+msgstr "Archivos recientes"
+
+msgid "Preferences..."
+msgstr "Preferencias..."
+
+msgid "Fullscreen"
+msgstr "Pantalla completa"
+
+msgid "Toolbar"
+msgstr "Barra de herramientas"
+
+msgid "Status Bar"
+msgstr "Barra de estado"
+
+msgid "Sidebar"
+msgstr "Barra lateral"
+
+msgid "Theme"
+msgstr "Tema"
+
+msgid "Zoom In"
+msgstr "Acercar"
+
+msgid "Zoom Out"
+msgstr "Alejar"
+
+msgid "Reset Zoom"
+msgstr "Restablecer zoom"
+
+msgid "Minimize"
+msgstr "Minimizar"
+
+msgid "Maximize"
+msgstr "Maximizar"
+
+msgid "Documentation"
+msgstr "Documentación"
+
+msgid "Keyboard Shortcuts"
+msgstr "Atajos de teclado"
+
+msgid "Report Issue"
+msgstr "Informar problema"
+
+msgid "Check for Updates"
+msgstr "Buscar actualizaciones"
+
+# Status Messages
+msgid "Ready"
+msgstr "Listo"
+
+msgid "Loading..."
+msgstr "Cargando..."
+
+msgid "Processing..."
+msgstr "Procesando..."
+
+msgid "Saving..."
+msgstr "Guardando..."
+
+msgid "Connected"
+msgstr "Conectado"
+
+msgid "Disconnected"
+msgstr "Desconectado"
+
+msgid "Online"
+msgstr "En línea"
+
+msgid "Offline"
+msgstr "Sin conexión"
+
+msgid "Syncing..."
+msgstr "Sincronizando..."
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Warning"
+msgstr "Advertencia"
+
+msgid "Success"
+msgstr "Éxito"
+
+msgid "Information"
+msgstr "Información"
+
+# Form Labels
+msgid "Name"
+msgstr "Nombre"
+
+msgid "Username"
+msgstr "Nombre de usuario"
+
+msgid "Password"
+msgstr "Contraseña"
+
+msgid "Email"
+msgstr "Correo electrónico"
+
+msgid "Phone"
+msgstr "Teléfono"
+
+msgid "Address"
+msgstr "Dirección"
+
+msgid "City"
+msgstr "Ciudad"
+
+msgid "Country"
+msgstr "País"
+
+msgid "Description"
+msgstr "Descripción"
+
+msgid "Title"
+msgstr "Título"
+
+msgid "Date"
+msgstr "Fecha"
+
+msgid "Time"
+msgstr "Hora"
+
+msgid "From"
+msgstr "Desde"
+
+msgid "To"
+msgstr "Hasta"
+
+msgid "Subject"
+msgstr "Asunto"
+
+msgid "Message"
+msgstr "Mensaje"
+
+msgid "Comments"
+msgstr "Comentarios"
+
+msgid "Notes"
+msgstr "Notas"
+
+msgid "Type"
+msgstr "Tipo"
+
+msgid "Status"
+msgstr "Estado"
+
+msgid "Priority"
+msgstr "Prioridad"
+
+msgid "Category"
+msgstr "Categoría"
+
+msgid "Tags"
+msgstr "Etiquetas"
+
+msgid "Language"
+msgstr "Idioma"
+
+msgid "Version"
+msgstr "Versión"
+
+# Placeholders
+msgid "Enter your email"
+msgstr "Ingrese su correo electrónico"
+
+msgid "Enter your password"
+msgstr "Ingrese su contraseña"
+
+msgid "Type to search..."
+msgstr "Escriba para buscar..."
+
+msgid "Enter name"
+msgstr "Ingrese el nombre"
+
+msgid "Enter username"
+msgstr "Ingrese el nombre de usuario"
+
+msgid "Enter filename"
+msgstr "Ingrese el nombre del archivo"
+
+msgid "Enter URL"
+msgstr "Ingrese la URL"
+
+msgid "Enter phone number"
+msgstr "Ingrese el número de teléfono"
+
+# Dialog Messages
+msgid "Are you sure?"
+msgstr "¿Está seguro?"
+
+msgid "Are you sure you want to continue?"
+msgstr "¿Está seguro de que desea continuar?"
+
+msgid "Are you sure you want to delete this item?"
+msgstr "¿Está seguro de que desea eliminar este elemento?"
+
+msgid "Are you sure you want to exit?"
+msgstr "¿Está seguro de que desea salir?"
+
+msgid "Do you want to save your changes?"
+msgstr "¿Desea guardar los cambios?"
+
+msgid "Unsaved changes will be lost."
+msgstr "Se perderán los cambios no guardados."
+
+msgid "Operation completed successfully"
+msgstr "Operación completada exitosamente"
+
+msgid "Operation failed"
+msgstr "La operación falló"
+
+msgid "Please wait..."
+msgstr "Por favor espere..."
+
+msgid "Please try again"
+msgstr "Por favor inténtelo de nuevo"
+
+msgid "Invalid input"
+msgstr "Entrada inválida"
+
+msgid "Required field"
+msgstr "Campo requerido"
+
+msgid "File not found"
+msgstr "Archivo no encontrado"
+
+msgid "Access denied"
+msgstr "Acceso denegado"
+
+msgid "Network error"
+msgstr "Error de red"
+
+msgid "Unknown error"
+msgstr "Error desconocido"
+
+# Validation Messages
+msgid "This field is required"
+msgstr "Este campo es obligatorio"
+
+msgid "Please enter a valid email address"
+msgstr "Por favor ingrese una dirección de correo válida"
+
+msgid "Please enter a valid number"
+msgstr "Por favor ingrese un número válido"
+
+msgid "Please enter a valid URL"
+msgstr "Por favor ingrese una URL válida"
+
+msgid "Please enter a valid date"
+msgstr "Por favor ingrese una fecha válida"
+
+msgid "Minimum length is {min} characters"
+msgstr "La longitud mínima es de {min} caracteres"
+
+msgid "Maximum length is {max} characters"
+msgstr "La longitud máxima es de {max} caracteres"
+
+msgid "Value must be between {min} and {max}"
+msgstr "El valor debe estar entre {min} y {max}"
+
+msgid "Please match the required format"
+msgstr "Por favor respete el formato requerido"
+
+# Notifications
+msgid "File saved successfully"
+msgstr "Archivo guardado exitosamente"
+
+msgid "File loaded successfully"
+msgstr "Archivo cargado exitosamente"
+
+msgid "Changes saved"
+msgstr "Cambios guardados"
+
+msgid "Update available"
+msgstr "Actualización disponible"
+
+msgid "Connection lost"
+msgstr "Conexión perdida"
+
+msgid "Connection restored"
+msgstr "Conexión restablecida"
+
+msgid "Session expired"
+msgstr "Sesión expirada"
+
+msgid "Please login again"
+msgstr "Por favor inicie sesión nuevamente"
+
+# Time Related
+msgid "Today"
+msgstr "Hoy"
+
+msgid "Yesterday"
+msgstr "Ayer"
+
+msgid "Tomorrow"
+msgstr "Mañana"
+
+msgid "This week"
+msgstr "Esta semana"
+
+msgid "Last week"
+msgstr "La semana pasada"
+
+msgid "This month"
+msgstr "Este mes"
+
+msgid "Last month"
+msgstr "El mes pasado"
+
+msgid "This year"
+msgstr "Este año"
+
+msgid "Last year"
+msgstr "El año pasado"
+
+# Demo/Example Specific
+msgid "Qt Framework Demo"
+msgstr "Demo de Qt Framework"
+
+msgid "Welcome to Qt Framework"
+msgstr "Bienvenido a Qt Framework"
+
+msgid "Modern Qt application framework"
+msgstr "Framework moderno de aplicaciones Qt"
+
+msgid "File not found: {filename}"
+msgstr "Archivo no encontrado: {filename}"
+
+msgid "About {app_name}"
+msgstr "Acerca de {app_name}"
+
+msgid "Update Messages"
+msgstr "Actualizar mensajes"
+
+# Pluralization Examples
+msgid "{count} item"
+msgid_plural "{count} items"
+msgstr[0] "{count} elemento"
+msgstr[1] "{count} elementos"
+
+msgid "{count} file"
+msgid_plural "{count} files"
+msgstr[0] "{count} archivo"
+msgstr[1] "{count} archivos"
+
+msgid "{count} item selected"
+msgid_plural "{count} items selected"
+msgstr[0] "{count} elemento seleccionado"
+msgstr[1] "{count} elementos seleccionados"
+
+msgid "Are you sure you want to delete {count} item?"
+msgid_plural "Are you sure you want to delete {count} items?"
+msgstr[0] "¿Está seguro de que desea eliminar {count} elemento?"
+msgstr[1] "¿Está seguro de que desea eliminar {count} elementos?"
+
+msgid "{count} minute ago"
+msgid_plural "{count} minutes ago"
+msgstr[0] "Hace {count} minuto"
+msgstr[1] "Hace {count} minutos"
+
+msgid "{count} hour ago"
+msgid_plural "{count} hours ago"
+msgstr[0] "Hace {count} hora"
+msgstr[1] "Hace {count} horas"
+
+msgid "{count} day ago"
+msgid_plural "{count} days ago"
+msgstr[0] "Hace {count} día"
+msgstr[1] "Hace {count} días"
+
+msgid "{count} result found"
+msgid_plural "{count} results found"
+msgstr[0] "Se encontró {count} resultado"
+msgstr[1] "Se encontraron {count} resultados"

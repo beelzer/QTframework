@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING, override
+from typing import TYPE_CHECKING
 
 from PySide6.QtCore import Property, QSize, Qt, Signal
-from PySide6.QtWidgets import QPushButton, QWidget
+from PySide6.QtWidgets import QPushButton
 
 
 if TYPE_CHECKING:
     from PySide6.QtGui import QIcon
+    from PySide6.QtWidgets import QWidget
 
 
 class ButtonVariant(Enum):
@@ -77,8 +78,7 @@ class Button(QPushButton):
         self._apply_variant()
         self._apply_size()
 
-    @Property(str, notify=variant_changed)
-    def variant(self) -> str:
+    def _get_variant(self) -> str:
         """Get button variant.
 
         Returns:
@@ -86,8 +86,7 @@ class Button(QPushButton):
         """
         return self._variant.value
 
-    @variant.setter
-    def variant(self, value: str) -> None:
+    def _set_variant(self, value: str) -> None:
         """Set button variant.
 
         Args:
@@ -102,8 +101,9 @@ class Button(QPushButton):
         except ValueError:
             pass
 
-    @Property(str, notify=size_changed)
-    def size(self) -> str:
+    variant = Property(str, _get_variant, _set_variant)
+
+    def _get_size(self) -> str:
         """Get button size.
 
         Returns:
@@ -111,8 +111,7 @@ class Button(QPushButton):
         """
         return self._size.value
 
-    @size.setter
-    def size(self, value: str) -> None:
+    def _set_size(self, value: str) -> None:
         """Set button size.
 
         Args:
@@ -126,6 +125,8 @@ class Button(QPushButton):
                 self.size_changed.emit(value)
         except ValueError:
             pass
+
+    buttonSize = Property(str, _get_size, _set_size)  # noqa: N815
 
     def _apply_variant(self) -> None:
         """Apply variant styling."""
@@ -209,7 +210,7 @@ class CloseButton(QPushButton):
             size: Button size in pixels
             style: Button style ('default', 'light', 'dark')
         """
-        super().__init__("×", parent)  # noqa: RUF001
+        super().__init__("×", parent)
 
         self.setFixedSize(size, size)
         self.setFlat(True)
@@ -292,7 +293,6 @@ class ToggleButton(QPushButton):
         else:
             self.setText(self._off_text)
 
-    @override
     def setChecked(self, checked: bool) -> None:
         """Set checked state.
 
