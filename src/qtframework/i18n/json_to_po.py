@@ -11,7 +11,11 @@ from typing import Any, TextIO
 class JsonToPoConverter:
     """Convert JSON translation files to Gettext .po format."""
 
+<<<<<<< HEAD
     def __init__(self, project_name: str = "Qt Framework", version: str = "1.0.0") -> None:
+=======
+    def __init__(self, project_name: str = "Qt Framework", version: str = "1.0.0"):
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Initialize converter.
 
         Args:
@@ -38,7 +42,11 @@ class JsonToPoConverter:
             source_locale: Source locale for msgid
         """
         # Load JSON translations
+<<<<<<< HEAD
         with Path(json_file).open(encoding="utf-8") as f:
+=======
+        with open(json_file, encoding="utf-8") as f:
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
             translations = json.load(f)
 
         # Load source translations if different locale
@@ -46,7 +54,11 @@ class JsonToPoConverter:
         if locale != source_locale:
             source_json = json_file.parent / f"{source_locale}.json"
             if source_json.exists():
+<<<<<<< HEAD
                 with Path(source_json).open(encoding="utf-8") as f:
+=======
+                with open(source_json, encoding="utf-8") as f:
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
                     source_translations = json.load(f)
 
         # Convert to flat entries
@@ -55,7 +67,11 @@ class JsonToPoConverter:
 
         # Write .po file
         po_file.parent.mkdir(parents=True, exist_ok=True)
+<<<<<<< HEAD
         with Path(po_file).open("w", encoding="utf-8") as f:
+=======
+        with open(po_file, "w", encoding="utf-8") as f:
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
             self._write_po_header(f, locale)
             self._write_po_entries(f)
 
@@ -76,7 +92,11 @@ class JsonToPoConverter:
             full_key = f"{prefix}.{key}" if prefix else key
 
             # Get source value
+<<<<<<< HEAD
             source_value: Any = source
+=======
+            source_value = source
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
             for k in full_key.split("."):
                 if isinstance(source_value, dict) and k in source_value:
                     source_value = source_value[k]
@@ -115,8 +135,13 @@ class JsonToPoConverter:
     def _add_plural_entry(self, key: str, value: dict, source_value: Any) -> None:
         """Add a plural translation entry."""
         # Get singular and plural forms
+<<<<<<< HEAD
         value.get("one", value.get("other", ""))
         value.get("other", "")
+=======
+        singular = value.get("one", value.get("other", ""))
+        plural = value.get("other", "")
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 
         # Get source forms
         if isinstance(source_value, dict):
@@ -126,11 +151,18 @@ class JsonToPoConverter:
             source_singular = source_plural = str(source_value)
 
         # Create plural entry
+<<<<<<< HEAD
         msgstr_plural = [
             str(value[form])
             for form in ["zero", "one", "two", "few", "many", "other"]
             if form in value
         ]
+=======
+        msgstr_plural = []
+        for form in ["zero", "one", "two", "few", "many", "other"]:
+            if form in value:
+                msgstr_plural.append(str(value[form]))
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 
         self.entries.append({
             "msgctxt": key,
@@ -195,7 +227,11 @@ msgstr ""
         }
 
         # Extract language code from locale
+<<<<<<< HEAD
         lang = locale.split("_", maxsplit=1)[0].lower()
+=======
+        lang = locale.split("_")[0].lower()
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         return plural_rules.get(lang, "nplurals=2; plural=(n != 1);")
 
     def _write_po_entries(self, f: TextIO) -> None:
@@ -215,10 +251,15 @@ msgstr ""
             # Handle plural forms
             if "msgid_plural" in entry:
                 f.write(f'msgid_plural "{self._escape_string(entry["msgid_plural"])}"\n')
+<<<<<<< HEAD
                 f.writelines(
                     f'msgstr[{i}] "{self._escape_string(msgstr)}"\n'
                     for i, msgstr in enumerate(entry.get("msgstr_plural", []))
                 )
+=======
+                for i, msgstr in enumerate(entry.get("msgstr_plural", [])):
+                    f.write(f'msgstr[{i}] "{self._escape_string(msgstr)}"\n')
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
             else:
                 # Write msgstr
                 f.write(f'msgstr "{self._escape_string(entry.get("msgstr", ""))}"\n')
@@ -279,7 +320,11 @@ def create_pot_template(
     converter = JsonToPoConverter()
 
     # Load source translations
+<<<<<<< HEAD
     with Path(source_json).open(encoding="utf-8") as f:
+=======
+    with open(source_json, encoding="utf-8") as f:
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         translations = json.load(f)
 
     # Flatten to entries with empty msgstr
@@ -295,7 +340,11 @@ def create_pot_template(
 
     # Write .pot file
     pot_file.parent.mkdir(parents=True, exist_ok=True)
+<<<<<<< HEAD
     with Path(pot_file).open("w", encoding="utf-8") as f:
+=======
+    with open(pot_file, "w", encoding="utf-8") as f:
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         converter._write_po_header(f, "")
         converter._write_po_entries(f)
 

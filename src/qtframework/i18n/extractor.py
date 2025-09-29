@@ -5,7 +5,10 @@ from __future__ import annotations
 import ast
 import re
 from pathlib import Path
+<<<<<<< HEAD
 from typing import Any
+=======
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 
 from qtframework.utils.logger import get_logger
 
@@ -16,7 +19,11 @@ logger = get_logger(__name__)
 class TranslationExtractor:
     """Extract translation keys from source code."""
 
+<<<<<<< HEAD
     def __init__(self) -> None:
+=======
+    def __init__(self):
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Initialize the extractor."""
         self.translation_functions = ["t", "plural", "_t", "_plural"]
         self.keys: set[str] = set()
@@ -26,7 +33,11 @@ class TranslationExtractor:
         """Extract translation keys from Python files."""
         keys = set()
         try:
+<<<<<<< HEAD
             with Path(file_path).open(encoding="utf-8") as f:
+=======
+            with open(file_path, encoding="utf-8") as f:
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
                 content = f.read()
 
             # Parse AST
@@ -50,7 +61,11 @@ class TranslationExtractor:
                                     self.key_locations[key].append((str(file_path), node.lineno))
 
         except Exception as e:
+<<<<<<< HEAD
             logger.exception("Failed to extract from %s: %s", file_path, e)
+=======
+            logger.error(f"Failed to extract from {file_path}: {e}")
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 
         return keys
 
@@ -66,7 +81,11 @@ class TranslationExtractor:
         """Extract translation keys from QML files."""
         keys = set()
         try:
+<<<<<<< HEAD
             with Path(file_path).open(encoding="utf-8") as f:
+=======
+            with open(file_path, encoding="utf-8") as f:
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
                 content = f.read()
 
             # Simple regex patterns for QML
@@ -82,6 +101,7 @@ class TranslationExtractor:
                 keys.update(matches)
 
         except Exception as e:
+<<<<<<< HEAD
             logger.exception("Failed to extract from %s: %s", file_path, e)
 
         return keys
@@ -89,6 +109,13 @@ class TranslationExtractor:
     def extract_from_directory(
         self, directory: Path, file_patterns: list[str] | None = None
     ) -> set[str]:
+=======
+            logger.error(f"Failed to extract from {file_path}: {e}")
+
+        return keys
+
+    def extract_from_directory(self, directory: Path, file_patterns: list[str] = None) -> set[str]:
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Extract translation keys from all files in a directory.
 
         Args:
@@ -120,7 +147,11 @@ class TranslationExtractor:
         self.keys = all_keys
         return all_keys
 
+<<<<<<< HEAD
     def generate_template(self, keys: set[str] | None = None) -> dict[str, str]:
+=======
+    def generate_template(self, keys: set[str] = None) -> dict[str, str]:
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Generate a translation template from extracted keys.
 
         Args:
@@ -132,14 +163,22 @@ class TranslationExtractor:
         if keys is None:
             keys = self.keys
 
+<<<<<<< HEAD
         template: dict[str, Any] = {}
+=======
+        template = {}
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 
         for key in sorted(keys):
             # Create nested structure from dot notation
             parts = key.split(".")
             current = template
 
+<<<<<<< HEAD
             for _i, part in enumerate(parts[:-1]):
+=======
+            for i, part in enumerate(parts[:-1]):
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
                 if part not in current:
                     current[part] = {}
                 current = current[part]
@@ -151,7 +190,11 @@ class TranslationExtractor:
         return template
 
     def find_unused_keys(
+<<<<<<< HEAD
         self, translation_keys: set[str], source_keys: set[str] | None = None
+=======
+        self, translation_keys: set[str], source_keys: set[str] = None
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
     ) -> set[str]:
         """Find translation keys that are not used in source code.
 
@@ -168,7 +211,11 @@ class TranslationExtractor:
         return translation_keys - source_keys
 
     def find_missing_keys(
+<<<<<<< HEAD
         self, translation_keys: set[str], source_keys: set[str] | None = None
+=======
+        self, translation_keys: set[str], source_keys: set[str] = None
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
     ) -> set[str]:
         """Find keys used in source code but missing from translations.
 
@@ -197,7 +244,11 @@ class TranslationExtractor:
         placeholder_pattern = re.compile(r"\{(\w+)\}")
 
         # Get all keys from all locales
+<<<<<<< HEAD
         all_keys: set[str] = set()
+=======
+        all_keys = set()
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         for locale_translations in translations.values():
             all_keys.update(self._flatten_dict(locale_translations).keys())
 
@@ -229,7 +280,11 @@ class TranslationExtractor:
 
     def _flatten_dict(self, d: dict, parent_key: str = "") -> dict[str, Any]:
         """Flatten nested dictionary with dot notation keys."""
+<<<<<<< HEAD
         items: list[tuple[str, Any]] = []
+=======
+        items = []
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         for k, v in d.items():
             new_key = f"{parent_key}.{k}" if parent_key else k
             if isinstance(v, dict):
@@ -240,10 +295,14 @@ class TranslationExtractor:
 
 
 def extract_and_update(
+<<<<<<< HEAD
     source_dir: Path,
     translations_dir: Path,
     locales: list[str] | None = None,
     dry_run: bool = False,
+=======
+    source_dir: Path, translations_dir: Path, locales: list[str] = None, dry_run: bool = False
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 ) -> dict[str, Any]:
     """Extract keys and update translation files.
 
@@ -259,7 +318,11 @@ def extract_and_update(
     import json
 
     extractor = TranslationExtractor()
+<<<<<<< HEAD
     report: dict[str, Any] = {
+=======
+    report = {
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         "extracted_keys": 0,
         "missing_keys": {},
         "unused_keys": {},
@@ -280,7 +343,11 @@ def extract_and_update(
 
         # Load existing translations
         if file_path.exists():
+<<<<<<< HEAD
             with Path(file_path).open(encoding="utf-8") as f:
+=======
+            with open(file_path, encoding="utf-8") as f:
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
                 translations = json.load(f)
         else:
             translations = {}
@@ -307,7 +374,11 @@ def extract_and_update(
             template = extractor.generate_template(missing)
 
             # Merge template into existing translations
+<<<<<<< HEAD
             def merge_nested(target, source) -> None:
+=======
+            def merge_nested(target, source):
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
                 for key, value in source.items():
                     if key not in target:
                         target[key] = value
@@ -317,11 +388,19 @@ def extract_and_update(
             merge_nested(translations, template)
 
             # Save updated translations
+<<<<<<< HEAD
             with Path(file_path).open("w", encoding="utf-8") as f:
                 json.dump(translations, f, ensure_ascii=False, indent=2)
 
             report["updated_files"].append(str(file_path))
             logger.info("Updated %s", file_path)
+=======
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(translations, f, ensure_ascii=False, indent=2)
+
+            report["updated_files"].append(str(file_path))
+            logger.info(f"Updated {file_path}")
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 
     return report
 

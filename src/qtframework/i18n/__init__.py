@@ -55,6 +55,7 @@ __version__ = "3.0.0"
 __all__ = [
     # Core
     "I18nManager",
+<<<<<<< HEAD
     "LanguageSelector",
     "LazyPlural",
     "LazyString",
@@ -84,4 +85,35 @@ __all__ = [
     "t",
     "translatable",
     "translatable_property",
+=======
+    "get_i18n_manager",
+    "set_i18n_manager",
+    "t",
+    "_",
+    "pgettext",
+    "plural",
+    "lazy_gettext",
+    # Context and lazy
+    "TranslationContext",
+    "UIContext",
+    "LazyString",
+    "LazyPlural",
+    "MessageFormatter",
+    "lazy",
+    "lazy_plural",
+    "translatable_property",
+    # Widgets
+    "TranslatableWidget",
+    "TranslatableLabel",
+    "TranslatableButton",
+    "TranslatableAction",
+    "TranslatableMenu",
+    "LanguageSelector",
+    "TranslationHelper",
+    "translatable",
+    "setup_widget_translations",
+    # Extraction
+    "TranslationExtractor",
+    "extract_and_update",
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 ]

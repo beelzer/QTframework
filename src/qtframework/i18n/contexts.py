@@ -8,19 +8,29 @@ This module provides advanced i18n features including:
 
 from __future__ import annotations
 
+<<<<<<< HEAD
 import contextlib
 from functools import wraps
 from typing import TYPE_CHECKING
+=======
+from collections.abc import Callable
+from functools import wraps
+
+from babel.support import LazyProxy
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 
 from qtframework.i18n.babel_manager import get_i18n_manager
 
 
+<<<<<<< HEAD
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from babel.support import LazyProxy
 
 
+=======
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 class TranslationContext:
     """Context for disambiguating translations.
 
@@ -34,7 +44,11 @@ class TranslationContext:
         save_menu = pgettext("menu", "Save")
     """
 
+<<<<<<< HEAD
     def __init__(self, context: str) -> None:
+=======
+    def __init__(self, context: str):
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Initialize with a context string."""
         self.context = context
         self._manager = get_i18n_manager()
@@ -86,7 +100,11 @@ class LazyString:
         print(str(ERROR_MESSAGE))  # Translates to current locale
     """
 
+<<<<<<< HEAD
     def __init__(self, msgid: str, context: str | None = None, **kwargs) -> None:
+=======
+    def __init__(self, msgid: str, context: str | None = None, **kwargs):
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Initialize lazy string.
 
         Args:
@@ -107,8 +125,15 @@ class LazyString:
             translated = manager.t(self.msgid)
 
         if self.kwargs:
+<<<<<<< HEAD
             with contextlib.suppress(KeyError, ValueError):
                 translated = translated.format(**self.kwargs)
+=======
+            try:
+                translated = translated.format(**self.kwargs)
+            except (KeyError, ValueError):
+                pass
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 
         return translated
 
@@ -136,7 +161,11 @@ class LazyPlural:
         print(ITEMS_COUNT.format(count=5))  # "5 items"
     """
 
+<<<<<<< HEAD
     def __init__(self, singular: str, plural: str, context: str | None = None) -> None:
+=======
+    def __init__(self, singular: str, plural: str, context: str | None = None):
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Initialize lazy plural.
 
         Args:
@@ -226,7 +255,11 @@ class MessageFormatter:
         # "5 items"
     """
 
+<<<<<<< HEAD
     def __init__(self) -> None:
+=======
+    def __init__(self):
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Initialize formatter."""
         self._manager = get_i18n_manager()
 
@@ -294,8 +327,15 @@ class MessageFormatter:
                 result = result.replace(match.group(0), replacement)
 
         # Handle simple placeholders
+<<<<<<< HEAD
         with contextlib.suppress(KeyError, ValueError):
             result = result.format(**kwargs)
+=======
+        try:
+            result = result.format(**kwargs)
+        except (KeyError, ValueError):
+            pass
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 
         return result
 

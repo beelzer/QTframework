@@ -2,10 +2,16 @@
 
 from __future__ import annotations
 
+<<<<<<< HEAD
 from contextlib import contextmanager, suppress
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
+=======
+from contextlib import contextmanager
+from functools import lru_cache
+from pathlib import Path
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 
 from babel import Locale
 from babel.dates import format_date, format_datetime, format_time
@@ -16,6 +22,7 @@ from babel.numbers import (
     format_percent,
     format_scientific,
 )
+<<<<<<< HEAD
 from babel.support import LazyProxy, Translations
 from PySide6.QtCore import QObject, QSettings, Signal
 
@@ -27,6 +34,12 @@ if TYPE_CHECKING:
 
 logger = get_logger(__name__)
 
+=======
+from babel.plural import PluralRule
+from babel.support import LazyProxy, Translations
+from PySide6.QtCore import QObject, QSettings, Signal
+
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 
 class BabelI18nManager(QObject):
     """Modern internationalization manager using Babel.
@@ -53,7 +66,11 @@ class BabelI18nManager(QObject):
         enable_fuzzy: bool = False,
         cache_size: int = 128,
         auto_compile: bool = True,
+<<<<<<< HEAD
     ) -> None:
+=======
+    ):
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Initialize the Babel i18n manager.
 
         Args:
@@ -113,7 +130,11 @@ class BabelI18nManager(QObject):
 
         # Add base language if locale has region
         if "_" in locale:
+<<<<<<< HEAD
             base_lang = locale.split("_", maxsplit=1)[0]
+=======
+            base_lang = locale.split("_")[0]
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
             if base_lang not in chain:
                 chain.append(base_lang)
 
@@ -263,8 +284,15 @@ class BabelI18nManager(QObject):
         translated = self._get_translation_cached(msgid)
 
         if kwargs:
+<<<<<<< HEAD
             with suppress(KeyError, ValueError):
                 translated = translated.format(**kwargs)
+=======
+            try:
+                translated = translated.format(**kwargs)
+            except (KeyError, ValueError):
+                pass
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 
         return translated
 
@@ -294,8 +322,15 @@ class BabelI18nManager(QObject):
             translated = msgid
 
         if kwargs:
+<<<<<<< HEAD
             with suppress(KeyError, ValueError):
                 translated = translated.format(**kwargs)
+=======
+            try:
+                translated = translated.format(**kwargs)
+            except (KeyError, ValueError):
+                pass
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 
         return translated
 
@@ -323,8 +358,15 @@ class BabelI18nManager(QObject):
         if "n" not in kwargs:
             kwargs["n"] = n
 
+<<<<<<< HEAD
         with suppress(KeyError, ValueError):
             translated = translated.format(**kwargs)
+=======
+        try:
+            translated = translated.format(**kwargs)
+        except (KeyError, ValueError):
+            pass
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 
         return translated
 
@@ -353,8 +395,15 @@ class BabelI18nManager(QObject):
         if "count" not in kwargs:
             kwargs["count"] = n
 
+<<<<<<< HEAD
         with suppress(KeyError, ValueError):
             translated = translated.format(**kwargs)
+=======
+        try:
+            translated = translated.format(**kwargs)
+        except (KeyError, ValueError):
+            pass
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 
         return translated
 
@@ -442,12 +491,20 @@ class BabelI18nManager(QObject):
         rule = self.get_plural_rule()
         return list(rule.tags)
 
+<<<<<<< HEAD
     def _compile_translations(self) -> None:
+=======
+    def _compile_translations(self):
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Auto-compile .po files to .mo files if they are newer or missing.
         Only runs in development mode to avoid runtime overhead.
         """
         try:
+<<<<<<< HEAD
             import polib
+=======
+            import polib  # type: ignore
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 
             for locale_dir in self.locale_dir.iterdir():
                 if locale_dir.is_dir():
@@ -465,7 +522,11 @@ class BabelI18nManager(QObject):
                                 po.save_as_mofile(str(mo_file))
                                 logger.debug(f"Compiled {locale_dir.name}: {po_file} -> {mo_file}")
                             except Exception as e:
+<<<<<<< HEAD
                                 logger.warning("Failed to compile %s: %s", po_file, e)
+=======
+                                logger.warning(f"Failed to compile {po_file}: {e}")
+>>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         except ImportError:
             logger.debug("polib not available, skipping auto-compilation")
 
