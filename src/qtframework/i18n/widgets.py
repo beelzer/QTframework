@@ -2,35 +2,22 @@
 
 from __future__ import annotations
 
-<<<<<<< HEAD
 from functools import wraps
 from typing import TYPE_CHECKING, Any
 
 from PySide6.QtCore import Signal
-=======
-from collections.abc import Callable
-from functools import wraps
-from typing import Any
-
-from PySide6.QtCore import QObject, Signal
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QComboBox,
     QLabel,
     QMenu,
     QPushButton,
-<<<<<<< HEAD
-=======
-    QWidget,
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 )
 
 from qtframework.i18n.babel_manager import get_i18n_manager
 from qtframework.utils.logger import get_logger
 
 
-<<<<<<< HEAD
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -40,29 +27,19 @@ if TYPE_CHECKING:
     )
 
 
-=======
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 logger = get_logger(__name__)
 
 
 class TranslatableWidget:
     """Mixin for widgets that support automatic translation updates."""
 
-<<<<<<< HEAD
     def __init__(self) -> None:
-=======
-    def __init__(self):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Initialize the translatable widget."""
         self._translation_key: str | None = None
         self._translation_args: dict[str, Any] = {}
         self._plural_count: int | None = None
 
-<<<<<<< HEAD
     def set_translation_key(self, key: str, **kwargs) -> None:
-=======
-    def set_translation_key(self, key: str, **kwargs):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Set the translation key for this widget.
 
         Args:
@@ -79,11 +56,7 @@ class TranslatableWidget:
             manager.translations_reloaded.connect(self._update_translation)
             manager.locale_changed.connect(self._on_locale_changed)
 
-<<<<<<< HEAD
     def set_plural_translation(self, singular: str, plural: str, count: int, **kwargs) -> None:
-=======
-    def set_plural_translation(self, singular: str, plural: str, count: int, **kwargs):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Set plural translation for this widget.
 
         Args:
@@ -107,11 +80,7 @@ class TranslatableWidget:
             manager.translations_reloaded.connect(self._update_translation)
             manager.locale_changed.connect(self._on_locale_changed)
 
-<<<<<<< HEAD
     def _update_translation(self) -> None:
-=======
-    def _update_translation(self):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Update the widget's text with current translation."""
         if not self._translation_key:
             return
@@ -132,26 +101,12 @@ class TranslatableWidget:
             text = manager.t(self._translation_key, **self._translation_args)
 
         # Update widget text
-<<<<<<< HEAD
         if isinstance(self, QLabel | QPushButton | QAction) or hasattr(self, "setText"):
-=======
-        if isinstance(self, QLabel):
-            self.setText(text)
-        elif isinstance(self, QPushButton):
-            self.setText(text)
-        elif isinstance(self, QAction):
-            self.setText(text)
-        elif hasattr(self, "setText"):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
             self.setText(text)
         elif hasattr(self, "setTitle"):
             self.setTitle(text)
 
-<<<<<<< HEAD
     def _on_locale_changed(self, locale: str) -> None:
-=======
-    def _on_locale_changed(self, locale: str):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Handle locale change."""
         self._update_translation()
 
@@ -159,13 +114,9 @@ class TranslatableWidget:
 class TranslatableLabel(QLabel, TranslatableWidget):
     """QLabel with automatic translation support."""
 
-<<<<<<< HEAD
     def __init__(
         self, translation_key: str | None = None, parent: QWidget | None = None, **kwargs
     ) -> None:
-=======
-    def __init__(self, translation_key: str = None, parent: QWidget = None, **kwargs):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Initialize translatable label.
 
         Args:
@@ -183,13 +134,9 @@ class TranslatableLabel(QLabel, TranslatableWidget):
 class TranslatableButton(QPushButton, TranslatableWidget):
     """QPushButton with automatic translation support."""
 
-<<<<<<< HEAD
     def __init__(
         self, translation_key: str | None = None, parent: QWidget | None = None, **kwargs
     ) -> None:
-=======
-    def __init__(self, translation_key: str = None, parent: QWidget = None, **kwargs):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Initialize translatable button.
 
         Args:
@@ -207,13 +154,9 @@ class TranslatableButton(QPushButton, TranslatableWidget):
 class TranslatableAction(QAction, TranslatableWidget):
     """QAction with automatic translation support."""
 
-<<<<<<< HEAD
     def __init__(
         self, translation_key: str | None = None, parent: QObject | None = None, **kwargs
     ) -> None:
-=======
-    def __init__(self, translation_key: str = None, parent: QObject = None, **kwargs):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Initialize translatable action.
 
         Args:
@@ -231,13 +174,9 @@ class TranslatableAction(QAction, TranslatableWidget):
 class TranslatableMenu(QMenu, TranslatableWidget):
     """QMenu with automatic translation support."""
 
-<<<<<<< HEAD
     def __init__(
         self, translation_key: str | None = None, parent: QWidget | None = None, **kwargs
     ) -> None:
-=======
-    def __init__(self, translation_key: str = None, parent: QWidget = None, **kwargs):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Initialize translatable menu.
 
         Args:
@@ -257,11 +196,7 @@ class LanguageSelector(QComboBox):
 
     language_changed = Signal(str)
 
-<<<<<<< HEAD
     def __init__(self, parent: QWidget | None = None) -> None:
-=======
-    def __init__(self, parent: QWidget = None):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Initialize language selector."""
         super().__init__(parent)
 
@@ -285,11 +220,7 @@ class LanguageSelector(QComboBox):
         # Update on locale changes
         self.manager.locale_changed.connect(self._on_locale_changed)
 
-<<<<<<< HEAD
     def _populate_languages(self) -> None:
-=======
-    def _populate_languages(self):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Populate the combo box with available languages."""
         self.clear()
 
@@ -304,11 +235,7 @@ class LanguageSelector(QComboBox):
             display_name = info["display_name"]
             self.addItem(display_name, locale_code)
 
-<<<<<<< HEAD
     def _on_selection_changed(self, index: int) -> None:
-=======
-    def _on_selection_changed(self, index: int):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Handle language selection change."""
         if index < 0 or not self.manager:
             return
@@ -318,22 +245,14 @@ class LanguageSelector(QComboBox):
             self.manager.set_locale(locale)
             self.language_changed.emit(locale)
 
-<<<<<<< HEAD
     def _on_locale_changed(self, locale: str) -> None:
-=======
-    def _on_locale_changed(self, locale: str):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Handle external locale change."""
         index = self.findData(locale)
         if index >= 0 and index != self.currentIndex():
             self.setCurrentIndex(index)
 
 
-<<<<<<< HEAD
 def translatable(translation_key: str | None = None, **default_args):
-=======
-def translatable(translation_key: str = None, **default_args):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
     """Decorator to make a method automatically translatable.
 
     Args:
@@ -370,33 +289,21 @@ def translatable(translation_key: str = None, **default_args):
 class TranslationHelper:
     """Helper class for managing translations in complex widgets."""
 
-<<<<<<< HEAD
     def __init__(self, widget: QWidget) -> None:
-=======
-    def __init__(self, widget: QWidget):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Initialize translation helper.
 
         Args:
             widget: Widget to manage translations for
         """
         self.widget = widget
-<<<<<<< HEAD
         self.translations: dict[int, dict[str, Any]] = {}
-=======
-        self.translations: dict[str, dict[str, Any]] = {}
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         self.manager = get_i18n_manager()
 
         if self.manager:
             self.manager.translations_reloaded.connect(self._update_all)
             self.manager.locale_changed.connect(lambda _: self._update_all())
 
-<<<<<<< HEAD
     def register(self, element: Any, key: str, setter: str = "setText", **kwargs) -> None:
-=======
-    def register(self, element: Any, key: str, setter: str = "setText", **kwargs):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Register an element for automatic translation.
 
         Args:
@@ -418,11 +325,7 @@ class TranslationHelper:
 
     def register_plural(
         self, element: Any, key: str, count: int, setter: str = "setText", **kwargs
-<<<<<<< HEAD
     ) -> None:
-=======
-    ):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Register an element for plural translation.
 
         Args:
@@ -444,11 +347,7 @@ class TranslationHelper:
         # Apply initial translation
         self._update_element(element_id)
 
-<<<<<<< HEAD
     def update_count(self, element: Any, count: int) -> None:
-=======
-    def update_count(self, element: Any, count: int):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Update the count for a plural translation.
 
         Args:
@@ -460,11 +359,7 @@ class TranslationHelper:
             self.translations[element_id]["count"] = count
             self._update_element(element_id)
 
-<<<<<<< HEAD
     def _update_element(self, element_id: int) -> None:
-=======
-    def _update_element(self, element_id: int):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Update a single element's translation."""
         if not self.manager or element_id not in self.translations:
             return
@@ -483,20 +378,12 @@ class TranslationHelper:
         if setter:
             setter(text)
 
-<<<<<<< HEAD
     def _update_all(self) -> None:
-=======
-    def _update_all(self):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Update all registered translations."""
         for element_id in self.translations:
             self._update_element(element_id)
 
-<<<<<<< HEAD
     def clear(self) -> None:
-=======
-    def clear(self):
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
         """Clear all registered translations."""
         self.translations.clear()
 
@@ -516,7 +403,6 @@ def setup_widget_translations(widget: QWidget) -> TranslationHelper:
 
 
 __all__ = [
-<<<<<<< HEAD
     "LanguageSelector",
     "TranslatableAction",
     "TranslatableButton",
@@ -526,15 +412,4 @@ __all__ = [
     "TranslationHelper",
     "setup_widget_translations",
     "translatable",
-=======
-    "TranslatableWidget",
-    "TranslatableLabel",
-    "TranslatableButton",
-    "TranslatableAction",
-    "TranslatableMenu",
-    "LanguageSelector",
-    "TranslationHelper",
-    "translatable",
-    "setup_widget_translations",
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 ]

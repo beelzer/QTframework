@@ -297,19 +297,10 @@ class PatternValidator(I18nValidator):
 
 # Export all validators
 __all__ = [
-<<<<<<< HEAD
     "EmailValidator",
     "I18nValidator",
     "LengthValidator",
     "NumberValidator",
     "PatternValidator",
     "RequiredValidator",
-=======
-    "I18nValidator",
-    "RequiredValidator",
-    "LengthValidator",
-    "EmailValidator",
-    "NumberValidator",
-    "PatternValidator",
->>>>>>> f6d99619b4b7b8af4d0f77de2c00c9310dea2a24
 ]
