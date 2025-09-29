@@ -35,7 +35,7 @@ runs:
         sudo apt-get install -y \
           libgl1-mesa-dri \
           libglib2.0-0 \
-          libegl1-mesa \
+          libegl1 \
           libxcb-xinerama0 \
           libxcb-icccm4 \
           libxcb-image0 \
