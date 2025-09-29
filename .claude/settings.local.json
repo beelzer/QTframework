@@ -21,7 +21,9 @@
       "Bash(bandit:*)",
       "Bash(pytest:*)",
       "Bash(move:*)",
-      "Bash(ren:*)"
+      "Bash(ren:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh run list:*)"
     ],
     "deny": [],
     "ask": []

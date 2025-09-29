@@ -32,10 +32,11 @@ runs:
     - name: Build Sphinx documentation
       shell: bash
       run: |
-        cd ${{ inputs.docs-folder }}
-        make clean html SPHINXOPTS="-W --keep-going"
-      env:
-        SPHINXBUILD: sphinx-build
+        # Clean previous build
+        rm -rf ${{ inputs.output-folder }}
+
+        # Build documentation
+        sphinx-build -W --keep-going -b html ${{ inputs.docs-folder }} ${{ inputs.output-folder }}
 
     - name: Check documentation build
       shell: bash
