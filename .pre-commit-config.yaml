@@ -101,7 +101,9 @@ repos:
     hooks:
       - id: codespell
         args:
-          ["--skip=*.lock,package-lock.json,yarn.lock,.git,*.min.js,*.min.css"]
+          [
+            "--skip=*.lock,package-lock.json,yarn.lock,.git,*.min.js,*.min.css,*.po,*.pot",
+          ]
         additional_dependencies: [tomli]
 
   # Validate pyproject.toml
@@ -156,6 +158,17 @@ repos:
     hooks:
       - id: markdownlint
         args: [--fix, --disable, MD013, MD024, MD033, MD041]
+
+  # Local hooks for i18n
+  - repo: local
+    hooks:
+      - id: compile-translations
+        name: Compile i18n translations
+        entry: python scripts/i18n_manager.py compile --quiet
+        language: system
+        files: \.po$
+        pass_filenames: false
+        description: "Compile .po files to .mo files when they change"
 
 # Configuration for ci
 ci:

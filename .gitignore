@@ -78,3 +78,16 @@ tmp/
 # =====================
 *.autosave
 ui_*.py
+
+# =====================
+# i18n/Localization
+# =====================
+# Compiled translation files
+*.mo
+
+# Translation template (regenerated)
+# *.pot
+
+# Translation backups
+*.po~
+*.po.bak

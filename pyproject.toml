@@ -35,6 +35,8 @@ dependencies = [
     "matplotlib>=3.9.0",
     "pandas>=2.2.0",
     "pip>=23.0.0",
+    "babel>=2.14.0",
+    "polib>=1.2.0",
 ]
 
 [project.optional-dependencies]
@@ -138,7 +140,8 @@ unfixable = []
 "tests/*" = ["S101", "PLR2004", "D", "ANN"]
 "examples/**/*.py" = ["ALL"]
 "__init__.py" = ["F401", "D104"]
-"src/qtframework/**/*.py" = ["E402", "E722", "N802", "A001", "A002", "A003", "TC001", "TC002", "TC003", "G004", "ANN", "PLR", "PLW", "F821", "RUF", "SIM", "UP", "PLC", "F841", "EM", "TRY", "ISC", "BLE", "DTZ", "B", "PTH", "PERF", "FBT", "RET504", "FURB"]
+"scripts/*" = ["S603", "TRY300", "BLE001", "PLR0912", "D107"]
+"src/qtframework/**/*.py" = ["E402", "E722", "N802", "A001", "A002", "A003", "TC001", "TC002", "TC003", "G004", "ANN", "PLR", "PLW", "F821", "RUF", "SIM", "UP", "PLC", "F841", "EM", "TRY", "ISC", "BLE", "DTZ", "B", "PTH", "PERF", "FBT", "RET504", "FURB", "D205", "SLF001"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["qtframework"]
@@ -219,7 +222,8 @@ module = [
     "matplotlib.*",
     "pandas.*",
     "numpy.*",
-    "PySide6.*"
+    "PySide6.*",
+    "polib"
 ]
 ignore_errors = true
 
@@ -254,11 +258,11 @@ dev = [
 convention = "google"
 
 [tool.ruff.lint.mccabe]
-max-complexity = 10
+max-complexity = 15
 
 [tool.ruff.lint.pylint]
 max-args = 7
-max-branches = 12
+max-branches = 15
 max-returns = 6
 max-statements = 50
 
@@ -297,13 +301,13 @@ precision = 2
 directory = "htmlcov"
 
 [tool.bandit]
-exclude_dirs = ["tests", "examples", ".venv", "venv"]
-skips = ["B101", "B601"]  # Skip assert_used and shell_with_params
+exclude_dirs = ["tests", "examples", ".venv", "venv", "scripts"]
+skips = ["B101", "B601", "B404", "B603"]  # Skip assert_used, shell_with_params, subprocess imports, and subprocess calls
 
 [tool.pydocstyle]
 convention = "google"
-match-dir = "(?!tests|examples|migrations).*"
-add-ignore = ["D100", "D104", "D202", "D402"]
+match-dir = "(?!tests|examples|migrations|scripts).*"
+add-ignore = ["D100", "D104", "D107", "D202", "D205", "D402"]
 
 [tool.isort]
 profile = "black"

@@ -14,7 +14,10 @@
       "Bash(findstr:*)",
       "Bash(grep:*)",
       "Bash(detect-secrets:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(mkdir:*)",
+      "Bash(pip install:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

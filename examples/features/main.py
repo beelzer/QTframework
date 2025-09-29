@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from app.showcase_window import ShowcaseWindow
 from qtframework.core import Application
+from qtframework.i18n import I18nManager
 
 
 def main():
@@ -21,6 +22,10 @@ def main():
     app.setApplicationName("Qt Framework Showcase")
     app.setOrganizationName("Qt Framework")
     app.setStyle("Fusion")
+
+    # Initialize i18n manager
+    i18n_manager = I18nManager()
+    app.i18n = i18n_manager  # Store on application instance
 
     window = ShowcaseWindow()
     window.show()
