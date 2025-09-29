@@ -1,0 +1,167 @@
+# Auto-labeling configuration for pull requests
+
+# Source code changes
+python:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.py"
+          - "pyproject.toml"
+          - "requirements*.txt"
+          - "uv.lock"
+
+# Documentation
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docs/**/*"
+          - "**/*.md"
+          - "**/*.rst"
+          - "README.md"
+          - "CHANGELOG.md"
+          - "CONTRIBUTING.md"
+
+# Testing
+testing:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "tests/**/*"
+          - "**/*test*.py"
+          - "pytest.ini"
+          - ".coveragerc"
+          - "tox.ini"
+
+# CI/CD
+ci/cd:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**/*"
+          - ".gitlab-ci.yml"
+          - "Jenkinsfile"
+          - ".circleci/**/*"
+          - ".travis.yml"
+
+# QT Framework specific
+qt:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/qtframework/**/*"
+          - "**/widgets/**/*"
+          - "**/gui/**/*"
+
+# i18n/Localization
+i18n:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "locales/**/*"
+          - "src/qtframework/i18n/**/*"
+          - "**/*.po"
+          - "**/*.pot"
+          - "**/*.mo"
+          - "babel.cfg"
+
+# Configuration
+configuration:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.yml"
+          - "**/*.yaml"
+          - "**/*.toml"
+          - "**/*.ini"
+          - "**/*.cfg"
+          - ".env*"
+
+# Docker
+docker:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "Dockerfile*"
+          - "docker-compose*.yml"
+          - ".dockerignore"
+          - "docker/**/*"
+
+# Dependencies
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "pyproject.toml"
+          - "requirements*.txt"
+          - "uv.lock"
+          - "poetry.lock"
+          - "Pipfile*"
+          - "setup.py"
+          - "setup.cfg"
+
+# Security
+security:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*security*"
+          - "**/*auth*"
+          - "**/*crypt*"
+          - ".secrets*"
+
+# Examples
+examples:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "examples/**/*"
+          - "demo/**/*"
+          - "samples/**/*"
+
+# Scripts
+scripts:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "scripts/**/*"
+          - "tools/**/*"
+          - "bin/**/*"
+
+# Database
+database:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/models/**/*"
+          - "**/migrations/**/*"
+          - "**/alembic/**/*"
+          - "**/*.sql"
+
+# Performance
+performance:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/benchmark*/**/*"
+          - "**/perf*/**/*"
+          - "**/*profile*"
+
+# Major components
+core:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/qtframework/core/**/*"
+
+navigation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/qtframework/navigation/**/*"
+
+state-management:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/qtframework/state/**/*"
+
+theming:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/qtframework/theme/**/*"
+          - "**/styles/**/*"
+          - "**/*.qss"
+
+widgets:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/qtframework/widgets/**/*"
+
+utils:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/qtframework/utils/**/*"

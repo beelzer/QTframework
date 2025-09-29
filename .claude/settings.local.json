@@ -18,7 +18,10 @@
       "Bash(mkdir:*)",
       "Bash(pip install:*)",
       "Bash(timeout:*)",
-      "Bash(bandit:*)"
+      "Bash(bandit:*)",
+      "Bash(pytest:*)",
+      "Bash(move:*)",
+      "Bash(ren:*)"
     ],
     "deny": [],
     "ask": []

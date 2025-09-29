@@ -1,0 +1,117 @@
+# Codecov configuration
+# https://docs.codecov.com/docs/codecov-yaml
+
+# Codecov settings
+codecov:
+  require_ci_to_pass: true
+  notify:
+    wait_for_ci: true
+
+# Coverage settings
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+
+  status:
+    # Overall project coverage
+    project:
+      default:
+        target: 80%
+        threshold: 1%
+        base: auto
+        if_not_found: success
+        if_ci_failed: error
+        informational: false
+        only_pulls: false
+
+    # Coverage for changed files in PR
+    patch:
+      default:
+        target: 80%
+        threshold: 1%
+        base: auto
+        if_not_found: success
+        if_ci_failed: error
+        informational: false
+        only_pulls: false
+
+    # Don't fail if coverage changes slightly
+    changes: false
+
+# Parser configuration
+parsers:
+  gcov:
+    branch_detection:
+      conditional: true
+      loop: true
+      method: false
+      macro: false
+
+# Comment settings for PRs
+comment:
+  layout: "reach,diff,flags,tree,betaprofiling"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+  show_carryforward_flags: false
+  show_critical_paths: false
+
+# Ignore certain files/paths
+ignore:
+  - "tests/**"
+  - "examples/**"
+  - "docs/**"
+  - "scripts/**"
+  - "**/__pycache__/**"
+  - "**/.pytest_cache/**"
+  - "**/conftest.py"
+  - "setup.py"
+  - "**/__init__.py"
+
+# Flag configuration (for different test suites)
+flags:
+  unittests:
+    paths:
+      - src/qtframework
+    carryforward: false
+
+  integration:
+    paths:
+      - src/qtframework
+    carryforward: false
+
+# Component configuration (track coverage for different parts)
+component_management:
+  default_rules:
+    statuses:
+      - type: project
+        target: auto
+        threshold: 1%
+
+  individual_components:
+    - component_id: core
+      name: Core Components
+      paths:
+        - src/qtframework/core/**
+
+    - component_id: config
+      name: Configuration
+      paths:
+        - src/qtframework/config/**
+
+    - component_id: i18n
+      name: Internationalization
+      paths:
+        - src/qtframework/i18n/**
+
+    - component_id: widgets
+      name: Widgets
+      paths:
+        - src/qtframework/widgets/**
+
+    - component_id: themes
+      name: Themes
+      paths:
+        - src/qtframework/themes/**

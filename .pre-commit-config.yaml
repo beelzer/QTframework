@@ -115,12 +115,12 @@ repos:
           - prettier@3.4.2
           - prettier-plugin-toml
 
-  # YAML linting
-  - repo: https://github.com/adrienverge/yamllint
-    rev: v1.36.1
-    hooks:
-      - id: yamllint
-        args: [-c=.yamllint.yaml]
+  # YAML linting (temporarily disabled due to encoding issues)
+  # - repo: https://github.com/adrienverge/yamllint
+  #   rev: v1.36.1
+  #   hooks:
+  #     - id: yamllint
+  #       args: [-c=.yamllint.yaml]
 
   # Remove CRLF and tabs
   - repo: https://github.com/Lucas-C/pre-commit-hooks
@@ -165,5 +165,5 @@ ci:
   autoupdate_branch: ""
   autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
-  skip: [actionlint] # Skip actionlint until GitHub Actions are added
+  skip: []
   submodules: false

@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-environment
+        with:
+          python-version: "3.13"
+          install-type: "dev"
+
+      - name: Run linting
+        run: |
+          ruff check src tests
+          ruff format --check src tests
+
+      - name: Run type checking
+        run: |
+          mypy src
+
+      - name: Setup display for GUI tests
+        run: |
+          export DISPLAY=:99
+          sudo Xvfb :99 -screen 0 1920x1080x24 &
+          sleep 3
+
+      - name: Run tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+          DISPLAY: :99
+        run: |
+          pytest tests/ -v

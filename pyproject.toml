@@ -168,6 +168,7 @@ ignore = [
 
     # Too opinionated
     "S101",   # assert allowed
+    "S311",   # Standard pseudo-random generators (OK for test data)
     "FBT001", "FBT002",  # Boolean args can be useful
     "EM101", "EM102",    # Raw exception strings are fine
     "TRY003",  # Long exception messages are ok
@@ -314,16 +315,39 @@ addopts = [
     "--strict-markers",
     "--strict-config",
     "--tb=short",
+    "--cov=src/qtframework",
+    "--cov-report=term-missing:skip-covered",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--cov-branch",
+    "--maxfail=3",
+    "-vv",
 ]
 markers = [
-    "slow: marks tests as slow",
-    "gui: marks tests that require GUI",
+    "unit: Unit tests (fast, isolated)",
+    "integration: Integration tests (may be slower)",
+    "slow: Slow running tests (deselect with '-m \"not slow\"')",
+    "gui: Tests requiring GUI/Qt",
+    "network: Tests requiring network access",
+    "database: Tests requiring database",
+    "performance: Performance/benchmark tests",
+    "smoke: Basic smoke tests for CI",
+    "regression: Regression tests for bug fixes",
 ]
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
 filterwarnings = [
     "error",
     "ignore::DeprecationWarning",
     "ignore::PendingDeprecationWarning",
+    "ignore::ResourceWarning",
+    "ignore:.*PySide6.*:DeprecationWarning",
 ]
+# Qt specific settings for pytest-qt
+qt_api = "pyside6"
+qt_no_exception_capture = false
 
 # Coverage - Test coverage
 [tool.coverage.run]

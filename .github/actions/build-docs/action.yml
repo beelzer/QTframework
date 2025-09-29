@@ -1,0 +1,56 @@
+name: "Build Documentation"
+description: "Build Sphinx documentation"
+
+inputs:
+  python-version:
+    description: "Python version to use"
+    required: false
+    default: "3.13"
+  docs-folder:
+    description: "Documentation source folder"
+    required: false
+    default: "docs"
+  output-folder:
+    description: "Build output folder"
+    required: false
+    default: "docs/_build/html"
+
+outputs:
+  docs-path:
+    description: "Path to built documentation"
+    value: ${{ inputs.output-folder }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup environment
+      uses: ./.github/actions/setup-environment
+      with:
+        python-version: ${{ inputs.python-version }}
+        install-type: "full"
+
+    - name: Build Sphinx documentation
+      shell: bash
+      run: |
+        cd ${{ inputs.docs-folder }}
+        make clean html SPHINXOPTS="-W --keep-going"
+      env:
+        SPHINXBUILD: sphinx-build
+
+    - name: Check documentation build
+      shell: bash
+      run: |
+        if [ -d "${{ inputs.output-folder }}" ]; then
+          echo "✅ Documentation built successfully"
+          echo "📁 Files in output directory:"
+          ls -la ${{ inputs.output-folder }}/ | head -20
+        else
+          echo "❌ Documentation build failed - output directory not found"
+          exit 1
+        fi
+
+    - name: Create .nojekyll file
+      shell: bash
+      run: |
+        touch ${{ inputs.output-folder }}/.nojekyll
+        echo "Added .nojekyll file for GitHub Pages"
