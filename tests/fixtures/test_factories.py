@@ -365,7 +365,7 @@ class MockFactory:
 
 
 @dataclass
-class TestContext:
+class FactoryTestContext:
     """Container for test context and utilities."""
 
     config: dict[str, Any] = field(default_factory=ConfigFactory.create_standard_config)

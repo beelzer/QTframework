@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QPushButton, QVBoxLayout, QWidget
 
 from qtframework.config.config import Config
 from qtframework.config.manager import ConfigManager
-from tests.utils.helpers import PerformanceTimer
+from tests.utils.test_helpers import PerformanceTimer
 
 
 if TYPE_CHECKING:
