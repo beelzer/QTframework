@@ -305,7 +305,7 @@ jobs:
           retention-days: 30
 
   test-python-3-14:
-    name: 🧪 3.14
+    name: 🧪 3.14 (Experimental)
     runs-on: ubuntu-latest
     continue-on-error: true
     needs:
@@ -329,6 +329,7 @@ jobs:
         uses: ./.github/actions/setup-environment
         with:
           python-version: "3.14"
+          allow-prereleases: "true"
           install-type: "dev"
 
       - name: Setup display for GUI tests
