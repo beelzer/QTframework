@@ -43,7 +43,12 @@ def main() -> int:
             check=False,
         )
 
-        if result.returncode != 0:
+        # Print output for debugging
+        if result.stdout:
+            print(result.stdout)
+
+        # Check if changes would be made (diff output present)
+        if result.stdout.strip():
             exit_code = 1
 
             # Parse diff output to find line numbers
