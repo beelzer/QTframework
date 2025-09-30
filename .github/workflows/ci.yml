@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
-    name: Test
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
 
     steps:
@@ -27,11 +27,45 @@ jobs:
           ruff check src tests
           ruff format --check src tests
 
+  type-check:
+    name: Type Check
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-environment
+        with:
+          python-version: "3.13"
+          install-type: "dev"
+
       - name: Run type checking
         run: |
           mypy src
 
-      - name: Setup display for GUI tests
+  test:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    needs: type-check
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-environment
+        with:
+          python-version: "3.13"
+          install-type: "dev"
+
+      - name: Setup display for GUI tests (Linux)
+        if: runner.os == 'Linux'
         run: |
           export DISPLAY=:99
           sudo Xvfb :99 -screen 0 1920x1080x24 &
@@ -40,7 +74,7 @@ jobs:
       - name: Run tests with coverage
         env:
           QT_QPA_PLATFORM: offscreen
-          DISPLAY: :99
+          DISPLAY: ${{ runner.os == 'Linux' && ':99' || '' }}
         run: |
           pytest tests/ -v --cov=src/qtframework --cov-report=xml --cov-report=term
 
@@ -49,6 +83,6 @@ jobs:
         with:
           file: ./coverage.xml
           flags: unittests
-          name: codecov-umbrella
+          name: codecov-${{ matrix.os }}
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
