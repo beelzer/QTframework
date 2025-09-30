@@ -98,6 +98,7 @@ from __future__ import annotations
 
 import collections
 import copy
+import threading
 from typing import TYPE_CHECKING, Any
 
 from PySide6.QtCore import QObject, Signal
@@ -163,6 +164,7 @@ class Store(QObject):
         self._state = initial_state or {}
         self._middleware = middleware or []
         self._subscribers: list[collections.abc.Callable[[dict[str, Any]], None]] = []
+        self._lock = threading.RLock()  # Reentrant lock for thread-safe operations
         self._is_dispatching = False
         self._history: list[dict[str, Any]] = []
         self._history_index = -1
@@ -181,7 +183,8 @@ class Store(QObject):
     @property
     def state(self) -> dict[str, Any]:
         """Get current state (read-only copy)."""
-        return copy.deepcopy(self._state)
+        with self._lock:
+            return copy.deepcopy(self._state)
 
     def get_state(self) -> dict[str, Any]:
         """Get current state.
@@ -217,9 +220,6 @@ class Store(QObject):
             # Dispatch with dict
             store.dispatch({"type": "SET_USER", "payload": {"id": 1}})
         """
-        if self._is_dispatching:
-            raise RuntimeError("Cannot dispatch while reducing")
-
         if isinstance(action, dict):
             action = Action(**action)
 
@@ -241,21 +241,25 @@ class Store(QObject):
         Returns:
             Dispatched action
         """
-        self._is_dispatching = True
+        with self._lock:
+            if self._is_dispatching:
+                raise RuntimeError("Cannot dispatch while reducing")
 
-        try:
-            old_state = copy.deepcopy(self._state)
-            self._state = self._reducer(self._state, action)
+            self._is_dispatching = True
 
-            if self._state != old_state:
-                self._save_to_history()
-                self.state_changed.emit(self.state)
-                self._notify_subscribers()
+            try:
+                old_state = copy.deepcopy(self._state)
+                self._state = self._reducer(self._state, action)
 
-            self.action_dispatched.emit(action.to_dict())
+                if self._state != old_state:
+                    self._save_to_history()
+                    self.state_changed.emit(self.state)
+                    self._notify_subscribers()
 
-        finally:
-            self._is_dispatching = False
+                self.action_dispatched.emit(action.to_dict())
+
+            finally:
+                self._is_dispatching = False
 
         return action
 
@@ -270,11 +274,13 @@ class Store(QObject):
         Returns:
             Unsubscribe function
         """
-        self._subscribers.append(callback)
+        with self._lock:
+            self._subscribers.append(callback)
 
         def unsubscribe() -> None:
-            if callback in self._subscribers:
-                self._subscribers.remove(callback)
+            with self._lock:
+                if callback in self._subscribers:
+                    self._subscribers.remove(callback)
 
         return unsubscribe
 
@@ -302,7 +308,24 @@ class Store(QObject):
         Args:
             middleware: Middleware to add
         """
-        self._middleware.append(middleware)
+        with self._lock:
+            self._middleware.append(middleware)
+
+    def remove_middleware(self, middleware: Middleware) -> bool:
+        """Remove middleware from the store.
+
+        Args:
+            middleware: Middleware to remove
+
+        Returns:
+            True if middleware was found and removed, False otherwise
+        """
+        with self._lock:
+            try:
+                self._middleware.remove(middleware)
+                return True
+            except ValueError:
+                return False
 
     def _save_to_history(self) -> None:
         """Save current state to history."""
@@ -324,13 +347,14 @@ class Store(QObject):
         Returns:
             True if undo successful
         """
-        if self._history_index > 0:
-            self._history_index -= 1
-            self._state = copy.deepcopy(self._history[self._history_index])
-            self.state_changed.emit(self.state)
-            self._notify_subscribers()
-            return True
-        return False
+        with self._lock:
+            if self._history_index > 0:
+                self._history_index -= 1
+                self._state = copy.deepcopy(self._history[self._history_index])
+                self.state_changed.emit(self.state)
+                self._notify_subscribers()
+                return True
+            return False
 
     def redo(self) -> bool:
         """Redo previously undone state change.
@@ -338,13 +362,14 @@ class Store(QObject):
         Returns:
             True if redo successful
         """
-        if self._history_index < len(self._history) - 1:
-            self._history_index += 1
-            self._state = copy.deepcopy(self._history[self._history_index])
-            self.state_changed.emit(self.state)
-            self._notify_subscribers()
-            return True
-        return False
+        with self._lock:
+            if self._history_index < len(self._history) - 1:
+                self._history_index += 1
+                self._state = copy.deepcopy(self._history[self._history_index])
+                self.state_changed.emit(self.state)
+                self._notify_subscribers()
+                return True
+            return False
 
     def reset(self, state: dict[str, Any] | None = None) -> None:
         """Reset store to initial or provided state.
@@ -352,12 +377,13 @@ class Store(QObject):
         Args:
             state: State to reset to
         """
-        self._state = state or {}
-        self._state = self._reducer(self._state, Action(type="@@RESET"))
-        self._history = [copy.deepcopy(self._state)]
-        self._history_index = 0
-        self.state_changed.emit(self.state)
-        self._notify_subscribers()
+        with self._lock:
+            self._state = state or {}
+            self._state = self._reducer(self._state, Action(type="@@RESET"))
+            self._history = [copy.deepcopy(self._state)]
+            self._history_index = 0
+            self.state_changed.emit(self.state)
+            self._notify_subscribers()
 
     def get_history(self) -> list[dict[str, Any]]:
         """Get state history for time-travel debugging.
@@ -388,7 +414,8 @@ class Store(QObject):
         Returns:
             Selected value
         """
-        return selector(self._state)
+        with self._lock:
+            return selector(self._state)
 
     def select_path(self, path: str) -> Any:
         """Select value by path (e.g., 'user.profile.name').
@@ -399,13 +426,14 @@ class Store(QObject):
         Returns:
             Value at path or None
         """
-        keys = path.split(".")
-        value = self._state
+        with self._lock:
+            keys = path.split(".")
+            value = self._state
 
-        for key in keys:
-            if isinstance(value, dict) and key in value:
-                value = value[key]
-            else:
-                return None
+            for key in keys:
+                if isinstance(value, dict) and key in value:
+                    value = value[key]
+                else:
+                    return None
 
-        return value
+            return value

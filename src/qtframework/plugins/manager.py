@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib
 import importlib.util
+import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -41,6 +42,7 @@ class PluginManager(QObject):
         self._plugins: dict[str, Plugin] = {}
         self._plugin_paths: list[Path] = []
         self._hooks: dict[str, list[tuple[str, Callable]]] = {}
+        self._loaded_modules: dict[str, str] = {}  # Track loaded plugin modules for cleanup
 
     def add_plugin_path(self, path: Path | str) -> None:
         """Add a plugin search path.
@@ -174,14 +176,18 @@ class PluginManager(QObject):
         if not main_file.exists():
             return None
 
-        spec = importlib.util.spec_from_file_location(f"plugin_{path.name}", main_file)
+        module_name = f"plugin_{path.name}"
+        spec = importlib.util.spec_from_file_location(module_name, main_file)
         if spec and spec.loader:
             module = importlib.util.module_from_spec(spec)
+            sys.modules[module_name] = module  # Register in sys.modules
             spec.loader.exec_module(module)
 
             if hasattr(module, "create_plugin"):
                 plugin = module.create_plugin()
                 if isinstance(plugin, Plugin):
+                    # Track the module for cleanup
+                    self._loaded_modules[plugin.metadata.id] = module_name
                     return plugin
         return None
 
@@ -281,6 +287,14 @@ class PluginManager(QObject):
 
         if plugin.state == PluginState.ACTIVE:
             self.deactivate_plugin(plugin_id)
+
+        # Clean up plugin module from sys.modules
+        if plugin_id in self._loaded_modules:
+            module_name = self._loaded_modules[plugin_id]
+            if module_name in sys.modules:
+                del sys.modules[module_name]
+                logger.debug(f"Cleaned up module {module_name} for plugin {plugin_id}")
+            del self._loaded_modules[plugin_id]
 
         try:
             plugin.cleanup()

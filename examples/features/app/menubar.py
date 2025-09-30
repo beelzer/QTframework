@@ -109,17 +109,25 @@ def _create_theme_menu(window, menu):
     """Create theme menu actions."""
     theme_group = QActionGroup(window)
 
-    for theme in window.theme_manager.list_themes():
-        theme_action = QAction(theme.capitalize(), window)
+    for theme_name in window.theme_manager.list_themes():
+        # Get theme info to get display name
+        theme_info = window.theme_manager.get_theme_info(theme_name)
+        display_name = (
+            theme_info.get("display_name", theme_name.replace("_", " ").title())
+            if theme_info
+            else theme_name.replace("_", " ").title()
+        )
+
+        theme_action = QAction(display_name, window)
         theme_action.setCheckable(True)
         theme_action.triggered.connect(
-            lambda checked, t=theme: window.apply_theme(t) if checked else None
+            lambda checked, t=theme_name: window.apply_theme(t) if checked else None
         )
         theme_group.addAction(theme_action)
         menu.addAction(theme_action)
 
         # Check the light theme by default
-        if theme == "light":
+        if theme_name == "light":
             theme_action.setChecked(True)
 
 

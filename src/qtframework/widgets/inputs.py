@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QPushButton, QTextEdit
+from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QPushButton, QStyle, QTextEdit
 
 from qtframework.utils.validation import ValidatorChain
 from qtframework.widgets.base import Widget
@@ -234,8 +234,14 @@ class PasswordInput(Input):
         Args:
             action: QAction to update with appropriate visibility icon
         """
-        # Implementation depends on QLineEdit's echoMode state
-        # Icon updates are handled by Qt's built-in password visibility toggle
+        if self._visible:
+            # Password is visible - show "hide" icon
+            action.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_DialogNoButton))
+            action.setToolTip("Hide password")
+        else:
+            # Password is hidden - show "show" icon
+            action.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_DialogYesButton))
+            action.setToolTip("Show password")
 
 
 class SearchInput(Widget):

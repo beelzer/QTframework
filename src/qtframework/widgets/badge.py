@@ -9,9 +9,13 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QPalette
 from PySide6.QtWidgets import QApplication, QLabel
 
+from qtframework.utils.logger import get_logger
+
 
 if TYPE_CHECKING:
     from PySide6.QtWidgets import QWidget
+
+logger = get_logger(__name__)
 
 
 class BadgeVariant(Enum):
@@ -116,8 +120,8 @@ class Badge(QLabel):
 
                     if bg and fg and border:
                         return {"bg": bg, "fg": fg, "border": border}
-        except Exception:  # noqa: S110  # nosec B110
-            pass
+        except (AttributeError, TypeError) as e:
+            logger.debug(f"Failed to get badge colors from theme: {e}")
 
         # Return fallback colors from theme's semantic tokens if badge colors not defined
         return self._get_fallback_colors()
@@ -189,8 +193,8 @@ class Badge(QLabel):
                     # Filter out None values and return if we have all colors
                     if colors["bg"] and colors["fg"] and colors["border"]:
                         return colors
-        except Exception:  # noqa: S110  # nosec B110
-            pass
+        except (AttributeError, TypeError, KeyError) as e:
+            logger.debug(f"Failed to get fallback colors from theme: {e}")
 
         # Last resort: use minimal theme-aware colors
         return self._get_minimal_colors()
@@ -305,8 +309,8 @@ class Badge(QLabel):
             app = QApplication.instance()
             if app and hasattr(app, "theme_manager"):
                 app.theme_manager.theme_changed.connect(self._on_theme_changed)
-        except Exception:  # noqa: S110  # nosec B110
-            pass
+        except (AttributeError, RuntimeError) as e:
+            logger.debug(f"Failed to connect theme signals: {e}")
 
     def _on_theme_changed(self, theme_name: str) -> None:
         """Handle theme change event.

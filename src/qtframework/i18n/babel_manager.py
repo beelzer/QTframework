@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import threading
 from contextlib import contextmanager, suppress
 from functools import lru_cache
 from pathlib import Path
@@ -82,9 +83,11 @@ class BabelI18nManager(QObject):
         # Translations cache
         self._translations: dict[str, Translations] = {}
         self._current_translations: Translations | None = None
+        self._translations_lock = threading.RLock()  # Thread-safe access to translations
 
         # Locale objects cache
         self._locales: dict[str, Locale] = {}
+        self._locales_lock = threading.RLock()  # Thread-safe access to locales
 
         # Configure LRU cache for translations
         self._get_translation_cached = lru_cache(maxsize=cache_size)(self._get_translation_uncached)
@@ -126,46 +129,48 @@ class BabelI18nManager(QObject):
 
     def _load_translations(self, locale: str) -> Translations | None:
         """Load translations for a specific locale with fallback support."""
-        if locale in self._translations:
-            return self._translations[locale]
+        with self._translations_lock:
+            if locale in self._translations:
+                return self._translations[locale]
 
-        locale_chain = self._get_locale_chain(locale)
-        base_translation: Translations | None = None
+            locale_chain = self._get_locale_chain(locale)
+            base_translation: Translations | None = None
 
-        for loc in locale_chain:
-            locale_path = self.locale_dir / loc / "LC_MESSAGES"
-            if locale_path.exists():
-                try:
-                    # Load using Babel's support
-                    trans = cast(
-                        "Translations",
-                        Translations.load(
-                            dirname=str(self.locale_dir), locales=[loc], domain=self._domain
-                        ),
-                    )
+            for loc in locale_chain:
+                locale_path = self.locale_dir / loc / "LC_MESSAGES"
+                if locale_path.exists():
+                    try:
+                        # Load using Babel's support
+                        trans = cast(
+                            "Translations",
+                            Translations.load(
+                                dirname=str(self.locale_dir), locales=[loc], domain=self._domain
+                            ),
+                        )
 
-                    if base_translation is None:
-                        base_translation = trans
-                    else:
-                        # Merge with fallback
-                        base_translation.merge(trans)
+                        if base_translation is None:
+                            base_translation = trans
+                        else:
+                            # Merge with fallback
+                            base_translation.merge(trans)
 
-                except Exception as e:
-                    print(f"Failed to load translations for {loc}: {e}")
+                    except Exception as e:
+                        logger.exception(f"Failed to load translations for {loc}: {e}")
 
-        # If no translations found, create null translations
-        if base_translation is None:
-            base_translation = Translations()
+            # If no translations found, create null translations
+            if base_translation is None:
+                base_translation = Translations()
 
-        self._translations[locale] = base_translation
-        return base_translation
+            self._translations[locale] = base_translation
+            return base_translation
 
     def _get_locale_object(self, locale_code: str) -> Locale:
         """Get or create a Babel Locale object."""
-        if locale_code not in self._locales:
-            self._locales[locale_code] = Locale.parse(locale_code)
+        with self._locales_lock:
+            if locale_code not in self._locales:
+                self._locales[locale_code] = Locale.parse(locale_code)
 
-        return self._locales[locale_code]
+            return self._locales[locale_code]
 
     def set_locale(self, locale: str) -> bool:
         """Set the current locale.
@@ -179,16 +184,17 @@ class BabelI18nManager(QObject):
         translations = self._load_translations(locale)
 
         if translations:
-            self._current_translations = translations
-            self._current_locale = locale
+            with self._translations_lock:
+                self._current_translations = translations
+                self._current_locale = locale
 
-            # Save to settings
-            self._settings.setValue("i18n/locale", locale)
+                # Save to settings
+                self._settings.setValue("i18n/locale", locale)
 
-            # Clear translation cache when locale changes
-            self._get_translation_cached.cache_clear()
+                # Clear translation cache when locale changes
+                self._get_translation_cached.cache_clear()
 
-            # Emit signals
+            # Emit signals (outside lock to avoid potential deadlock)
             self.locale_changed.emit(locale)
             self.translations_reloaded.emit()
 
@@ -239,7 +245,8 @@ class BabelI18nManager(QObject):
                     "territory": locale_obj.territory or "",
                     "script": locale_obj.script or "",
                 }
-            except:
+            except (ValueError, AttributeError) as e:
+                logger.warning(f"Failed to parse locale {locale_code}: {e}")
                 info[locale_code] = {
                     "display_name": locale_code,
                     "english_name": locale_code,

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import suppress
 from typing import TYPE_CHECKING, Any
 
 from PySide6.QtCore import Qt, Signal
@@ -85,7 +86,16 @@ class BaseWindow(QMainWindow):
             event: Close event
         """
         logger.debug(f"Closing window: {self.windowTitle()}")
+
+        # Disconnect signals to prevent memory leaks
         if self._app:
+            with suppress(TypeError, RuntimeError):
+                self._app.theme_changed.disconnect(self._on_theme_changed)
+
+            with suppress(TypeError, RuntimeError):
+                self._app.context_changed.disconnect(self._on_context_changed)
+
             self._app.unregister_window(self)
+
         self.window_closed.emit()
         super().closeEvent(event)

@@ -57,9 +57,23 @@ class ThemingPage(DemoPage):
 
         theme_combo = QComboBox()
         if self.parent_window and hasattr(self.parent_window, "theme_manager"):
-            themes = self.parent_window.theme_manager.list_themes()
-            theme_combo.addItems(themes)
-            theme_combo.currentTextChanged.connect(self.parent_window.apply_theme)
+            theme_manager = self.parent_window.theme_manager
+            theme_names = theme_manager.list_themes()
+
+            # Add themes with display names
+            for theme_name in theme_names:
+                theme_info = theme_manager.get_theme_info(theme_name)
+                display_name = (
+                    theme_info.get("display_name", theme_name.replace("_", " ").title())
+                    if theme_info
+                    else theme_name.replace("_", " ").title()
+                )
+                theme_combo.addItem(display_name, theme_name)  # Store theme_name as data
+
+            # Connect to apply theme using the stored data (theme_name)
+            theme_combo.currentIndexChanged.connect(
+                lambda index: self.parent_window.apply_theme(theme_combo.itemData(index))
+            )
         else:
             theme_combo.addItems(["Light", "Dark", "Blue", "Green"])
 
