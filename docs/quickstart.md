@@ -78,6 +78,6 @@ app.exec()
 
 ## Next Steps
 
-- Explore the {doc}`guides/index` for in-depth tutorials
-- Check out {doc}`examples/index` for complete applications
-- Read the {doc}`api/index` for detailed documentation
+- Read the {doc}`api/index` for detailed API documentation
+- Explore the source code examples in the repository
+- Check out the comprehensive test suite for usage patterns

@@ -7,16 +7,6 @@ Welcome to the Qt Framework documentation! This framework provides modern, modul
 :maxdepth: 2
 
 quickstart
-installation
-tutorials/index
-```
-
-```{toctree}
-:caption: User Guide
-:maxdepth: 2
-
-guides/index
-examples/index
 ```
 
 ```{toctree}
@@ -24,14 +14,6 @@ examples/index
 :maxdepth: 3
 
 api/index
-```
-
-```{toctree}
-:caption: Development
-:maxdepth: 2
-
-contributing
-changelog
 ```
 
 ## Welcome to Qt Framework
@@ -48,25 +30,11 @@ Qt Framework is a modern, modular application framework for building sophisticat
 Get started with Qt Framework in minutes
 :::
 
-:::{grid-item-card} 📖 User Guide
-:link: guides/index
-:link-type: doc
-
-Learn the core concepts and features
-:::
-
 :::{grid-item-card} 🔧 API Reference
 :link: api/index
 :link-type: doc
 
 Complete API documentation with examples
-:::
-
-:::{grid-item-card} 💡 Examples
-:link: examples/index
-:link-type: doc
-
-Browse example applications and code snippets
 :::
 ::::
 
