@@ -1,6 +1,7 @@
 """Test file to trigger CI annotations."""
 from __future__ import annotations
 
+
 # import os
 # import subprocess  # Should trigger bandit B404
 
@@ -35,18 +36,20 @@ def type_errors() -> int:
     return "not an integer"
 
 
-def wrong_args():
+def wrong_args() -> str:
     """Type error: wrong argument types."""
     # Type error: passing int to function expecting str
     result: str = len("hello")  # len returns int, not str
+    print(result)  # Use it to avoid RET504
     return result
 
 
-def incompatible_types():
+def incompatible_types() -> list[int]:
     """Type error: incompatible type assignments."""
     numbers: list[int] = [1, 2, 3]
     # Type error: assigning string to list[int]
     numbers = "not a list"
+    print(numbers)  # Use it to avoid RET504
     return numbers
 
 
@@ -54,8 +57,7 @@ def missing_return_type():
     """Type error: inconsistent return types."""
     if True:
         return 42
-    else:
-        return "string"  # Type error: inconsistent return types
+    return "string"  # Type error: inconsistent return types
 
 
 class BadClass:
@@ -76,5 +78,6 @@ def use_bad_class():
 
     # Type error: accessing non-existent attribute
     result = obj.nonexistent_attribute
+    print(result)  # Use it to avoid RET504
 
     return result
