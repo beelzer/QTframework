@@ -1,0 +1,5 @@
+This file contains some commmon spelling mistakes.
+
+We shuold fix these erors before commiting the code.
+
+The developr needs to chek their work.
