@@ -23,7 +23,6 @@ on:
 
 jobs:
   test:
-    name: Test (${{ inputs.os }})
     runs-on: ${{ inputs.os }}
 
     steps:
