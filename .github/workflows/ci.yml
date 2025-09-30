@@ -147,6 +147,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
+      - name: Setup environment
+        uses: ./.github/actions/setup-environment
+        with:
+          python-version: "3.13"
+          install-type: "dev"
+
       - name: Configure Windows Defender exclusions (Windows)
         if: runner.os == 'Windows'
         shell: powershell
@@ -154,12 +160,6 @@ jobs:
           # Exclude Python and workspace from Defender scanning for speed
           Add-MpPreference -ExclusionPath "$env:pythonLocation"
           Add-MpPreference -ExclusionPath "${{ github.workspace }}"
-
-      - name: Setup environment
-        uses: ./.github/actions/setup-environment
-        with:
-          python-version: "3.13"
-          install-type: "dev"
 
       - name: Setup display for GUI tests (Linux)
         if: runner.os == 'Linux'
