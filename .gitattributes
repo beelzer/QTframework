@@ -1,5 +1,7 @@
 # Set default behavior to automatically normalize line endings
-* text=auto
+# text=auto lets Git decide based on file type
+# On Windows with core.autocrlf=true, text files get CRLF in working directory
+* text=auto eol=lf
 
 # Python source files
 *.py text eol=lf
