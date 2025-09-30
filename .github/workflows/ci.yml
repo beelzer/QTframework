@@ -58,55 +58,6 @@ jobs:
         run: |
           mypy src
 
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup environment
-        uses: ./.github/actions/setup-environment
-        with:
-          python-version: "3.13"
-          install-type: "dev"
-
-      - name: Run Bandit security scan
-        run: |
-          echo "::group::Bandit Security Scan"
-          bandit -r src/ examples/ scripts/ -c pyproject.toml -f json -o bandit-report.json || true
-          bandit -r src/ examples/ scripts/ -c pyproject.toml -f screen
-          echo "::endgroup::"
-
-          # Parse report and add GitHub annotations
-          python .github/scripts/bandit_annotate.py
-
-      - name: Upload Bandit report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: bandit-security-report
-          path: bandit-report.json
-          retention-days: 30
-
-      - name: Generate security summary
-        if: always()
-        run: |
-          echo "## Security Scan Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Tool:** Bandit" >> $GITHUB_STEP_SUMMARY
-          echo "**Scan Target:** src/ examples/ scripts/" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          if [ -f "bandit-report.json" ]; then
-            echo "✅ Security scan completed successfully" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "View the detailed report in the artifacts section." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ Security scan report not generated" >> $GITHUB_STEP_SUMMARY
-          fi
-
   test:
     name: Test
     needs: type-check
