@@ -197,11 +197,11 @@ jobs:
           QT_QPA_PLATFORM: offscreen
           DISPLAY: :99
         run: |
-          coverage_output=$(pytest tests/ -v --cov=src/qtframework --cov-report=xml --cov-report=term --cov-report=html 2>&1)
-          echo "$coverage_output"
+          # Run tests and capture output to file while streaming to console
+          pytest tests/ -v --cov=src/qtframework --cov-report=xml --cov-report=term --cov-report=html 2>&1 | tee coverage_output.txt
 
-          # Extract coverage percentage
-          coverage_pct=$(echo "$coverage_output" | grep -oP 'TOTAL\s+\d+\s+\d+\s+\d+\s+\d+\s+\K\d+(?=%)' || echo "0")
+          # Extract coverage percentage from output file
+          coverage_pct=$(grep -oP 'TOTAL\s+\d+\s+\d+\s+\d+\s+\d+\s+\K\d+(?=%)' coverage_output.txt || echo "0")
           echo "coverage_percentage=$coverage_pct" >> "$GITHUB_OUTPUT"
 
       - name: Upload coverage to Codecov
