@@ -1,5 +1,0 @@
-{
-  "test": "prettier error",
-"bad_formatting": true,
-    "inconsistent_indent": "yes"
-}
