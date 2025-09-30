@@ -46,6 +46,37 @@ jobs:
           python .github/scripts/ruff_format_annotate.py
           echo "::endgroup::"
 
+  additional-checks:
+    name: Additional Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install actionlint
+        run: |
+          curl -sSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash | bash
+          sudo mv ./actionlint /usr/local/bin/
+
+      - name: Run actionlint
+        run: actionlint
+
+      - name: Install additional tools
+        run: |
+          pip install codespell validate-pyproject
+
+      - name: Run codespell
+        run: codespell --skip="*.lock,package-lock.json,yarn.lock,.git,*.min.js,*.min.css,*.po,*.pot"
+
+      - name: Validate pyproject.toml
+        run: validate-pyproject pyproject.toml
+
   type-check:
     name: Mypy (Type Checking)
     runs-on: ubuntu-latest
