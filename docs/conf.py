@@ -40,7 +40,7 @@ html_theme_options = {
         "color-brand-content": "#0d47a1",
     },
 }
-html_static_path = ["_static"]
+html_static_path = []
 
 # MyST parser options
 myst_enable_extensions = [

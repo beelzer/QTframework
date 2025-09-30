@@ -28,7 +28,7 @@ runs:
           requirements*.txt
 
     - name: Install Qt system dependencies (Linux)
-      if: runner.os == 'Linux' && (inputs.install-type == 'dev' || inputs.install-type == 'minimal')
+      if: runner.os == 'Linux'
       shell: bash
       run: |
         sudo apt-get update
