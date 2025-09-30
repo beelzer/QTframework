@@ -91,6 +91,59 @@ jobs:
       - name: Validate pyproject.toml
         run: validate-pyproject pyproject.toml
 
+  detect-secrets:
+    name: 🔐 Detect Secrets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install detect-secrets
+        run: pip install detect-secrets
+
+      - name: Run detect-secrets
+        run: detect-secrets scan --baseline .secrets.baseline
+
+  pyupgrade:
+    name: ⬆️ Pyupgrade
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install pyupgrade
+        run: pip install pyupgrade
+
+      - name: Run pyupgrade
+        run: |
+          # Find all Python files and check them with pyupgrade
+          find src tests examples scripts -name "*.py" -type f -exec pyupgrade --py313-plus {} +
+
+  prettier:
+    name: 💅 Prettier
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Run prettier
+        run: |
+          npm install -g prettier@3.4.2 prettier-plugin-toml
+          prettier --check "**/*.{json,yaml,yml,md}" --ignore-path .gitignore
+
   markdownlint:
     name: 📄 Markdownlint
     runs-on: ubuntu-latest
@@ -137,7 +190,17 @@ jobs:
     name: ${{ matrix.os == 'ubuntu-latest' && '🐧' || matrix.os == 'windows-latest' && '🪟' || '🍎' }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     needs:
-      [lint, actionlint, codespell, validate-config, markdownlint, type-check]
+      [
+        lint,
+        actionlint,
+        codespell,
+        validate-config,
+        detect-secrets,
+        pyupgrade,
+        prettier,
+        markdownlint,
+        type-check,
+      ]
     strategy:
       fail-fast: false
       matrix:
@@ -180,7 +243,17 @@ jobs:
     name: 📊 Test Coverage
     runs-on: ubuntu-latest
     needs:
-      [lint, actionlint, codespell, validate-config, markdownlint, type-check]
+      [
+        lint,
+        actionlint,
+        codespell,
+        validate-config,
+        detect-secrets,
+        pyupgrade,
+        prettier,
+        markdownlint,
+        type-check,
+      ]
     outputs:
       coverage_percentage: ${{ steps.coverage.outputs.coverage_percentage }}
 
@@ -239,6 +312,9 @@ jobs:
         actionlint,
         codespell,
         validate-config,
+        detect-secrets,
+        pyupgrade,
+        prettier,
         markdownlint,
         type-check,
         test,
@@ -278,6 +354,9 @@ jobs:
           [ "${{ needs.actionlint.result }}" != "success" ] && all_passed=false
           [ "${{ needs.codespell.result }}" != "success" ] && all_passed=false
           [ "${{ needs.validate-config.result }}" != "success" ] && all_passed=false
+          [ "${{ needs.detect-secrets.result }}" != "success" ] && all_passed=false
+          [ "${{ needs.pyupgrade.result }}" != "success" ] && all_passed=false
+          [ "${{ needs.prettier.result }}" != "success" ] && all_passed=false
           [ "${{ needs.markdownlint.result }}" != "success" ] && all_passed=false
           [ "${{ needs.type-check.result }}" != "success" ] && all_passed=false
           [ "${{ needs.test.result }}" != "success" ] && all_passed=false
@@ -306,10 +385,14 @@ jobs:
             echo "<tr><td><strong>Code Quality</strong></td><td></td></tr>"
             echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;🔍 Ruff Linting</td><td align=\"center\">$(get_status_badge "${{ needs.lint.result }}")</td></tr>"
             echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;🔎 Type Checking</td><td align=\"center\">$(get_status_badge "${{ needs.type-check.result }}")</td></tr>"
+            echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;⬆️ Python Syntax</td><td align=\"center\">$(get_status_badge "${{ needs.pyupgrade.result }}")</td></tr>"
+            echo "<tr><td><strong>Security</strong></td><td></td></tr>"
+            echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;🔐 Detect Secrets</td><td align=\"center\">$(get_status_badge "${{ needs.detect-secrets.result }}")</td></tr>"
             echo "<tr><td><strong>Validation</strong></td><td></td></tr>"
             echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;⚙️ Actionlint</td><td align=\"center\">$(get_status_badge "${{ needs.actionlint.result }}")</td></tr>"
             echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;📝 Codespell</td><td align=\"center\">$(get_status_badge "${{ needs.codespell.result }}")</td></tr>"
             echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;✅ Config Validation</td><td align=\"center\">$(get_status_badge "${{ needs.validate-config.result }}")</td></tr>"
+            echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;💅 Prettier</td><td align=\"center\">$(get_status_badge "${{ needs.prettier.result }}")</td></tr>"
             echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;📄 Markdownlint</td><td align=\"center\">$(get_status_badge "${{ needs.markdownlint.result }}")</td></tr>"
             echo "<tr><td><strong>Testing</strong></td><td></td></tr>"
             echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;🧪 Cross-Platform Tests</td><td align=\"center\">$(get_status_badge "${{ needs.test.result }}")</td></tr>"
