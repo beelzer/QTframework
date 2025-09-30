@@ -107,14 +107,14 @@ jobs:
           QT_QPA_PLATFORM: offscreen
           DISPLAY: :99
         run: |
-          pytest tests/ -v --cov=src/qtframework --cov-report=xml --cov-report=term --cov-report=html
+          python .github/scripts/pytest_annotate.py tests/ -v --cov=src/qtframework --cov-report=xml --cov-report=term --cov-report=html
 
       - name: Run tests without coverage
         if: matrix.os != 'ubuntu-latest'
         env:
           QT_QPA_PLATFORM: offscreen
         run: |
-          pytest tests/ -v --html=test-report.html --self-contained-html
+          python .github/scripts/pytest_annotate.py tests/ -v --html=test-report.html --self-contained-html
 
       - name: Upload coverage to Codecov
         if: matrix.os == 'ubuntu-latest'
