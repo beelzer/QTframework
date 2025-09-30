@@ -326,25 +326,36 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup environment
+        id: setup
+        continue-on-error: true
         uses: ./.github/actions/setup-environment
         with:
           python-version: "3.14"
           allow-prereleases: "true"
           install-type: "dev"
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Annotate setup failure
+        if: steps.setup.outcome == 'failure'
+        run: |
+          echo "::warning title=Future Python Compatibility::Failed to set up Python 3.14 environment. Some dependencies may not be compatible yet."
 
       - name: Setup display for GUI tests
+        if: steps.setup.outcome == 'success'
         run: |
           export DISPLAY=:99
           sudo Xvfb :99 -screen 0 1920x1080x24 &
           sleep 3
 
       - name: Run tests
+        if: steps.setup.outcome == 'success'
         env:
           QT_QPA_PLATFORM: offscreen
           DISPLAY: :99
           PYTHONDONTWRITEBYTECODE: 1
         run: |
-          python .github/scripts/pytest_annotate.py tests/ -v
+          python .github/scripts/pytest_future_python.py tests/ -v
 
   report:
     name: 📋 CI Summary
