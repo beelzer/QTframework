@@ -144,7 +144,7 @@ repos:
       - id: markdownlint
         args: [--fix, --disable, MD013, MD024, MD033, MD041]
 
-  # Local hooks for i18n
+  # Local hooks for i18n and testing
   - repo: local
     hooks:
       - id: compile-translations
@@ -154,6 +154,13 @@ repos:
         files: \.po$
         pass_filenames: false
         description: "Compile .po files to .mo files when they change"
+      - id: pytest
+        name: Run pytest
+        entry: uv run pytest
+        language: system
+        pass_filenames: false
+        always_run: true
+        description: "Run all tests with pytest"
 
 # Configuration for ci
 ci:
