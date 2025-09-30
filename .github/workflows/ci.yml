@@ -21,11 +21,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Setup environment
-        uses: ./.github/actions/setup-environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-          install-type: "dev"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install ruff
+        run: uv pip install ruff --system
 
       - name: Run ruff linting
         run: |
@@ -47,11 +54,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Setup environment
-        uses: ./.github/actions/setup-environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-          install-type: "dev"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install mypy and dependencies
+        run: |
+          uv pip install mypy --system
+          uv pip install -e . --system
 
       - name: Run type checking
         run: |
