@@ -28,17 +28,38 @@ extensions = [
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+# Import theme colors from framework
+from qtframework.themes.builtin_themes import create_light_theme, create_dark_theme
+
+light_theme = create_light_theme()
+dark_theme = create_dark_theme()
+
+# Extract colors from theme tokens
+light_colors = {
+    "color-brand-primary": light_theme.tokens.primitive.primary_600,
+    "color-brand-content": light_theme.tokens.primitive.primary_700,
+    "color-background-primary": light_theme.tokens.semantic.bg_primary,
+    "color-background-secondary": light_theme.tokens.semantic.bg_secondary,
+    "color-foreground-primary": light_theme.tokens.semantic.fg_primary,
+    "color-foreground-secondary": light_theme.tokens.semantic.fg_secondary,
+    "color-foreground-border": light_theme.tokens.semantic.border_default,
+}
+
+dark_colors = {
+    "color-brand-primary": dark_theme.tokens.primitive.primary_500,
+    "color-brand-content": dark_theme.tokens.primitive.primary_600,
+    "color-background-primary": dark_theme.tokens.semantic.bg_primary,
+    "color-background-secondary": dark_theme.tokens.semantic.bg_secondary,
+    "color-foreground-primary": dark_theme.tokens.semantic.fg_primary,
+    "color-foreground-secondary": dark_theme.tokens.semantic.fg_secondary,
+    "color-foreground-border": dark_theme.tokens.semantic.border_default,
+}
+
 # HTML output options
 html_theme = "furo"
 html_theme_options = {
-    "light_css_variables": {
-        "color-brand-primary": "#1e88e5",
-        "color-brand-content": "#0d47a1",
-    },
-    "dark_css_variables": {
-        "color-brand-primary": "#1e88e5",
-        "color-brand-content": "#0d47a1",
-    },
+    "light_css_variables": light_colors,
+    "dark_css_variables": dark_colors,
 }
 html_static_path = []
 
