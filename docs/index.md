@@ -10,6 +10,17 @@ quickstart
 ```
 
 ```{toctree}
+:caption: User Guides
+:maxdepth: 2
+
+guides/theming
+guides/state_management
+guides/navigation
+guides/internationalization
+guides/plugins
+```
+
+```{toctree}
 :caption: API Reference
 :maxdepth: 3
 
@@ -20,7 +31,7 @@ api/index
 
 Qt Framework is a modern, modular application framework for building sophisticated desktop applications with Python and PySide6.
 
-::::{grid} 1 1 2 2
+::::{grid} 1 1 2 3
 :gutter: 3
 
 :::{grid-item-card} 🚀 Quick Start
@@ -30,11 +41,46 @@ Qt Framework is a modern, modular application framework for building sophisticat
 Get started with Qt Framework in minutes
 :::
 
+:::{grid-item-card} 🎨 Theming Guide
+:link: guides/theming
+:link-type: doc
+
+Learn about the token-based theming system
+:::
+
+:::{grid-item-card} 🔄 State Management
+:link: guides/state_management
+:link-type: doc
+
+Redux-inspired state management patterns
+:::
+
+:::{grid-item-card} 🧭 Navigation
+:link: guides/navigation
+:link-type: doc
+
+Routing and page navigation system
+:::
+
+:::{grid-item-card} 🌍 Internationalization
+:link: guides/internationalization
+:link-type: doc
+
+Multi-language support with Babel
+:::
+
+:::{grid-item-card} 🔌 Plugins
+:link: guides/plugins
+:link-type: doc
+
+Build extensible applications with plugins
+:::
+
 :::{grid-item-card} 🔧 API Reference
 :link: api/index
 :link-type: doc
 
-Complete API documentation with examples
+Complete API documentation
 :::
 ::::
 
