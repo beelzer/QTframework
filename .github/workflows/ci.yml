@@ -67,7 +67,7 @@ jobs:
       - name: Install mypy and dependencies
         run: |
           uv pip install mypy --system
-          uv pip install -e . --system
+          uv pip install -e ".[dev]" --system
 
       - name: Run type checking
         run: |
