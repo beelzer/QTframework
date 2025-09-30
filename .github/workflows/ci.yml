@@ -157,10 +157,12 @@ jobs:
         if: always()
         shell: bash
         run: |
-          echo "## Test Results - ${{ matrix.os }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "**Platform:** ${{ matrix.os }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "**Python Version:** 3.13" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "## Test Results - ${{ matrix.os }}"
+            echo ""
+            echo "**Platform:** ${{ matrix.os }}"
+            echo "**Python Version:** 3.13"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   coverage:
     name: Coverage
@@ -211,8 +213,10 @@ jobs:
         if: always()
         shell: bash
         run: |
-          echo "## Coverage Report" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "## Coverage Report"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
 
           if [ -f "htmlcov/index.html" ]; then
             echo "✅ Coverage report generated successfully" >> "$GITHUB_STEP_SUMMARY"
