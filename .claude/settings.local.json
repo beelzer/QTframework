@@ -22,8 +22,7 @@
       "Bash(pytest:*)",
       "Bash(move:*)",
       "Bash(ren:*)",
-      "Bash(gh run view:*)",
-      "Bash(gh run list:*)",
+      "Bash(gh run:*)",
       "Bash(gh pr:*)"
     ],
     "deny": [],
