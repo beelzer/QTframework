@@ -139,6 +139,7 @@ jobs:
 
       - name: Generate test summary
         if: always()
+        shell: bash
         run: |
           echo "## Test Results - ${{ matrix.os }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
