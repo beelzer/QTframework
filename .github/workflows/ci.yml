@@ -101,41 +101,12 @@ jobs:
           sudo Xvfb :99 -screen 0 1920x1080x24 &
           sleep 3
 
-      - name: Run tests with coverage
-        if: matrix.os == 'ubuntu-latest'
+      - name: Run tests
         env:
           QT_QPA_PLATFORM: offscreen
-          DISPLAY: :99
+          DISPLAY: ${{ runner.os == 'Linux' && ':99' || '' }}
         run: |
-          python .github/scripts/pytest_annotate.py tests/ -v --cov=src/qtframework --cov-report=xml --cov-report=term --cov-report=html
-
-      - name: Run tests without coverage
-        if: matrix.os != 'ubuntu-latest'
-        env:
-          QT_QPA_PLATFORM: offscreen
-        run: |
-          python .github/scripts/pytest_annotate.py tests/ -v --html=test-report.html --self-contained-html
-
-      - name: Upload coverage to Codecov
-        if: matrix.os == 'ubuntu-latest'
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Upload test report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-report-${{ matrix.os }}
-          path: |
-            test-report.html
-            htmlcov/
-          retention-days: 30
-          if-no-files-found: ignore
+          python .github/scripts/pytest_annotate.py tests/ -v
 
       - name: Generate test summary
         if: always()
@@ -145,8 +116,59 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Platform:** ${{ matrix.os }}" >> $GITHUB_STEP_SUMMARY
           echo "**Python Version:** 3.13" >> $GITHUB_STEP_SUMMARY
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    needs: [lint, type-check]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-environment
+        with:
+          python-version: "3.13"
+          install-type: "dev"
+
+      - name: Setup display for GUI tests
+        run: |
+          export DISPLAY=:99
+          sudo Xvfb :99 -screen 0 1920x1080x24 &
+          sleep 3
+
+      - name: Run tests with coverage
+        env:
+          QT_QPA_PLATFORM: offscreen
+          DISPLAY: :99
+        run: |
+          pytest tests/ -v --cov=src/qtframework --cov-report=xml --cov-report=term --cov-report=html
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/
+          retention-days: 30
+
+      - name: Generate coverage summary
+        if: always()
+        shell: bash
+        run: |
+          echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if [ -f "test-report.html" ] || [ -f "htmlcov/index.html" ]; then
-            echo "✅ Test report generated successfully" >> $GITHUB_STEP_SUMMARY
+          if [ -f "htmlcov/index.html" ]; then
+            echo "✅ Coverage report generated successfully" >> $GITHUB_STEP_SUMMARY
           fi
