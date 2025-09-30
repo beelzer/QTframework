@@ -37,9 +37,18 @@ jobs:
           sudo Xvfb :99 -screen 0 1920x1080x24 &
           sleep 3
 
-      - name: Run tests
+      - name: Run tests with coverage
         env:
           QT_QPA_PLATFORM: offscreen
           DISPLAY: :99
         run: |
-          pytest tests/ -v
+          pytest tests/ -v --cov=src/qtframework --cov-report=xml --cov-report=term
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
