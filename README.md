@@ -4,8 +4,9 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type Checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue.svg)](https://mypy-lang.org/)
+[![Coverage](https://img.shields.io/badge/coverage-85%25-yellowgreen.svg)](https://beelzer.github.io/QTframework/coverage/)
 [![PySide6](https://img.shields.io/badge/Qt-PySide6-41CD52.svg)](https://wiki.qt.io/Qt_for_Python)
-[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://qt-framework.readthedocs.io)
+[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://beelzer.github.io/QTframework/)
 
 A modern, feature-rich application framework built on PySide6 (Qt6) for creating professional desktop applications with Python.
 
@@ -76,12 +77,12 @@ print(store.state)  # {"count": 1}
 
 ## 📚 Documentation
 
-**[Read the full documentation →](https://qt-framework.readthedocs.io)**
+**[Read the full documentation →](https://beelzer.github.io/QTframework/)**
 
-- [User Guide](https://qt-framework.readthedocs.io/en/latest/user-guide/)
-- [API Reference](https://qt-framework.readthedocs.io/en/latest/api/)
-- [Examples](https://qt-framework.readthedocs.io/en/latest/examples/)
-- [Contributing Guide](https://qt-framework.readthedocs.io/en/latest/contributing/)
+- [User Guide](https://beelzer.github.io/QTframework/user-guide/)
+- [API Reference](https://beelzer.github.io/QTframework/api/)
+- [Examples](https://beelzer.github.io/QTframework/examples/)
+- [Contributing Guide](https://beelzer.github.io/QTframework/contributing/)
 
 ## 🏗️ Development
 
@@ -151,4 +152,4 @@ Built with [PySide6](https://wiki.qt.io/Qt_for_Python) and inspired by modern we
 
 ---
 
-**[Documentation](https://qt-framework.readthedocs.io)** • **[Examples](examples/)** • **[Issues](https://github.com/beelzer/QTframework/issues)**
+**[Documentation](https://beelzer.github.io/QTframework/)** • **[Examples](examples/)** • **[Issues](https://github.com/beelzer/QTframework/issues)**
