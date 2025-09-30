@@ -50,11 +50,13 @@ def main() -> int:
     for i, line in enumerate(lines):
         # Look for FAILED test lines
         if " FAILED" in line or " ERROR" in line:
-            # Extract test file and name
-            match = re.match(r"^(.+?)::([\w\[\]_-]+)\s+(FAILED|ERROR)", line)
+            # Extract test file and name (including class::method format)
+            match = re.match(r"^(.+?\.py)(::[\w\[\]_:-]+)+\s+(FAILED|ERROR)", line)
             if match:
-                test_file, test_name, status = match.groups()
-                test_path = f"{test_file}::{test_name}"
+                test_file = match.group(1)
+                test_path = match.group(0).split(" ")[0]  # Full path including ::
+                status = match.group(3)
+                test_name = test_path.split("::")[-1]
 
                 # Look ahead for the actual error location in traceback
                 error_file = test_file
