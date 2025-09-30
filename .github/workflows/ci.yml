@@ -108,7 +108,7 @@ jobs:
         run: pip install detect-secrets
 
       - name: Run detect-secrets
-        run: detect-secrets scan --baseline .secrets.baseline
+        run: python .github/scripts/detect_secrets_annotate.py
 
   pyupgrade:
     name: ⬆️ Pyupgrade
@@ -127,9 +127,7 @@ jobs:
         run: pip install pyupgrade
 
       - name: Run pyupgrade
-        run: |
-          # Find all Python files and check them with pyupgrade
-          find src tests examples scripts -name "*.py" -type f -exec pyupgrade --py313-plus {} +
+        run: python .github/scripts/pyupgrade_annotate.py
 
   prettier:
     name: 💅 Prettier

@@ -223,6 +223,7 @@ unfixable = ["F401"]  # Don't auto-remove imports
 "examples/**/*.py" = ["ALL"]  # Examples are for demonstration, not production
 "**/__init__.py" = ["F401", "D104"]  # __init__ can re-export
 "scripts/**/*.py" = ["S603", "S607", "T201"]  # Shell commands ok in scripts
+".github/scripts/**/*.py" = ["S603", "S607", "T201"]  # CI annotation scripts need subprocess
 "src/qtframework/navigation/router.py" = ["TC003"]
 "src/qtframework/state/store.py" = ["TC003"]
 
