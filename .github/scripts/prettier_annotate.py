@@ -39,9 +39,15 @@ def main() -> int:
     for line in result.stdout.splitlines():
         if line.startswith("[warn]"):
             file_path = line.replace("[warn]", "").strip()
+            # Debug output
+            print(f"DEBUG: Found [warn] line: '{line}'", file=sys.stderr)
+            print(f"DEBUG: Extracted file_path: '{file_path}'", file=sys.stderr)
             if file_path:
-                msg = f"File needs formatting. Run `prettier --write {file_path}` to fix."
-                print(f"::error title=Prettier,file={file_path},line=1::{msg}")
+                # Check if this is a filename (not the summary message)
+                if not file_path.startswith("Code style issues"):
+                    msg = f"File needs formatting. Run `prettier --write {file_path}` to fix."
+                    print(f"DEBUG: Creating annotation for: {file_path}", file=sys.stderr)
+                    print(f"::error title=Prettier,file={file_path},line=1::{msg}")
 
     return result.returncode
 
