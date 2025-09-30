@@ -1,4 +1,54 @@
-"""Modern theme class using design tokens."""
+"""Modern theme class using design tokens.
+
+This module defines the Theme class which represents a complete visual theme
+for the application using a design token system.
+
+Example:
+    Create and use a theme from YAML::
+
+        from qtframework.themes.theme import Theme
+        from pathlib import Path
+
+        # Define theme in YAML file (my_theme.yaml):
+        # name: "custom"
+        # display_name: "Custom Theme"
+        # description: "A custom application theme"
+        # author: "Your Name"
+        # version: "1.0.0"
+        # tokens:
+        #   semantic:
+        #     bg_primary: "#FFFFFF"
+        #     fg_primary: "#000000"
+        #     action_primary: "#007AFF"
+        #     action_secondary: "#5856D6"
+        #   spacing:
+        #     xs: 4
+        #     sm: 8
+        #     md: 16
+        #     lg: 24
+        #   typography:
+        #     font_family: "Segoe UI"
+        #     font_size_base: 14
+
+        # Load theme from YAML
+        theme = Theme.from_yaml("my_theme.yaml")
+
+        # Generate stylesheet
+        stylesheet = theme.generate_stylesheet()
+        app.setStyleSheet(stylesheet)
+
+        # Access individual tokens
+        primary_bg = theme.get_token("semantic.bg_primary")
+        base_spacing = theme.get_token("spacing.md")
+
+        # Export theme
+        theme.save_yaml("exported_theme.yaml")
+
+See Also:
+    :class:`ThemeManager`: Manager for handling multiple themes
+    :mod:`qtframework.themes.tokens`: Design token definitions
+    :class:`StylesheetGenerator`: Generates Qt stylesheets from tokens
+"""
 
 from __future__ import annotations
 
@@ -12,7 +62,21 @@ from qtframework.themes.tokens import DesignTokens
 
 
 class Theme:
-    """Modern theme class using design tokens."""
+    """Modern theme class using design tokens.
+
+    Represents a complete application theme with design tokens for colors,
+    spacing, typography, and other visual properties. Themes can be loaded
+    from YAML files or created programmatically.
+
+    Attributes:
+        name: Internal theme identifier
+        display_name: Human-readable theme name
+        description: Theme description
+        author: Theme author
+        version: Theme version string
+        tokens: Design tokens defining the theme's visual properties
+        custom_styles: Additional custom CSS-like rules
+    """
 
     def __init__(
         self,
@@ -113,6 +177,12 @@ class Theme:
 
         Returns:
             Theme instance
+
+        Raises:
+            FileNotFoundError: If YAML file does not exist
+            yaml.YAMLError: If YAML parsing fails
+            KeyError: If required theme fields are missing
+            ValueError: If theme data is invalid
         """
         path = Path(yaml_path)
         with path.open("r", encoding="utf-8") as f:

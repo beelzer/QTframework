@@ -47,6 +47,9 @@ class Config(QObject):
 
         Returns:
             Configuration value
+
+        Raises:
+            ValueError: If key is empty or malformed
         """
         keys = key.split(".")
         value: Any = self._data
@@ -273,6 +276,10 @@ class Config(QObject):
 
         Returns:
             Configuration value
+
+        Raises:
+            KeyError: If configuration key is not found
+            ValueError: If key is empty or malformed
         """
         value = self.get(key)
         if value is None:

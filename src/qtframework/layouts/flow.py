@@ -1,4 +1,98 @@
-"""Flow layout that automatically wraps widgets based on available width."""
+"""Flow layout that automatically wraps widgets based on available width.
+
+This module provides a flow layout that arranges widgets in a flowing manner,
+similar to how text wraps in a word processor. Widgets automatically wrap to
+the next line when they exceed the available width.
+
+Layout Structure:
+    Widgets flow left to right and wrap when necessary::
+
+        Available Width
+        ┌─────────────────────────────────┐
+        │ ┌────┐ ┌────┐ ┌────┐ ┌────┐    │
+        │ │ W1 │ │ W2 │ │ W3 │ │ W4 │    │
+        │ └────┘ └────┘ └────┘ └────┘    │
+        │ ┌────┐ ┌────┐ ┌────┐           │
+        │ │ W5 │ │ W6 │ │ W7 │           │
+        │ └────┘ └────┘ └────┘           │
+        │ ┌────┐                          │
+        │ │ W8 │                          │
+        │ └────┘                          │
+        └─────────────────────────────────┘
+
+        When Width Decreases:
+        ┌───────────────┐
+        │ ┌────┐ ┌────┐│
+        │ │ W1 │ │ W2 ││
+        │ └────┘ └────┘│
+        │ ┌────┐ ┌────┐│
+        │ │ W3 │ │ W4 ││
+        │ └────┘ └────┘│
+        │ ┌────┐ ┌────┐│
+        │ │ W5 │ │ W6 ││
+        │ └────┘ └────┘│
+        └───────────────┘
+
+Example:
+    Create a flow layout with tags or chips::
+
+        from qtframework.layouts.flow import FlowLayout
+        from qtframework.widgets import Badge
+        from PySide6.QtWidgets import QWidget
+
+        # Create container with flow layout
+        container = QWidget()
+        flow_layout = FlowLayout(parent=container, margin=10, h_spacing=8, v_spacing=8)
+
+        # Add tags/chips that will wrap automatically
+        tags = [
+            "Python",
+            "JavaScript",
+            "React",
+            "Qt",
+            "Django",
+            "FastAPI",
+            "PostgreSQL",
+            "Redis",
+            "Docker",
+        ]
+
+        for tag in tags:
+            badge = Badge(text=tag, variant="primary")
+            flow_layout.addWidget(badge)
+
+        # Layout automatically reflows on window resize
+
+    Use with button groups::
+
+        from qtframework.widgets import Button
+
+        # Create action buttons that wrap on small screens
+        actions = ["Save", "Cancel", "Delete", "Export", "Print"]
+
+        for action in actions:
+            button = Button(text=action)
+            flow_layout.addWidget(button)
+
+    Custom spacing based on widget properties::
+
+        # Create layout with tight spacing
+        tight_flow = FlowLayout(h_spacing=4, v_spacing=4)
+
+        # Create layout with generous spacing
+        loose_flow = FlowLayout(h_spacing=16, v_spacing=16)
+
+Key Features:
+    - **Automatic Wrapping**: Widgets wrap to next line when width exceeded
+    - **Dynamic Reflow**: Automatically adjusts on window resize
+    - **Custom Spacing**: Configure horizontal and vertical spacing
+    - **Height for Width**: Properly calculates height based on width
+    - **Smart Spacing**: Uses platform-appropriate spacing when not specified
+
+See Also:
+    :class:`SidebarLayout`: Sidebar layout with collapsible panel
+    :class:`qtframework.widgets.Badge`: Badge widget often used with flow layout
+"""
 
 from __future__ import annotations
 

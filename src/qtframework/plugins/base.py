@@ -1,4 +1,100 @@
-"""Base plugin classes and interfaces."""
+"""Base plugin classes and interfaces.
+
+This module defines the base plugin system for extending Qt Framework applications.
+Plugins can add new features, modify behavior, and integrate with the application
+lifecycle.
+
+Example:
+    Complete plugin implementation::
+
+        from qtframework.plugins.base import Plugin, PluginMetadata, PluginState
+        from PySide6.QtWidgets import QAction, QMessageBox
+
+        # Define plugin metadata
+        metadata = PluginMetadata(
+            id="com.example.hello",
+            name="Hello Plugin",
+            version="1.0.0",
+            description="A simple hello world plugin",
+            author="Your Name",
+            category="utility",
+            dependencies=[],
+        )
+
+
+        # Create plugin class
+        class HelloPlugin(Plugin):
+            def __init__(self):
+                super().__init__(metadata)
+                self.action = None
+
+            def initialize(self) -> bool:
+                '''Called once when plugin is loaded'''
+                self.log("Plugin initializing...", "info")
+                # Load resources, initialize state
+                return True
+
+            def activate(self) -> bool:
+                '''Called when plugin is activated'''
+                self.log("Plugin activated", "info")
+
+                # Add menu action to application
+                if self.application:
+                    self.action = QAction("Say Hello", self.application.window)
+                    self.action.triggered.connect(self.show_hello)
+
+                    # Add to Tools menu
+                    tools_menu = self.application.window.menuBar().addMenu("Tools")
+                    tools_menu.addAction(self.action)
+
+                return True
+
+            def deactivate(self) -> bool:
+                '''Called when plugin is deactivated'''
+                self.log("Plugin deactivated", "info")
+
+                # Remove UI elements
+                if self.action:
+                    self.action.deleteLater()
+                    self.action = None
+
+                return True
+
+            def cleanup(self) -> None:
+                '''Called when plugin is unloaded'''
+                self.log("Plugin cleaning up", "info")
+                # Release resources
+
+            def show_hello(self):
+                '''Show hello message'''
+                QMessageBox.information(
+                    self.application.window,
+                    "Hello Plugin",
+                    "Hello from the plugin system!",
+                )
+
+            def on_settings_changed(self, settings: dict):
+                '''Handle settings changes'''
+                greeting = settings.get("greeting", "Hello")
+                self.log(f"Greeting changed to: {greeting}", "info")
+
+
+        # Use in application
+        from qtframework.plugins.manager import PluginManager
+
+        plugin_manager = PluginManager()
+        hello_plugin = HelloPlugin()
+
+        # Load and activate plugin
+        plugin_manager.register_plugin(hello_plugin)
+        plugin_manager.load_plugin("com.example.hello")
+        plugin_manager.activate_plugin("com.example.hello")
+
+See Also:
+    :class:`PluginManager`: Manages plugin loading and lifecycle
+    :class:`PluginMetadata`: Plugin metadata and configuration
+    :class:`PluginState`: Plugin state enumeration
+"""
 
 from __future__ import annotations
 

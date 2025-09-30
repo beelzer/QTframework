@@ -1,4 +1,95 @@
-"""Input validation framework for Qt Framework."""
+"""Input validation framework for Qt Framework.
+
+This module provides a comprehensive validation system with built-in validators
+for common use cases (email, numbers, paths, etc.) and support for custom
+validators and multi-field form validation.
+
+Example:
+    Basic validation with built-in validators::
+
+        from qtframework.utils.validation import (
+            RequiredValidator,
+            EmailValidator,
+            LengthValidator,
+            NumberValidator,
+            ValidationError,
+        )
+
+        # Simple field validation
+        email_validator = EmailValidator()
+        try:
+            email_validator.validate("user@example.com", "email")
+            print("Valid email!")
+        except ValidationError as e:
+            print(f"Error: {e.message}")
+
+        # Chained validators
+        from qtframework.utils.validation import ValidatorChain
+
+        username_validators = ValidatorChain([
+            RequiredValidator("Username is required"),
+            LengthValidator(min_length=3, max_length=20),
+        ])
+
+        result = username_validators.validate("ab", "username")
+        if not result.is_valid:
+            print(result.get_error_messages())
+
+    Complete form validation example::
+
+        from qtframework.utils.validation import (
+            FormValidator,
+            required_string,
+            email_field,
+            number_field,
+        )
+
+        # Create form validator
+        form = FormValidator()
+        form.add_field("username", required_string(min_length=3, max_length=20))
+        form.add_field("email", email_field())
+        form.add_field("age", number_field(min_value=18, max_value=120))
+
+        # Validate form data
+        data = {"username": "john_doe", "email": "john@example.com", "age": 25}
+
+        result = form.validate(data)
+        if result.is_valid:
+            print("Form is valid!")
+        else:
+            for error in result.errors:
+                print(f"{error.field_name}: {error.message}")
+
+    Integration with Input widgets::
+
+        from qtframework.widgets.inputs import Input
+        from qtframework.utils.validation import email_field
+
+        # Create input with validation
+        email_input = Input(
+            label="Email Address",
+            placeholder="Enter your email",
+            validators=email_field().validators,
+        )
+
+
+        # Validate on change
+        def on_email_change(text):
+            result = email_field().validate(text, "email")
+            if not result.is_valid:
+                email_input.set_error(result.get_error_messages()[0])
+            else:
+                email_input.clear_error()
+
+
+        email_input.textChanged.connect(on_email_change)
+
+See Also:
+    :class:`Validator`: Base validator class for custom validators
+    :class:`FormValidator`: Multi-field form validation
+    :exc:`qtframework.utils.exceptions.ValidationError`: Validation error exception
+    :mod:`qtframework.widgets.inputs`: Input widgets with validation support
+"""
 
 from __future__ import annotations
 
@@ -407,7 +498,75 @@ class ValidatorChain:
 
 
 class FormValidator:
-    """Validates multiple fields with different validators."""
+    """Validates multiple fields with different validators.
+
+    Manages validation for entire forms with multiple fields, each having
+    their own validation rules.
+
+    Example:
+        Multi-field form validation::
+
+            from qtframework.utils.validation import (
+                FormValidator,
+                ValidatorChain,
+                RequiredValidator,
+                EmailValidator,
+                LengthValidator,
+                NumberValidator,
+                CustomValidator,
+            )
+
+            # Create form validator
+            form = FormValidator()
+
+            # Add username validation
+            form.add_field(
+                "username",
+                [RequiredValidator(), LengthValidator(min_length=3, max_length=20)],
+            )
+
+            # Add email validation
+            form.add_field("email", [RequiredValidator(), EmailValidator()])
+
+
+            # Add age validation with custom rule
+            def check_age(value):
+                age = int(value)
+                return 18 <= age <= 120
+
+
+            form.add_field(
+                "age",
+                [
+                    RequiredValidator(),
+                    NumberValidator(min_value=18, max_value=120, allow_float=False),
+                    CustomValidator(check_age, "Age must be between 18 and 120"),
+                ],
+            )
+
+            # Add password confirmation validation
+            form.add_field("password", [RequiredValidator(), LengthValidator(min_length=8)])
+
+            # Validate entire form
+            data = {
+                "username": "john_doe",
+                "email": "john@example.com",
+                "age": 25,
+                "password": "securepass123",  # pragma: allowlist secret
+            }
+
+            result = form.validate(data)
+
+            if result.is_valid:
+                print("All fields valid!")
+            else:
+                # Get all errors
+                for error in result.errors:
+                    print(f"{error.field_name}: {error.message}")
+
+                # Get errors for specific field
+                username_errors = result.get_field_error_messages("username")
+    """
 
     def __init__(self) -> None:
         """Initialize form validator."""

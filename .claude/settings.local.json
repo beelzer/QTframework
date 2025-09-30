@@ -23,7 +23,8 @@
       "Bash(move:*)",
       "Bash(ren:*)",
       "Bash(gh run view:*)",
-      "Bash(gh run list:*)"
+      "Bash(gh run list:*)",
+      "Bash(gh pr:*)"
     ],
     "deny": [],
     "ask": []

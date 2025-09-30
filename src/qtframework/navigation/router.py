@@ -1,4 +1,65 @@
-"""Router for navigation between views."""
+"""Router for navigation between views.
+
+This module provides a powerful routing system for managing navigation between
+different views in a Qt application. It supports route parameters, guards,
+nested routes, and navigation hooks.
+
+Example:
+    Basic router setup with routes and navigation::
+
+        from qtframework.navigation.router import Router, Route
+        from PySide6.QtWidgets import QWidget, QLabel
+
+
+        # Define view components
+        class HomeView(QWidget):
+            def __init__(self):
+                super().__init__()
+                layout = QVBoxLayout(self)
+                layout.addWidget(QLabel("Home Page"))
+
+
+        class UserView(QWidget):
+            def __init__(self, user_id=None):
+                super().__init__()
+                layout = QVBoxLayout(self)
+                layout.addWidget(QLabel(f"User Profile: {user_id}"))
+
+
+        # Define routes
+        routes = [
+            Route(path="/", component=HomeView, name="home"),
+            Route(path="/user/:id", component=UserView, name="user_profile"),
+            Route(
+                path="/admin",
+                component=AdminView,
+                name="admin",
+                guards=[lambda route: check_admin_permission()],
+            ),
+        ]
+
+        # Create router
+        router = Router(routes)
+
+
+        # Connect to route changes
+        def on_route_change(path, params):
+            print(f"Navigated to: {path} with params: {params}")
+            component = router.get_route_component()
+            # Add component to your UI container
+
+
+        router.route_changed.connect(on_route_change)
+
+        # Navigate to routes
+        router.navigate("/")  # Go to home
+        router.navigate("/user/123")  # Go to user with id=123
+        router.navigate_by_name("home")  # Navigate by route name
+
+See Also:
+    :class:`Route`: Route definition with parameters and guards
+    :mod:`qtframework.core.window`: Window system that integrates with router
+"""
 
 from __future__ import annotations
 
@@ -21,7 +82,43 @@ logger = get_logger(__name__)
 
 @dataclass
 class Route:
-    """Route definition."""
+    """Route definition.
+
+    A route maps a URL path pattern to a widget component, with support for
+    parameters, guards, and nested routes.
+
+    Example:
+        Define routes with parameter extraction::
+
+            # Simple route
+            home_route = Route(path="/", component=HomeView, name="home")
+
+            # Route with parameters
+            user_route = Route(path="/user/:id", component=UserView, name="user_profile")
+
+
+            # Route with guard for authentication
+            def auth_guard(route: Route) -> bool:
+                return current_user.is_authenticated
+
+
+            admin_route = Route(
+                path="/admin", component=AdminView, name="admin", guards=[auth_guard]
+            )
+
+            # Nested routes
+            settings_route = Route(
+                path="/settings",
+                component=SettingsLayout,
+                children=[
+                    Route(path="/profile", component=ProfileSettings),
+                    Route(path="/preferences", component=PreferencesSettings),
+                ],
+            )
+
+            # Route with redirect
+            old_route = Route(path="/old-path", redirect="/new-path")
+    """
 
     path: str
     component: type[QWidget] | collections.abc.Callable[..., QWidget]
@@ -140,6 +237,16 @@ class Router(QObject):
 
         Returns:
             True if navigation successful
+
+        Raises:
+            ValueError: If path is invalid or malformed
+            RuntimeError: If navigation fails due to circular redirects
+
+        Note:
+            Navigation can fail in several ways:
+            - Route not found (returns False, logs error)
+            - Guard blocks navigation (returns False, emits navigation_blocked)
+            - Before hook blocks navigation (returns False, emits navigation_blocked)
         """
         logger.info("Navigating to: %s", path)
 

@@ -1,4 +1,81 @@
-"""Sidebar layout implementation."""
+"""Sidebar layout implementation.
+
+This module provides a collapsible sidebar layout with support for left/right
+positioning, resizing, and smooth animations.
+
+Layout Structure:
+    The sidebar layout creates a two-panel interface::
+
+        Left Sidebar:
+        ┌──────────┬─────────────────────────┐
+        │          │                         │
+        │ Sidebar  │   Main Content Area     │
+        │  Panel   │                         │
+        │          │   [Toggle Button]       │
+        │          │                         │
+        └──────────┴─────────────────────────┘
+
+        Right Sidebar:
+        ┌─────────────────────────┬──────────┐
+        │                         │          │
+        │   Main Content Area     │ Sidebar  │
+        │                         │  Panel   │
+        │   [Toggle Button]       │          │
+        │                         │          │
+        └─────────────────────────┴──────────┘
+
+        Collapsed State (Left):
+        ┌─┬────────────────────────────────┐
+        │ │                                │
+        │ │    Main Content Area           │
+        │ │                                │
+        │ │    [Toggle Button]             │
+        │ │                                │
+        └─┴────────────────────────────────┘
+
+Example:
+    Create a sidebar layout with navigation::
+
+        from qtframework.layouts.sidebar import SidebarLayout, SidebarPosition
+        from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
+
+        # Create sidebar layout
+        sidebar_layout = SidebarLayout(
+            sidebar_width=250,
+            position=SidebarPosition.LEFT,
+            collapsible=True,
+            resizable=True,
+        )
+
+        # Create sidebar content (navigation)
+        nav_panel = QWidget()
+        nav_layout = QVBoxLayout(nav_panel)
+        nav_layout.addWidget(QLabel("Navigation"))
+        nav_layout.addWidget(QPushButton("Home"))
+        nav_layout.addWidget(QPushButton("Settings"))
+        nav_layout.addWidget(QPushButton("Profile"))
+
+        # Create main content
+        content_panel = QWidget()
+        content_layout = QVBoxLayout(content_panel)
+        content_layout.addWidget(QLabel("Main Content Area"))
+
+        # Set widgets
+        sidebar_layout.set_sidebar_widget(nav_panel)
+        sidebar_layout.set_content_widget(content_panel)
+
+        # Listen for sidebar toggle
+        sidebar_layout.sidebar_toggled.connect(
+            lambda visible: print(f"Sidebar visible: {visible}")
+        )
+
+        # Programmatically toggle
+        sidebar_layout.toggle_sidebar()  # Collapse/expand
+
+See Also:
+    :class:`FlowLayout`: Flow layout for wrapping widgets
+    :mod:`qtframework.layouts`: Other layout components
+"""
 
 from __future__ import annotations
 

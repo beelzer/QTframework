@@ -1,4 +1,56 @@
-"""Modern theme manager with JSON/YAML support."""
+"""Modern theme manager with JSON/YAML support.
+
+This module provides a comprehensive theme management system that supports
+built-in themes, custom theme loading from YAML files, and programmatic
+theme creation.
+
+Example:
+    Create and register a custom theme::
+
+        from qtframework.themes.theme_manager import ThemeManager
+        from qtframework.themes.theme import Theme
+        from qtframework.themes.tokens import DesignTokens, SemanticColors
+        from pathlib import Path
+
+        # Initialize theme manager
+        theme_manager = ThemeManager(themes_dir=Path("my_themes"))
+
+        # Use built-in themes
+        theme_manager.set_theme("light")
+        theme_manager.set_theme("dark")
+
+        # Create a custom theme programmatically
+        custom_theme = theme_manager.create_theme_from_colors(
+            name="ocean",
+            primary_color="#0077BE",
+            background_color="#F0F8FF",
+            is_dark=False,
+            display_name="Ocean Theme",
+            description="A calming blue ocean theme",
+        )
+
+        # Register the custom theme
+        theme_manager.register_theme(custom_theme)
+        theme_manager.set_theme("ocean")
+
+        # Apply theme to application
+        app = QApplication.instance()
+        stylesheet = theme_manager.get_stylesheet()
+        app.setStyleSheet(stylesheet)
+
+        # Listen for theme changes
+        theme_manager.theme_changed.connect(
+            lambda name: print(f"Theme changed to: {name}")
+        )
+
+        # Export theme for sharing
+        theme_manager.export_theme("ocean", "ocean_theme.yaml")
+
+See Also:
+    :class:`Theme`: Theme class with design tokens
+    :mod:`qtframework.themes.tokens`: Design token system
+    :class:`qtframework.core.application`: Application class that integrates themes
+"""
 
 from __future__ import annotations
 
@@ -61,6 +113,11 @@ class ThemeManager(QObject):
 
         Args:
             theme_file: Path to the theme file
+
+        Raises:
+            ValueError: If theme file format is invalid
+            yaml.YAMLError: If YAML parsing fails
+            FileNotFoundError: If theme file does not exist
         """
         try:
             if theme_file.suffix != ".yaml":

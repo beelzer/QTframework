@@ -1,4 +1,98 @@
-"""Redux-like state store implementation."""
+"""Redux-like state store implementation.
+
+This module provides a centralized state management system based on Redux patterns,
+featuring unidirectional data flow, pure reducers, and middleware support.
+
+Example:
+    Basic store usage with reducer::
+
+        from qtframework.state import Store, Action, create_reducer
+
+        # Define initial state
+        initial_state = {"count": 0, "user": None}
+
+
+        # Create reducer
+        def counter_reducer(state, action):
+            if action.type == "INCREMENT":
+                return {**state, "count": state["count"] + 1}
+            elif action.type == "DECREMENT":
+                return {**state, "count": state["count"] - 1}
+            elif action.type == "SET_USER":
+                return {**state, "user": action.payload}
+            return state
+
+
+        # Create store
+        store = Store(reducer=counter_reducer, initial_state=initial_state)
+
+
+        # Subscribe to changes
+        def on_change(state):
+            print(f"Count: {state['count']}")
+
+
+        unsubscribe = store.subscribe(on_change)
+
+        # Dispatch actions
+        store.dispatch(Action(type="INCREMENT"))  # Output: Count: 1
+        store.dispatch(Action(type="INCREMENT"))  # Output: Count: 2
+
+        # Unsubscribe when done
+        unsubscribe()
+
+    With middleware::
+
+        from qtframework.state import logger_middleware, thunk_middleware
+
+        store = Store(
+            reducer=counter_reducer,
+            initial_state=initial_state,
+            middleware=[logger_middleware(), thunk_middleware()],
+        )
+
+        # Middleware processes actions before they reach the reducer
+        store.dispatch(Action(type="INCREMENT"))
+        # Logger middleware will log the action and state changes
+
+    Combining reducers::
+
+        from qtframework.state import combine_reducers
+
+
+        def user_reducer(state=None, action=None):
+            if action.type == "SET_USER":
+                return action.payload
+            elif action.type == "LOGOUT":
+                return None
+            return state
+
+
+        def items_reducer(state=None, action=None):
+            if state is None:
+                state = []
+            if action.type == "ADD_ITEM":
+                return [*state, action.payload]
+            elif action.type == "REMOVE_ITEM":
+                return [item for item in state if item["id"] != action.payload]
+            return state
+
+
+        root_reducer = combine_reducers({
+            "user": user_reducer,
+            "items": items_reducer,
+            "count": counter_reducer,
+        })
+
+        store = Store(
+            reducer=root_reducer, initial_state={"user": None, "items": [], "count": 0}
+        )
+
+See Also:
+    - :class:`Action`: Action objects for dispatching
+    - :mod:`qtframework.state.middleware`: Middleware implementations
+    - :mod:`qtframework.state.reducers`: Reducer utilities
+"""
 
 from __future__ import annotations
 
@@ -21,7 +115,29 @@ logger = get_logger(__name__)
 
 
 class Store(QObject):
-    """Centralized state store with Redux-like pattern."""
+    """Centralized state store with Redux-like pattern.
+
+    The Store holds the application state and provides methods to:
+    - Dispatch actions to modify state
+    - Subscribe to state changes
+    - Access current state (read-only)
+    - Navigate state history (time-travel debugging)
+
+    Signals:
+        state_changed(dict): Emitted when state changes
+        action_dispatched(dict): Emitted when action is dispatched
+
+    Example:
+        Creating and using a store::
+
+            store = Store(reducer=my_reducer, initial_state={"count": 0})
+
+            # Subscribe to changes
+            store.state_changed.connect(lambda state: print(state))
+
+            # Dispatch actions
+            store.dispatch(Action(type="INCREMENT"))
+    """
 
     state_changed = Signal(dict)
     action_dispatched = Signal(dict)
@@ -35,9 +151,12 @@ class Store(QObject):
         """Initialize store.
 
         Args:
-            reducer: Root reducer function
-            initial_state: Initial state
-            middleware: List of middleware
+            reducer: Root reducer function that transforms state
+            initial_state: Initial state dictionary (default: empty dict)
+            middleware: List of middleware to process actions
+
+        Raises:
+            TypeError: If reducer is not callable or middleware entries are not callable
         """
         super().__init__()
         self._reducer = reducer
@@ -75,11 +194,28 @@ class Store(QObject):
     def dispatch(self, action: Action | dict[str, Any]) -> Action:
         """Dispatch an action to update state.
 
+        Actions are processed through middleware (if any) before reaching
+        the reducer. The reducer creates a new state, which triggers
+        subscriber notifications.
+
         Args:
-            action: Action to dispatch
+            action: Action to dispatch (Action object or dict with type/payload)
 
         Returns:
-            Dispatched action
+            Dispatched action (converted to Action if dict was provided)
+
+        Raises:
+            RuntimeError: If dispatch is called while already dispatching
+                (prevents nested dispatches which can cause race conditions)
+            TypeError: If action cannot be converted to Action
+
+        Example::
+
+            # Dispatch with Action object
+            store.dispatch(Action(type="INCREMENT"))
+
+            # Dispatch with dict
+            store.dispatch({"type": "SET_USER", "payload": {"id": 1}})
         """
         if self._is_dispatching:
             raise RuntimeError("Cannot dispatch while reducing")
@@ -224,10 +360,22 @@ class Store(QObject):
         self._notify_subscribers()
 
     def get_history(self) -> list[dict[str, Any]]:
-        """Get state history.
+        """Get state history for time-travel debugging.
 
         Returns:
-            List of historical states
+            Deep copy of all historical states (up to 100 states)
+
+        Note:
+            Returns a deep copy of history to prevent external modifications.
+            For large state objects, this may be memory-intensive. History is
+            automatically limited to the last 100 states (configurable via _max_history).
+
+        Example::
+
+            # Get and display history
+            history = store.get_history()
+            for i, state in enumerate(history):
+                print(f"State {i}: {state}")
         """
         return copy.deepcopy(self._history)
 

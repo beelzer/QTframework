@@ -208,6 +208,10 @@ class PluginManager(QObject):
 
         Returns:
             True if plugin activated successfully
+
+        Raises:
+            PluginError: If plugin is not loaded or activation fails
+            RuntimeError: If plugin dependencies are not met
         """
         plugin = self._plugins.get(plugin_id)
         if not plugin:
