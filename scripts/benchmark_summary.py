@@ -35,8 +35,10 @@ def generate_summary(
         f.write("## ⚡ Performance Benchmarks\n\n")
         f.write("| Test | Min (s) | Mean (s) | Max (s) |\n")
         f.write("|------|---------|----------|---------|\\n")
-        for s in summary:
-            f.write(f"| {s['name']} | {s['min']:.4f} | {s['mean']:.4f} | {s['max']:.4f} |\n")
+        f.writelines(
+            f"| {s['name']} | {s['min']:.4f} | {s['mean']:.4f} | {s['max']:.4f} |\n"
+            for s in summary
+        )
 
     print(f"Benchmark summary written to {output_file}")
 

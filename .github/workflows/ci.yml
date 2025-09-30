@@ -27,10 +27,17 @@ jobs:
           python-version: "3.13"
           install-type: "dev"
 
-      - name: Run linting
+      - name: Run ruff linting
         run: |
-          ruff check src tests examples scripts
+          echo "::group::Ruff Check"
+          ruff check src tests examples scripts --output-format=github
+          echo "::endgroup::"
+
+      - name: Run ruff format check
+        run: |
+          echo "::group::Ruff Format"
           ruff format --check src tests examples scripts
+          echo "::endgroup::"
 
   type-check:
     name: Type Check
@@ -67,8 +74,13 @@ jobs:
 
       - name: Run Bandit security scan
         run: |
-          bandit -r src/ examples/ scripts/ -f json -o bandit-report.json || true
-          bandit -r src/ examples/ scripts/ -f screen
+          echo "::group::Bandit Security Scan"
+          bandit -r src/ examples/ scripts/ -c pyproject.toml -f json -o bandit-report.json || true
+          bandit -r src/ examples/ scripts/ -c pyproject.toml -f screen
+          echo "::endgroup::"
+
+          # Parse report and add GitHub annotations
+          python .github/scripts/bandit_annotate.py
 
       - name: Upload Bandit report
         if: always()

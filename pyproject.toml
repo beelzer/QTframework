@@ -526,3 +526,8 @@ mermaid_init_js = "mermaid.initialize({startOnLoad:true, theme: 'default'});"
 # Todo extension
 todo_include_todos = true
 todo_emit_warnings = true
+
+# Bandit - Security linting
+[tool.bandit]
+exclude_dirs = ["tests", ".venv", "venv", "build", "dist"]
+skips = ["B110", "B404", "B603"]  # Allow try/except/pass, subprocess in examples/scripts
