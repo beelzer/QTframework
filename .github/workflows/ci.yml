@@ -54,25 +54,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
+      - name: Run actionlint
+        uses: raven-actions/actionlint@v2
+        with:
+          fail-on-error: true
+
+      - name: Run codespell
+        uses: codespell-project/actions-codespell@v2
+        with:
+          skip: "*.lock,package-lock.json,yarn.lock,.git,*.min.js,*.min.css,*.po,*.pot"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
 
-      - name: Install actionlint
-        run: |
-          curl -sSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash | bash
-          sudo mv ./actionlint /usr/local/bin/
-
-      - name: Run actionlint
-        run: actionlint
-
-      - name: Install additional tools
-        run: |
-          pip install codespell validate-pyproject
-
-      - name: Run codespell
-        run: codespell --skip="*.lock,package-lock.json,yarn.lock,.git,*.min.js,*.min.css,*.po,*.pot"
+      - name: Install validate-pyproject
+        run: pip install validate-pyproject
 
       - name: Validate pyproject.toml
         run: validate-pyproject pyproject.toml
@@ -143,10 +141,10 @@ jobs:
         if: always()
         shell: bash
         run: |
-          echo "## Test Results - ${{ matrix.os }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Platform:** ${{ matrix.os }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Python Version:** 3.13" >> $GITHUB_STEP_SUMMARY
+          echo "## Test Results - ${{ matrix.os }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Platform:** ${{ matrix.os }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Python Version:** 3.13" >> "$GITHUB_STEP_SUMMARY"
 
   coverage:
     name: Coverage
@@ -197,9 +195,9 @@ jobs:
         if: always()
         shell: bash
         run: |
-          echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Coverage Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
 
           if [ -f "htmlcov/index.html" ]; then
-            echo "✅ Coverage report generated successfully" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Coverage report generated successfully" >> "$GITHUB_STEP_SUMMARY"
           fi
