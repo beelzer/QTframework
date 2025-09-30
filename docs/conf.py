@@ -1,20 +1,35 @@
-"""Simplified Sphinx configuration."""
+"""Basic Sphinx configuration."""
 
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
-from sphinx_pyproject import SphinxConfig
-
-
 # Add project root to Python path for autodoc
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-# Load configuration from pyproject.toml
-config = SphinxConfig("../pyproject.toml", globalns=globals())
+# Basic configuration
+project = "Qt Framework"
+copyright = "2025, Qt Framework Team"
+author = "Qt Framework Team"
+release = "0.1.0"
 
-# Simple theme configuration
+# Extensions
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
+    "myst_parser",
+    "sphinx_copybutton",
+    "sphinx_design",
+]
+
+# Templates and paths
+templates_path = ["_templates"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+
+# HTML output options
+html_theme = "furo"
 html_theme_options = {
     "light_css_variables": {
         "color-brand-primary": "#1e88e5",
@@ -25,3 +40,15 @@ html_theme_options = {
         "color-brand-content": "#0d47a1",
     },
 }
+html_static_path = ["_static"]
+
+# MyST parser options
+myst_enable_extensions = [
+    "deflist",
+    "tasklist",
+    "colon_fence",
+]
+
+# Autodoc options
+autodoc_typehints = "description"
+autodoc_typehints_description_target = "documented"
