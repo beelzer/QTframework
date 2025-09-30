@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type Checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue.svg)](https://mypy-lang.org/)
-[![Coverage](https://img.shields.io/badge/coverage-85%25-yellowgreen.svg)](https://beelzer.github.io/QTframework/coverage/)
+[![codecov](https://codecov.io/gh/beelzer/QTframework/branch/master/graph/badge.svg)](https://codecov.io/gh/beelzer/QTframework)
 [![PySide6](https://img.shields.io/badge/Qt-PySide6-41CD52.svg)](https://wiki.qt.io/Qt_for_Python)
 [![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://beelzer.github.io/QTframework/)
 
