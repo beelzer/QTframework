@@ -153,17 +153,6 @@ jobs:
         run: |
           python .github/scripts/pytest_annotate.py tests/ -v
 
-      - name: Generate test summary
-        if: always()
-        shell: bash
-        run: |
-          {
-            echo "## Test Results - ${{ matrix.os }}"
-            echo ""
-            echo "**Platform:** ${{ matrix.os }}"
-            echo "**Python Version:** 3.13"
-          } >> "$GITHUB_STEP_SUMMARY"
-
   coverage:
     name: 📊 Test Coverage
     runs-on: ubuntu-latest
@@ -209,15 +198,39 @@ jobs:
           path: htmlcov/
           retention-days: 30
 
-      - name: Generate coverage summary
-        if: always()
-        shell: bash
+  report:
+    name: 📋 CI Summary
+    runs-on: ubuntu-latest
+    needs:
+      [lint, actionlint, codespell, validate-config, type-check, test, coverage]
+    if: always()
+
+    steps:
+      - name: Generate CI summary
         run: |
           {
-            echo "## Coverage Report"
+            echo "# CI Pipeline Summary"
             echo ""
+            echo "## Validation"
+            echo "- 🔍 Ruff: ${{ needs.lint.result }}"
+            echo "- ⚙️ Actionlint: ${{ needs.actionlint.result }}"
+            echo "- 📝 Codespell: ${{ needs.codespell.result }}"
+            echo "- ✅ Validate Config: ${{ needs.validate-config.result }}"
+            echo "- 🔎 Mypy: ${{ needs.type-check.result }}"
+            echo ""
+            echo "## Testing"
+            echo "- 🧪 Tests: ${{ needs.test.result }}"
+            echo "- 📊 Coverage: ${{ needs.coverage.result }}"
+            echo ""
+            if [ "${{ needs.lint.result }}" == "success" ] && \
+               [ "${{ needs.actionlint.result }}" == "success" ] && \
+               [ "${{ needs.codespell.result }}" == "success" ] && \
+               [ "${{ needs.validate-config.result }}" == "success" ] && \
+               [ "${{ needs.type-check.result }}" == "success" ] && \
+               [ "${{ needs.test.result }}" == "success" ] && \
+               [ "${{ needs.coverage.result }}" == "success" ]; then
+              echo "## ✅ All checks passed!"
+            else
+              echo "## ❌ Some checks failed"
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
-
-          if [ -f "htmlcov/index.html" ]; then
-            echo "✅ Coverage report generated successfully" >> "$GITHUB_STEP_SUMMARY"
-          fi
