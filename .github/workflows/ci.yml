@@ -102,7 +102,7 @@ jobs:
       - name: Run markdownlint
         run: |
           npm install -g markdownlint-cli
-          markdownlint . --config .markdownlint.json --ignore node_modules
+          markdownlint . --config pyproject.toml --configPointer /tool/markdownlint --ignore node_modules
 
   type-check:
     name: 🔎 Mypy

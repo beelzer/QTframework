@@ -142,7 +142,8 @@ repos:
     rev: v0.43.0
     hooks:
       - id: markdownlint
-        args: [--fix, --config, .markdownlint.json]
+        args:
+          [--fix, --config, pyproject.toml, --configPointer, /tool/markdownlint]
 
   # Local hooks for i18n and testing
   - repo: local
