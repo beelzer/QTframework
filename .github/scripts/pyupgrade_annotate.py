@@ -58,8 +58,8 @@ def main() -> int:
                     match = re.search(r"@@ -(\d+)", line)
                     if match:
                         line_num = match.group(1)
-                        msg = "Code can be upgraded to Python 3.13+ syntax"
-                        print(f"::warning title=Pyupgrade,file={file_path},line={line_num}::{msg}")
+                        msg = f"Code can be upgraded to Python 3.13+ syntax. Run `pyupgrade --py313-plus {file_path}` to fix."
+                        print(f"::error title=Pyupgrade,file={file_path},line={line_num}::{msg}")
                         break  # Only show first occurrence per file
 
     return exit_code

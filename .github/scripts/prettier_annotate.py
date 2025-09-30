@@ -40,8 +40,8 @@ def main() -> int:
         if line.startswith("[warn]"):
             file_path = line.replace("[warn]", "").strip()
             if file_path:
-                msg = f"File needs formatting. Run 'prettier --write {file_path}' to fix."
-                print(f"::warning title=Prettier,file={file_path},line=1::{msg}")
+                msg = f"File needs formatting. Run `prettier --write {file_path}` to fix."
+                print(f"::error title=Prettier,file={file_path},line=1::{msg}")
 
     return result.returncode
 
