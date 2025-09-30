@@ -1,7 +1,9 @@
 """Test file to trigger CI annotations."""
+from __future__ import annotations
 
 import os
 import subprocess  # Should trigger bandit B404
+
 
 def bad_function():
     """This has multiple issues."""
@@ -15,7 +17,7 @@ def bad_function():
     result = eval("1+1")
 
     # Bandit: shell=True (B602)
-    subprocess.run("ls -la", shell=True)
+    subprocess.run("ls -la", check=False, shell=True)
 
     # Ruff: undefined name
     print(undefined_variable)
