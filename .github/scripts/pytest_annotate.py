@@ -70,11 +70,27 @@ def main() -> int:
                 # Scan next lines for traceback info
                 error_details = []
                 for j in range(i + 1, min(i + 100, len(lines))):
-                    # Look for file:line: pattern in traceback
-                    traceback_match = re.match(r"^(.+?):(\d+):\s*in (.+)", lines[j])
+                    # Look for file:line: pattern in traceback (multiple formats)
+                    # Format 1: tests/path/test_file.py:43: in test_name
+                    traceback_match = re.match(r"^(.+?):(\d+):\s*in\s+(.+)", lines[j])
                     if traceback_match:
-                        error_file, error_line, _ = traceback_match.groups()
+                        file_path, line_num, _ = traceback_match.groups()
+                        # Only update if it's the actual test file
+                        if file_path == test_file:
+                            error_file = file_path
+                            error_line = line_num
                         continue
+
+                    # Format 2: Look for assertion line references
+                    # Example: "    assert timer.elapsed_ms < 1000  # Less than 1 second"
+                    # Preceded by line like "tests/file.py:43: in test_method"
+                    if lines[j].strip().startswith("assert ") and error_line == 1:
+                        # Check previous lines for file:line
+                        for k in range(max(0, j - 3), j):
+                            prev_match = re.match(r"^(.+?):(\d+):", lines[k])
+                            if prev_match and prev_match.group(1) == test_file:
+                                error_line = prev_match.group(2)
+                                break
 
                     # Collect "E       " lines (pytest error details)
                     if lines[j].startswith("E       "):
