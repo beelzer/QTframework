@@ -54,14 +54,11 @@ jobs:
           python-version: "3.13"
           install-type: "dev"
 
-      - name: Run mypy with annotations
-        uses: tsuyoshicho/action-mypy@v5
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Run against src directory with same config as local
-          target: src
-          # Use installed mypy from our environment
-          setup_method: nothing
+      - name: Run type checking
+        run: |
+          echo "::group::Mypy Type Check"
+          python .github/scripts/mypy_annotate.py
+          echo "::endgroup::"
 
   test:
     name: Test
