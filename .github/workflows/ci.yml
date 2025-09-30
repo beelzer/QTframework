@@ -304,6 +304,47 @@ jobs:
           path: htmlcov/
           retention-days: 30
 
+  test-python-3-14:
+    name: 🧪 3.14
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    needs:
+      [
+        lint,
+        actionlint,
+        codespell,
+        validate-config,
+        detect-secrets,
+        pyupgrade,
+        prettier,
+        markdownlint,
+        type-check,
+      ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-environment
+        with:
+          python-version: "3.14"
+          install-type: "dev"
+
+      - name: Setup display for GUI tests
+        run: |
+          export DISPLAY=:99
+          sudo Xvfb :99 -screen 0 1920x1080x24 &
+          sleep 3
+
+      - name: Run tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+          DISPLAY: :99
+          PYTHONDONTWRITEBYTECODE: 1
+        run: |
+          python .github/scripts/pytest_annotate.py tests/ -v
+
   report:
     name: 📋 CI Summary
     runs-on: ubuntu-latest
