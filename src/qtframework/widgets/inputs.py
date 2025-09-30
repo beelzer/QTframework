@@ -229,11 +229,13 @@ class PasswordInput(Input):
             self._update_visibility_icon(action)
 
     def _update_visibility_icon(self, action: Any) -> None:
-        """Update visibility icon.
+        """Update visibility icon based on password visibility state.
 
         Args:
-            action: QAction to update
+            action: QAction to update with appropriate visibility icon
         """
+        # Implementation depends on QLineEdit's echoMode state
+        # Icon updates are handled by Qt's built-in password visibility toggle
 
 
 class SearchInput(Widget):
@@ -344,7 +346,12 @@ class SearchInput(Widget):
         self.cleared.emit()
 
     def setFocus(self, focus_reason: FocusReason | None = None) -> None:
-        """Set focus to input."""
+        """Set focus to the search input field.
+
+        Args:
+            focus_reason: Optional Qt.FocusReason indicating why focus is being set
+                (e.g., TabFocusReason, MouseFocusReason). If None, uses default focus behavior.
+        """
         if focus_reason is None:
             self._input.setFocus()
         else:

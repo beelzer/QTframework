@@ -85,7 +85,6 @@ class FlowLayout(QLayout):
 
     def heightForWidth(self, width: int) -> int:
         """Calculate the height needed for a given width."""
-        # Ensure we have valid width
         if width <= 0:
             return int(self.minimumSize().height())
         height = self._do_layout(QRect(0, 0, width, 0), test=True)
@@ -97,9 +96,12 @@ class FlowLayout(QLayout):
         self._do_layout(rect, test=False)
 
     def invalidate(self) -> None:
-        """Invalidate the layout to force recalculation."""
+        """Invalidate the layout to force recalculation.
+
+        Triggers immediate re-layout if geometry is already valid to ensure
+        proper widget positioning after invalidation.
+        """
         super().invalidate()
-        # Force immediate re-layout if we have a valid geometry
         if self.geometry().isValid():
             self._do_layout(self.geometry(), test=False)
 
@@ -133,14 +135,13 @@ class FlowLayout(QLayout):
             left, top, right, bottom = margins
         effective_rect = rect.adjusted(left, top, -right, -bottom)
 
-        # Ensure we have a valid rect to work with
+        # Fallback to parent width if layout width not yet determined
         if effective_rect.width() <= 0:
-            # If we don't have a valid width yet, use parent's width if available
             parent_widget = self.parentWidget()
             if parent_widget is not None:
                 effective_rect.setWidth(parent_widget.width() - left - right)
             if effective_rect.width() <= 0:
-                return 0  # Can't layout without valid width
+                return 0
 
         x = effective_rect.x()
         y = effective_rect.y()
@@ -161,7 +162,6 @@ class FlowLayout(QLayout):
             next_x = x + item_size.width() + space_x
 
             if next_x - space_x > effective_rect.right() and line_height > 0:
-                # Start a new line
                 x = effective_rect.x()
                 y = y + line_height + space_y
                 next_x = x + item_size.width() + space_x
@@ -169,7 +169,6 @@ class FlowLayout(QLayout):
 
             if not test:
                 item.setGeometry(QRect(QPoint(x, y), item_size))
-                # Ensure the widget is shown and properly updated
                 if widget:
                     widget.show()
                     widget.raise_()

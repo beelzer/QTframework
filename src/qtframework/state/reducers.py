@@ -109,11 +109,11 @@ def immutable_update(state: dict[str, Any], path: str, value: Any) -> dict[str, 
 
     Args:
         state: Current state
-        path: Dot-separated path
-        value: New value
+        path: Dot-separated path (e.g., "user.profile.name")
+        value: New value to set at the path
 
     Returns:
-        Updated state
+        A deep copy of the state with the update applied. Original state is unchanged.
     """
     keys = path.split(".")
     new_state = copy.deepcopy(state)
@@ -133,10 +133,11 @@ def immutable_delete(state: dict[str, Any], path: str) -> dict[str, Any]:
 
     Args:
         state: Current state
-        path: Dot-separated path
+        path: Dot-separated path to the key to delete
 
     Returns:
-        Updated state
+        A deep copy of the state with the key removed. Original state is unchanged.
+        Returns unmodified copy if path doesn't exist.
     """
     keys = path.split(".")
     new_state = copy.deepcopy(state)

@@ -123,11 +123,15 @@ class TranslationExtractor:
     def generate_template(self, keys: set[str] | None = None) -> dict[str, str]:
         """Generate a translation template from extracted keys.
 
+        Creates a nested dictionary structure from dot-notation keys,
+        with placeholder values marked as "TODO: Translate <key>" to
+        indicate they need translation.
+
         Args:
             keys: Keys to include (uses extracted keys if None)
 
         Returns:
-            Dictionary template for translations
+            Dictionary template for translations with TODO placeholder values
         """
         if keys is None:
             keys = self.keys

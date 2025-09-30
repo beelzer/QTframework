@@ -61,7 +61,6 @@ def promise_middleware() -> Middleware:
         def next_wrapper(next_dispatch: Callable) -> Callable:
             def dispatch(action: Action) -> Action:
                 if isinstance(action, AsyncAction) and action.promise:
-                    # Dispatch pending action
                     next_dispatch(
                         Action(
                             type=f"{action.type}_PENDING",
@@ -70,7 +69,6 @@ def promise_middleware() -> Middleware:
                         )
                     )
 
-                    # Handle promise
                     def on_success(result: Any) -> None:
                         next_dispatch(
                             Action(
@@ -90,7 +88,6 @@ def promise_middleware() -> Middleware:
                             )
                         )
 
-                    # Assuming promise has then/catch methods
                     if hasattr(action.promise, "then"):
                         action.promise.then(on_success).catch(on_error)
 
@@ -134,7 +131,6 @@ def crash_reporter_middleware() -> Middleware:
                     return next_dispatch(action)  # type: ignore[no-any-return]
                 except Exception as e:
                     logger.exception(f"Action {action.type} caused error: {e}")
-                    # Dispatch error action
                     next_dispatch(
                         Action(
                             type="ERROR_OCCURRED",
@@ -181,29 +177,26 @@ def validation_middleware(validators: dict[str, Callable[[Action], bool]]) -> Mi
 
 
 def devtools_middleware() -> Middleware:
-    """Middleware for Redux DevTools integration."""
+    """Middleware for Redux DevTools integration.
+
+    Note: DevTools connection not yet implemented. Currently captures
+    state snapshots but doesn't transmit to external devtools.
+    """
 
     def middleware(store: Store) -> Callable[[Callable], Callable[[Action], Action]]:
         def next_wrapper(next_dispatch: Callable) -> Callable:
             def dispatch(action: Action) -> Action:
-                # Before action
                 prev_state = store.get_state()
-
-                # Process action
                 result = next_dispatch(action)
-
-                # After action
                 next_state = store.get_state()
 
-                # Send to devtools (if integrated)
-                # This would connect to browser devtools or standalone app
+                # DevTools integration pending - data structure prepared for future use
                 {
                     "action": action.to_dict(),
                     "prevState": prev_state,
                     "nextState": next_state,
                     "timestamp": time.time(),
                 }
-                # TODO: Send devtools_data to devtools connection
 
                 return result  # type: ignore[no-any-return]
 

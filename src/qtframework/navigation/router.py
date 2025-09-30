@@ -51,10 +51,12 @@ class Route:
     def _path_to_pattern(self) -> re.Pattern[str]:
         """Convert path to regex pattern.
 
+        Transforms path patterns like '/user/:id' into regex patterns
+        with named capture groups for parameter extraction.
+
         Returns:
             Compiled pattern
         """
-        # Convert :param to named groups
         pattern = self.path
         pattern = re.sub(r":(\w+)", r"(?P<\1>[^/]+)", pattern)
         pattern = re.sub(r"\*", r".*", pattern)
@@ -141,47 +143,39 @@ class Router(QObject):
         """
         logger.info("Navigating to: %s", path)
 
-        # Check before hooks
         for hook in self._before_hooks:
             if not hook(self._current_path, path):
                 logger.warning("Navigation blocked by hook: %s", path)
                 self.navigation_blocked.emit(self._current_path, path)
                 return False
 
-        # Find matching route
         route = self._find_route(path)
         if not route:
             logger.error("No route found for path: %s", path)
             return False
 
-        # Check route guards
         if not route.can_activate():
             logger.warning("Route guard blocked: %s", path)
             self.navigation_blocked.emit(self._current_path, path)
             return False
 
-        # Handle redirect
         if route.redirect:
             return self.navigate(route.redirect, params)
 
-        # Update history only for normal navigation (not back/forward)
+        # Preserve history for back/forward navigation
         if not _internal and self._current_path and self._current_path != path:
             self._history.append(self._current_path)
             self._future.clear()
 
-        # Update current state
         self._current_path = path
         self._current_route = route
 
-        # Merge params
         route_params = params or {}
         _, extracted_params = route.matches(path)
         route_params.update(extracted_params)
 
-        # Emit change
         self.route_changed.emit(path, route_params)
 
-        # After hooks
         for after_hook in self._after_hooks:
             after_hook(route)
 

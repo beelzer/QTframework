@@ -110,24 +110,33 @@ class Plugin(QObject):
     def initialize(self) -> bool:
         """Initialize the plugin.
 
+        Called once when the plugin is first loaded. Use for one-time setup
+        like loading resources or registering services.
+
         Returns:
-            True if initialization successful
+            True if initialization successful, False if plugin should not be loaded
         """
         return True
 
     def activate(self) -> bool:
         """Activate the plugin.
 
+        Called when the plugin is enabled. Use for connecting signals,
+        starting services, or adding UI elements.
+
         Returns:
-            True if activation successful
+            True if activation successful, False if plugin failed to activate
         """
         return True
 
     def deactivate(self) -> bool:
         """Deactivate the plugin.
 
+        Called when the plugin is disabled. Use for disconnecting signals,
+        stopping services, or removing UI elements. Plugin remains loaded.
+
         Returns:
-            True if deactivation successful
+            True if deactivation successful, False if plugin failed to deactivate
         """
         return True
 

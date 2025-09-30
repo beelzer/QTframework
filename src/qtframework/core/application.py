@@ -85,12 +85,10 @@ class Application(QApplication):
 
     def _load_settings(self) -> None:
         """Load application settings."""
-        # Check if user has a saved theme preference
         saved_theme = self._settings.value("theme", None)
         if saved_theme:
             theme = str(saved_theme)
         else:
-            # No saved preference, detect OS theme
             theme = self._detect_os_theme()
         self._context.set("theme", theme)
 
@@ -141,7 +139,7 @@ class Application(QApplication):
         Returns:
             "dark" if OS is in dark mode, "light" otherwise
         """
-        # Try to detect system theme using StyleHints (Qt 6.5+)
+        # Qt 6.5+ supports direct color scheme detection
         try:
             style_hints = QGuiApplication.styleHints()
             if hasattr(style_hints, "colorScheme"):
@@ -153,10 +151,9 @@ class Application(QApplication):
         except (AttributeError, ImportError):
             pass
 
-        # Fallback: Check palette brightness
+        # Fallback: Infer from palette luminance
         palette = QGuiApplication.palette()
         window_color = palette.color(QPalette.ColorRole.Window)
-        # Calculate luminance
         luminance = (
             0.299 * window_color.red() + 0.587 * window_color.green() + 0.114 * window_color.blue()
         ) / 255
