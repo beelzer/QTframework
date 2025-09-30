@@ -255,11 +255,11 @@ jobs:
           # Helper function to get status badge
           get_status_badge() {
             case "$1" in
-              success) echo "![success](https://img.shields.io/badge/status-passed-brightgreen)" ;;
-              failure) echo "![failure](https://img.shields.io/badge/status-failed-red)" ;;
-              cancelled) echo "![cancelled](https://img.shields.io/badge/status-cancelled-orange)" ;;
-              skipped) echo "![skipped](https://img.shields.io/badge/status-skipped-lightgrey)" ;;
-              *) echo "![unknown](https://img.shields.io/badge/status-unknown-lightgrey)" ;;
+              success) echo "<img src=\"https://img.shields.io/badge/status-passed-brightgreen\" alt=\"success\" />" ;;
+              failure) echo "<img src=\"https://img.shields.io/badge/status-failed-red\" alt=\"failure\" />" ;;
+              cancelled) echo "<img src=\"https://img.shields.io/badge/status-cancelled-orange\" alt=\"cancelled\" />" ;;
+              skipped) echo "<img src=\"https://img.shields.io/badge/status-skipped-lightgrey\" alt=\"skipped\" />" ;;
+              *) echo "<img src=\"https://img.shields.io/badge/status-unknown-lightgrey\" alt=\"unknown\" />" ;;
             esac
           }
 
@@ -294,23 +294,23 @@ jobs:
             echo "## 📋 Results"
             echo ""
             echo "<table>"
-            echo "<tr><td><strong>🔍 Code Quality</strong></td><td></td></tr>"
+            echo "<tr><td><strong>Code Quality</strong></td><td></td></tr>"
             echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;🔍 Ruff Linting</td><td align=\"center\">$(get_status_badge "${{ needs.lint.result }}")</td></tr>"
             echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;🔎 Type Checking</td><td align=\"center\">$(get_status_badge "${{ needs.type-check.result }}")</td></tr>"
-            echo "<tr><td><strong>✅ Validation</strong></td><td></td></tr>"
+            echo "<tr><td><strong>Validation</strong></td><td></td></tr>"
             echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;⚙️ Actionlint</td><td align=\"center\">$(get_status_badge "${{ needs.actionlint.result }}")</td></tr>"
             echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;📝 Codespell</td><td align=\"center\">$(get_status_badge "${{ needs.codespell.result }}")</td></tr>"
             echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;✅ Config Validation</td><td align=\"center\">$(get_status_badge "${{ needs.validate-config.result }}")</td></tr>"
             echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;📄 Markdownlint</td><td align=\"center\">$(get_status_badge "${{ needs.markdownlint.result }}")</td></tr>"
-            echo "<tr><td><strong>🧪 Testing</strong></td><td></td></tr>"
-            echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Cross-Platform Tests</td><td align=\"center\">$(get_status_badge "${{ needs.test.result }}")</td></tr>"
-            echo "<tr><td><strong>📊 Coverage</strong></td><td></td></tr>"
+            echo "<tr><td><strong>Testing</strong></td><td></td></tr>"
+            echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;🧪 Cross-Platform Tests</td><td align=\"center\">$(get_status_badge "${{ needs.test.result }}")</td></tr>"
+            echo "<tr><td><strong>Coverage</strong></td><td></td></tr>"
 
             coverage_pct="${{ needs.coverage.outputs.coverage_percentage || '0' }}"
             if [ -n "$coverage_pct" ] && [ "$coverage_pct" != "0" ]; then
-              echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Test Coverage (${coverage_pct}%)</td><td align=\"center\">$(get_status_badge "${{ needs.coverage.result }}")</td></tr>"
+              echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;📊 Test Coverage (${coverage_pct}%)</td><td align=\"center\">$(get_status_badge "${{ needs.coverage.result }}")</td></tr>"
             else
-              echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Test Coverage</td><td align=\"center\">$(get_status_badge "${{ needs.coverage.result }}")</td></tr>"
+              echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;📊 Test Coverage</td><td align=\"center\">$(get_status_badge "${{ needs.coverage.result }}")</td></tr>"
             fi
             echo "</table>"
             echo ""
