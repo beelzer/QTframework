@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   lint:
-    name: Lint (Ruff)
+    name: Ruff (Lint, Format, Security)
     runs-on: ubuntu-latest
 
     steps:
@@ -47,7 +47,7 @@ jobs:
           echo "::endgroup::"
 
   type-check:
-    name: Type Check (Mypy)
+    name: Mypy (Type Checking)
     runs-on: ubuntu-latest
 
     steps:
