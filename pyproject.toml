@@ -25,44 +25,44 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "PySide6>=6.8.1",
-    "pydantic>=2.10.5",
-    "pydantic-settings>=2.7.0",
-    "typing-extensions>=4.13.0",
+    "PySide6>=6.9.2",
+    "pydantic>=2.11.9",
+    "pydantic-settings>=2.11.0",
+    "typing-extensions>=4.15.0",
     "watchdog>=6.0.0",
-    "pyyaml>=6.0.2",
-    "python-dotenv>=1.0.1",
-    "sqlalchemy>=2.0.36",
-    "alembic>=1.15.0",
-    "numpy>=2.2.1",
-    "matplotlib>=3.10.0",
-    "pandas>=2.2.3",
+    "pyyaml>=6.0.3",
+    "python-dotenv>=1.1.1",
+    "sqlalchemy>=2.0.43",
+    "alembic>=1.16.5",
+    "numpy>=2.3.3",
+    "matplotlib>=3.10.6",
+    "pandas>=2.3.2",
     "babel>=2.17.0",
     "polib>=1.2.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.9.0",
-    "mypy>=1.14.1",
-    "pytest>=8.4.0",
+    "ruff>=0.13.2",
+    "mypy>=1.18.2",
+    "pytest>=8.4.2",
     "pytest-qt>=4.5.0",
     "pytest-cov>=7.0.0",
-    "pytest-xdist>=3.6.1",
-    "pre-commit>=4.0.1",
-    "types-pyyaml>=6.0.12.20240917",
-    "pandas-stubs>=2.2.3",
+    "pytest-xdist>=3.8.0",
+    "pre-commit>=4.3.0",
+    "types-pyyaml>=6.0.12.20250915",
+    "pandas-stubs>=2.3.2.250827",
 ]
 docs = [
-    "sphinx>=8.1.3",
+    "sphinx>=8.2.3",
     "sphinx-pyproject>=0.3.0",  # Parse Sphinx config from pyproject.toml
-    "furo>=2025.1.29",  # Modern, fast, clean theme
-    "sphinx-autodoc-typehints>=2.5.0",  # Auto-document type hints
+    "furo>=2025.9.25",  # Modern, fast, clean theme
+    "sphinx-autodoc-typehints>=3.2.0",  # Auto-document type hints
     "sphinx-copybutton>=0.5.2",  # Copy button for code blocks
-    "myst-parser>=4.0.0",  # Markdown support
+    "myst-parser>=4.0.1",  # Markdown support
     "sphinx-design>=0.6.1",  # Cards, tabs, dropdowns
     "sphinxcontrib-mermaid>=1.0.0",  # Mermaid diagrams
-    "sphinx-autobuild>=2025.1.17",  # Live reload for development
+    "sphinx-autobuild>=2025.8.25",  # Live reload for development
 ]
 
 [project.urls]
