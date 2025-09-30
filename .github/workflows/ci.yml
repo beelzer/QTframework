@@ -102,7 +102,7 @@ jobs:
       - name: Run markdownlint
         run: |
           npm install -g markdownlint-cli
-          markdownlint . --disable MD013 MD024 MD033 MD041 --ignore node_modules
+          markdownlint . --config .markdownlint.json --ignore node_modules
 
   type-check:
     name: 🔎 Mypy
