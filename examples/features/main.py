@@ -19,13 +19,6 @@ from qtframework.i18n import I18nManager
 
 def main():
     """Run the showcase application."""
-    # Set Qt attributes before creating QApplication to prevent flickering
-    from PySide6.QtCore import Qt
-    from PySide6.QtWidgets import QApplication as QApp
-
-    QApp.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-    QApp.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-
     app = Application(sys.argv)
     app.setApplicationName("Qt Framework Showcase")
     app.setOrganizationName("Qt Framework")
