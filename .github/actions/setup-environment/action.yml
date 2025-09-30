@@ -28,6 +28,7 @@ runs:
       with:
         enable-cache: true
         cache-dependency-glob: "pyproject.toml"
+        cache-suffix: ${{ runner.os }}-${{ hashFiles('**/pyproject.toml') }}
 
     - name: Install Qt system dependencies (Linux)
       if: runner.os == 'Linux'

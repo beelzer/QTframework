@@ -7,6 +7,11 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+# Cancel in-progress runs for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
     name: Lint
@@ -24,8 +29,8 @@ jobs:
 
       - name: Run linting
         run: |
-          ruff check src tests
-          ruff format --check src tests
+          ruff check src tests examples scripts
+          ruff format --check src tests examples scripts
 
   type-check:
     name: Type Check
@@ -46,13 +51,9 @@ jobs:
         run: |
           mypy src
 
-  test:
-    name: Test (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    needs: type-check
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -64,34 +65,47 @@ jobs:
           python-version: "3.13"
           install-type: "dev"
 
-      - name: Setup display for GUI tests (Linux)
-        if: runner.os == 'Linux'
+      - name: Run Bandit security scan
         run: |
-          export DISPLAY=:99
-          sudo Xvfb :99 -screen 0 1920x1080x24 &
-          sleep 3
+          bandit -r src/ examples/ scripts/ -f json -o bandit-report.json || true
+          bandit -r src/ examples/ scripts/ -f screen
 
-      - name: Run tests with coverage (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        env:
-          QT_QPA_PLATFORM: offscreen
-          DISPLAY: :99
-        run: |
-          pytest tests/ -v --cov=src/qtframework --cov-report=xml --cov-report=term
-
-      - name: Run tests (Windows/macOS)
-        if: matrix.os != 'ubuntu-latest'
-        env:
-          QT_QPA_PLATFORM: offscreen
-        run: |
-          pytest tests/ -v
-
-      - name: Upload coverage to Codecov
-        if: matrix.os == 'ubuntu-latest'
-        uses: codecov/codecov-action@v4
+      - name: Upload Bandit report
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          file: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
+          name: bandit-security-report
+          path: bandit-report.json
+          retention-days: 30
+
+      - name: Generate security summary
+        if: always()
+        run: |
+          echo "## Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tool:** Bandit" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Target:** src/ examples/ scripts/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "bandit-report.json" ]; then
+            echo "✅ Security scan completed successfully" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "View the detailed report in the artifacts section." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Security scan report not generated" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  test:
+    name: Test
+    needs: type-check
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    uses: ./.github/workflows/test-reusable.yml
+    with:
+      os: ${{ matrix.os }}
+      python-version: "3.13"
+      upload-coverage: ${{ matrix.os == 'ubuntu-latest' }}
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

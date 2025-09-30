@@ -1,0 +1,99 @@
+name: Reusable Test Workflow
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: "Operating system to run tests on"
+        required: true
+        type: string
+      python-version:
+        description: "Python version to use"
+        required: false
+        type: string
+        default: "3.13"
+      upload-coverage:
+        description: "Whether to upload coverage reports"
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      CODECOV_TOKEN:
+        required: false
+
+jobs:
+  test:
+    name: Test (${{ inputs.os }})
+    runs-on: ${{ inputs.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-environment
+        with:
+          python-version: ${{ inputs.python-version }}
+          install-type: "dev"
+
+      - name: Setup display for GUI tests (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          export DISPLAY=:99
+          sudo Xvfb :99 -screen 0 1920x1080x24 &
+          sleep 3
+
+      - name: Run tests with coverage
+        if: inputs.upload-coverage
+        env:
+          QT_QPA_PLATFORM: offscreen
+          DISPLAY: ${{ runner.os == 'Linux' && ':99' || '' }}
+        run: |
+          pytest tests/ -v --cov=src/qtframework --cov-report=xml --cov-report=term --cov-report=html
+
+      - name: Run tests without coverage
+        if: ${{ !inputs.upload-coverage }}
+        env:
+          QT_QPA_PLATFORM: offscreen
+          DISPLAY: ${{ runner.os == 'Linux' && ':99' || '' }}
+        run: |
+          pytest tests/ -v --html=test-report.html --self-contained-html
+
+      - name: Upload coverage to Codecov
+        if: inputs.upload-coverage
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-${{ inputs.os }}-py${{ inputs.python-version }}
+          path: |
+            test-report.html
+            htmlcov/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "## Test Results - ${{ inputs.os }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Platform:** ${{ inputs.os }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Python Version:** ${{ inputs.python-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Coverage Enabled:** ${{ inputs.upload-coverage }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "test-report.html" ]; then
+            echo "✅ Test report generated successfully" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ inputs.upload-coverage }}" == "true" ] && [ -f "coverage.xml" ]; then
+            echo "✅ Coverage report generated successfully" >> $GITHUB_STEP_SUMMARY
+          fi
