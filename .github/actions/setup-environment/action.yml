@@ -33,9 +33,16 @@ runs:
     - name: Install Qt system dependencies (Linux)
       if: runner.os == 'Linux'
       shell: bash
+      env:
+        DEBIAN_FRONTEND: noninteractive
+        DEBCONF_NONINTERACTIVE_SEEN: "true"
       run: |
+        # Skip man-db triggers to speed up apt operations
+        sudo mkdir -p /etc/dpkg/dpkg.cfg.d
+        echo 'path-exclude=/usr/share/man/*' | sudo tee /etc/dpkg/dpkg.cfg.d/01_nodoc
+
         sudo apt-get update
-        sudo apt-get install -y \
+        sudo apt-get install -y --no-install-recommends \
           libgl1-mesa-dri \
           libglib2.0-0 \
           libegl1 \
