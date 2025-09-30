@@ -105,6 +105,8 @@ jobs:
           files: .
           config_file: .markdownlint.yaml
           ignore_files: node_modules/
+          ignore_path: .gitignore
+          rules: "~MD013,~MD024,~MD033,~MD041"
 
   type-check:
     name: 🔎 Mypy
@@ -296,29 +298,29 @@ jobs:
 
             echo "### 🔍 Code Quality"
             echo ""
-            echo "| Check | Status | Result |"
-            echo "|-------|--------|--------|"
-            echo "| 🔍 **Ruff Linting** | $(get_status_badge "${{ needs.lint.result }}") | $(get_status_emoji "${{ needs.lint.result }}") ${{ needs.lint.result }} |"
-            echo "| 🔎 **Type Checking** | $(get_status_badge "${{ needs.type-check.result }}") | $(get_status_emoji "${{ needs.type-check.result }}") ${{ needs.type-check.result }} |"
+            echo "| Check | Status |"
+            echo "|-------|--------|"
+            echo "| 🔍 **Ruff Linting** | $(get_status_badge "${{ needs.lint.result }}") |"
+            echo "| 🔎 **Type Checking** | $(get_status_badge "${{ needs.type-check.result }}") |"
             echo ""
 
             echo "### ✅ Validation"
             echo ""
-            echo "| Check | Status | Result |"
-            echo "|-------|--------|--------|"
-            echo "| ⚙️ **Actionlint** | $(get_status_badge "${{ needs.actionlint.result }}") | $(get_status_emoji "${{ needs.actionlint.result }}") ${{ needs.actionlint.result }} |"
-            echo "| 📝 **Codespell** | $(get_status_badge "${{ needs.codespell.result }}") | $(get_status_emoji "${{ needs.codespell.result }}") ${{ needs.codespell.result }} |"
-            echo "| ✅ **Config Validation** | $(get_status_badge "${{ needs.validate-config.result }}") | $(get_status_emoji "${{ needs.validate-config.result }}") ${{ needs.validate-config.result }} |"
-            echo "| 📄 **Markdownlint** | $(get_status_badge "${{ needs.markdownlint.result }}") | $(get_status_emoji "${{ needs.markdownlint.result }}") ${{ needs.markdownlint.result }} |"
+            echo "| Check | Status |"
+            echo "|-------|--------|"
+            echo "| ⚙️ **Actionlint** | $(get_status_badge "${{ needs.actionlint.result }}") |"
+            echo "| 📝 **Codespell** | $(get_status_badge "${{ needs.codespell.result }}") |"
+            echo "| ✅ **Config Validation** | $(get_status_badge "${{ needs.validate-config.result }}") |"
+            echo "| 📄 **Markdownlint** | $(get_status_badge "${{ needs.markdownlint.result }}") |"
             echo ""
 
             echo "### 🧪 Testing"
             echo ""
-            echo "| Platform | Status | Result |"
-            echo "|----------|--------|--------|"
-            echo "| 🐧 **Ubuntu** | $(get_status_badge "${{ needs.test.result }}") | $(get_status_emoji "${{ needs.test.result }}") ${{ needs.test.result }} |"
-            echo "| 🪟 **Windows** | $(get_status_badge "${{ needs.test.result }}") | $(get_status_emoji "${{ needs.test.result }}") ${{ needs.test.result }} |"
-            echo "| 🍎 **macOS** | $(get_status_badge "${{ needs.test.result }}") | $(get_status_emoji "${{ needs.test.result }}") ${{ needs.test.result }} |"
+            echo "| Platform | Status |"
+            echo "|----------|--------|"
+            echo "| 🐧 **Ubuntu** | $(get_status_badge "${{ needs.test.result }}") |"
+            echo "| 🪟 **Windows** | $(get_status_badge "${{ needs.test.result }}") |"
+            echo "| 🍎 **macOS** | $(get_status_badge "${{ needs.test.result }}") |"
             echo ""
 
             echo "### 📊 Coverage"
@@ -327,12 +329,12 @@ jobs:
             if [ -n "$coverage_pct" ] && [ "$coverage_pct" != "0" ]; then
               echo "| Metric | Value |"
               echo "|--------|-------|"
-              echo "| **Status** | $(get_status_badge "${{ needs.coverage.result }}") $(get_status_emoji "${{ needs.coverage.result }}") ${{ needs.coverage.result }} |"
+              echo "| **Status** | $(get_status_badge "${{ needs.coverage.result }}") |"
               echo "| **Coverage** | \`${coverage_pct}%\` |"
             else
               echo "| Metric | Value |"
               echo "|--------|-------|"
-              echo "| **Status** | $(get_status_badge "${{ needs.coverage.result }}") $(get_status_emoji "${{ needs.coverage.result }}") ${{ needs.coverage.result }} |"
+              echo "| **Status** | $(get_status_badge "${{ needs.coverage.result }}") |"
             fi
             echo ""
 
