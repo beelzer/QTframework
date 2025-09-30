@@ -35,13 +35,11 @@ def main() -> int:
         print(result.stderr, file=sys.stderr)
 
     # Parse output for files that need formatting
-    # Format: [warn] path/to/file.json
-    print(f"DEBUG: About to parse {len(result.stdout.splitlines())} lines")
-    for line in result.stdout.splitlines():
-        print(f"DEBUG: Checking line: '{line}'")
+    # Prettier outputs to stderr, not stdout!
+    output = result.stderr or result.stdout
+    for line in output.splitlines():
         if line.startswith("[warn]"):
             file_path = line.replace("[warn]", "").strip()
-            print(f"DEBUG: Found [warn] line, file_path='{file_path}'")
             if file_path and not file_path.startswith("Code style issues"):
                 msg = f"File needs formatting. Run `prettier --write {file_path}` to fix."
                 print(f"::error title=Prettier,file={file_path},line=1::{msg}")
