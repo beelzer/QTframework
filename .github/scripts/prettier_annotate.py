@@ -36,18 +36,15 @@ def main() -> int:
 
     # Parse output for files that need formatting
     # Format: [warn] path/to/file.json
+    print(f"DEBUG: About to parse {len(result.stdout.splitlines())} lines")
     for line in result.stdout.splitlines():
+        print(f"DEBUG: Checking line: '{line}'")
         if line.startswith("[warn]"):
             file_path = line.replace("[warn]", "").strip()
-            # Debug output
-            print(f"DEBUG: Found [warn] line: '{line}'", file=sys.stderr)
-            print(f"DEBUG: Extracted file_path: '{file_path}'", file=sys.stderr)
-            if file_path:
-                # Check if this is a filename (not the summary message)
-                if not file_path.startswith("Code style issues"):
-                    msg = f"File needs formatting. Run `prettier --write {file_path}` to fix."
-                    print(f"DEBUG: Creating annotation for: {file_path}", file=sys.stderr)
-                    print(f"::error title=Prettier,file={file_path},line=1::{msg}")
+            print(f"DEBUG: Found [warn] line, file_path='{file_path}'")
+            if file_path and not file_path.startswith("Code style issues"):
+                msg = f"File needs formatting. Run `prettier --write {file_path}` to fix."
+                print(f"::error title=Prettier,file={file_path},line=1::{msg}")
 
     return result.returncode
 
