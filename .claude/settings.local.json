@@ -23,7 +23,8 @@
       "Bash(move:*)",
       "Bash(ren:*)",
       "Bash(gh run:*)",
-      "Bash(gh pr:*)"
+      "Bash(gh pr:*)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": []

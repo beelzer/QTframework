@@ -1,4 +1,5 @@
 """Test file to trigger CI annotations."""
+
 from __future__ import annotations
 
 
@@ -12,7 +13,7 @@ from __future__ import annotations
 #     unused_var = 42
 
 #     # Bandit: hardcoded password (B105)
-#     password = "hardcoded_password_123"
+#     password = "hardcoded_password_123"  # pragma: allowlist secret
 
 #     # Bandit: eval usage (B307)
 #     result = eval("1+1")

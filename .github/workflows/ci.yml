@@ -36,7 +36,7 @@ jobs:
       - name: Run ruff format check
         run: |
           echo "::group::Ruff Format"
-          ruff format --check src tests examples scripts
+          python .github/scripts/ruff_format_annotate.py
           echo "::endgroup::"
 
   type-check:
@@ -54,9 +54,14 @@ jobs:
           python-version: "3.13"
           install-type: "dev"
 
-      - name: Run type checking
-        run: |
-          mypy src
+      - name: Run mypy with annotations
+        uses: tsuyoshicho/action-mypy@v5
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Run against src directory with same config as local
+          target: src
+          # Use installed mypy from our environment
+          setup_method: nothing
 
   test:
     name: Test
