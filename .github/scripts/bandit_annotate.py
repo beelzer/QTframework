@@ -27,13 +27,17 @@ def main():
         file = result.get("filename", "")
         line = result.get("line_number", 1)
         test_id = result.get("test_id", "")
+        col = result.get("col_offset", 0)
+
+        # Format title
+        title = f"Bandit ({test_id})"
 
         # Only fail on Medium/High severity issues
         if severity in {"MEDIUM", "HIGH"}:
-            print(f"::error file={file},line={line}::[{test_id}] {severity} - {issue}")
+            print(f"::error title={title},file={file},line={line},col={col}::{test_id}: {issue}")
             high_severity_found = True
         else:
-            print(f"::warning file={file},line={line}::[{test_id}] {severity} - {issue}")
+            print(f"::warning title={title},file={file},line={line},col={col}::{test_id}: {issue}")
 
     return 1 if high_severity_found else 0
 
