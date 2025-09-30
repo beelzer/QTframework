@@ -125,12 +125,10 @@ class LazyString:
 class LazyPlural:
     """Lazy plural string that delays translation until evaluation.
 
-    Usage:
+    Example::
+
         # At module level
-        ITEMS_COUNT = LazyPlural(
-            "{count} item",
-            "{count} items"
-        )
+        ITEMS_COUNT = LazyPlural("{count} item", "{count} items")
 
         # Later
         print(ITEMS_COUNT.format(count=5))  # "5 items"
@@ -182,7 +180,8 @@ class LazyPlural:
 def translatable_property(context: str | None = None):
     """Decorator for creating translatable class properties.
 
-    Usage:
+    Example::
+
         class MyWidget:
             @translatable_property("tooltip")
             def help_text(self):
