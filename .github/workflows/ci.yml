@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   lint:
-    name: Lint
+    name: Lint (Ruff)
     runs-on: ubuntu-latest
 
     steps:
@@ -40,9 +40,8 @@ jobs:
           echo "::endgroup::"
 
   type-check:
-    name: Type Check
+    name: Type Check (Mypy)
     runs-on: ubuntu-latest
-    needs: lint
 
     steps:
       - name: Checkout code
@@ -61,15 +60,76 @@ jobs:
           echo "::endgroup::"
 
   test:
-    needs: type-check
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    needs: [lint, type-check]
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-    uses: ./.github/workflows/test-reusable.yml
-    with:
-      os: ${{ matrix.os }}
-      python-version: "3.13"
-      upload-coverage: ${{ matrix.os == 'ubuntu-latest' }}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-environment
+        with:
+          python-version: "3.13"
+          install-type: "dev"
+
+      - name: Setup display for GUI tests (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          export DISPLAY=:99
+          sudo Xvfb :99 -screen 0 1920x1080x24 &
+          sleep 3
+
+      - name: Run tests with coverage
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          QT_QPA_PLATFORM: offscreen
+          DISPLAY: :99
+        run: |
+          pytest tests/ -v --cov=src/qtframework --cov-report=xml --cov-report=term --cov-report=html
+
+      - name: Run tests without coverage
+        if: matrix.os != 'ubuntu-latest'
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          pytest tests/ -v --html=test-report.html --self-contained-html
+
+      - name: Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-${{ matrix.os }}
+          path: |
+            test-report.html
+            htmlcov/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "## Test Results - ${{ matrix.os }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Platform:** ${{ matrix.os }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Python Version:** 3.13" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "test-report.html" ] || [ -f "htmlcov/index.html" ]; then
+            echo "✅ Test report generated successfully" >> $GITHUB_STEP_SUMMARY
+          fi
