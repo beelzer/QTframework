@@ -29,7 +29,12 @@ class ShowcaseWindow(QMainWindow):
         super().__init__()
         self._setup_managers()
         self._init_ui()
-        self._apply_initial_theme()
+        # Only apply theme if not already set by Application
+        app = QApplication.instance()
+        current_stylesheet = app.styleSheet() if app else ""
+        if not current_stylesheet:
+            # No theme applied yet, apply initial theme
+            self._apply_initial_theme()
 
     def _setup_managers(self):
         """Initialize framework managers."""
