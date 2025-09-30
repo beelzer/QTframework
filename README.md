@@ -1,253 +1,154 @@
 # Qt Framework
 
+[![Python Version](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Type Checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue.svg)](https://mypy-lang.org/)
+[![PySide6](https://img.shields.io/badge/Qt-PySide6-41CD52.svg)](https://wiki.qt.io/Qt_for_Python)
+[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://qt-framework.readthedocs.io)
+
 A modern, feature-rich application framework built on PySide6 (Qt6) for creating professional desktop applications with Python.
 
-## Features
+## ✨ Features
 
-### Core Components
+- 🎨 **Modern UI Components** - Comprehensive widget library with Material Design inspiration
+- 🌗 **Advanced Theming** - YAML-based themes with hot-reload and dark/light mode support
+- 🌍 **Internationalization** - Complete i18n with Babel integration and live updates
+- 📊 **State Management** - Redux-like store with time-travel debugging
+- 🎯 **Type Safe** - Full type hints and mypy validation
+- 🔌 **Plugin System** - Extensible architecture with hot-loading capabilities
+- ✅ **Validation Framework** - Built-in validators with i18n error messages
+- 📐 **Flexible Layouts** - Flow layouts, sidebars, cards, and custom arrangements
 
-- **Modern UI Components**: Comprehensive widget library with Material Design inspired components
-- **Advanced Widgets**: Docking system, property panels, flow layouts, and custom controls
-- **Theme System**: YAML-based theming with hot-reload, dark/light mode support
-- **Internationalization (i18n)**: Complete multi-language support with Babel integration
-- **Layout System**: Flexible layouts including FlowLayout for responsive designs
-- **Data Binding**: Reactive data binding system with model management
-- **Validation Framework**: Comprehensive input validation with custom validators
-- **Event System**: Centralized event management with logging and debugging
-- **Settings Management**: Persistent application and user settings
+## 🚀 Quick Start
 
-### Widget Library
-
-#### Basic Widgets
-
-- Labels, Buttons, Inputs
-- Checkboxes, Radio buttons
-- Sliders, Progress bars
-- Spinners, Badges
-
-#### Advanced Widgets
-
-- **DockWidget**: Dockable panels with float/dock functionality
-- **PropertiesPanel**: Dynamic property editor with type-specific controls
-- **SearchableList**: List with integrated search functionality
-- **DataTable**: Advanced table with sorting, filtering, and pagination
-- **CodeEditor**: Syntax highlighting code editor
-- **DateTimePicker**: Combined date and time selection
-- **ColorPicker**: Professional color selection dialog
-- **FileDialog**: Enhanced file selection with preview
-
-### Internationalization
-
-- **Babel Integration**: Full Unicode support with CLDR pluralization rules
-- **Hot-reload**: Live translation updates without restart
-- **Language Selector**: Built-in language switching widget
-- **Format Localization**: Dates, numbers, currency formatting
-- **Translatable Widgets**: Auto-updating UI components
-- **Context Support**: Translation contexts for disambiguation
-
-### Theme System
-
-- **YAML Configuration**: Human-readable theme files
-- **Live Reload**: Instant theme updates during development
-- **Comprehensive Styling**: Colors, fonts, spacing, borders
-- **Component Variants**: Primary, secondary, success, warning, error styles
-- **Dark/Light Modes**: Built-in theme variants
-- **Custom Properties**: Extensible theme system
-
-## Installation
-
-### Using pip
+### Installation
 
 ```bash
-pip install qtframework
+# Using pip
+pip install qt-framework
+
+# Using uv (recommended)
+uv pip install qt-framework
 ```
-
-### Using uv (recommended)
-
-```bash
-uv pip install qtframework
-```
-
-### Development Installation
-
-```bash
-git clone https://github.com/yourusername/qtframework.git
-cd qtframework
-uv venv
-uv pip install -e ".[dev]"
-```
-
-## Quick Start
 
 ### Basic Application
 
 ```python
-import sys
-from PySide6.QtWidgets import QApplication
-from qtframework import QtWindow, ThemeManager
+from qtframework import Application, BaseWindow
 
-app = QApplication(sys.argv)
+class MainWindow(BaseWindow):
+    def __init__(self, application=None):
+        super().__init__(application, title="My App")
+        # Your UI setup here
 
-# Initialize theme
-theme_manager = ThemeManager()
-theme_manager.load_theme("modern_dark")
-
-# Create main window
-window = QtWindow(title="My App")
-window.show()
-
-sys.exit(app.exec())
+# Create and run
+Application.create_and_run(
+    MainWindow,
+    app_name="MyApp",
+    org_name="MyCompany"
+)
 ```
 
-### Using i18n
+### Using Themes
 
 ```python
-from qtframework.i18n import get_i18n_manager, t
+from qtframework import Application
 
-# Initialize i18n
-manager = get_i18n_manager()
-manager.set_locale("fr_FR")
-
-# Use translations
-print(t("Hello, World!"))  # Bonjour, le monde!
+app = Application()
+app.theme_manager.set_theme("dark")  # or "light", "high_contrast"
 ```
 
-### Custom Widgets
+### State Management
 
 ```python
-from qtframework.widgets import Badge, CountBadge, SearchableList
+from qtframework.state import Store, Action
 
-# Create a badge
-badge = Badge("New", variant="success")
+def reducer(state, action):
+    if action.type == "INCREMENT":
+        return {**state, "count": state["count"] + 1}
+    return state
 
-# Create a count badge
-count_badge = CountBadge(count=42, variant="primary")
-
-# Create searchable list
-items = ["Python", "JavaScript", "Rust", "Go"]
-search_list = SearchableList(items)
+store = Store(reducer=reducer, initial_state={"count": 0})
+store.dispatch(Action(type="INCREMENT"))
+print(store.state)  # {"count": 1}
 ```
 
-## Development
+## 📚 Documentation
 
-### Project Structure
+**[Read the full documentation →](https://qt-framework.readthedocs.io)**
 
-```
-qtframework/
-├── src/
-│   └── qtframework/
-│       ├── core/          # Core functionality
-│       ├── widgets/        # Widget library
-│       ├── layouts/        # Layout managers
-│       ├── themes/         # Theme system
-│       ├── i18n/          # Internationalization
-│       └── utils/         # Utilities
-├── examples/
-│   └── features/          # Feature demonstrations
-├── tests/                 # Test suite
-└── themes/               # Theme files
-```
+- [User Guide](https://qt-framework.readthedocs.io/en/latest/user-guide/)
+- [API Reference](https://qt-framework.readthedocs.io/en/latest/api/)
+- [Examples](https://qt-framework.readthedocs.io/en/latest/examples/)
+- [Contributing Guide](https://qt-framework.readthedocs.io/en/latest/contributing/)
 
-### Running Examples
+## 🏗️ Development
 
 ```bash
-cd examples/features
-python main.py
-```
+# Clone repository
+git clone https://github.com/beelzer/QTframework.git
+cd QTframework
 
-### Testing
+# Install with development dependencies
+uv pip install -e ".[dev]"
 
-```bash
+# Install pre-commit hooks
+pre-commit install
+
+# Run tests
 pytest
+
+# Run example application
+python examples/features/main.py
 ```
 
 ### Code Quality
 
 ```bash
-# Format code
-ruff format
-
-# Lint code
-ruff check
-
-# Type checking
-mypy src/qtframework
+ruff format      # Format code
+ruff check       # Lint code
+mypy src         # Type check
+pytest           # Run tests
 ```
 
-### Pre-commit Hooks
+## 🎯 Core Components
 
-```bash
-pre-commit install
-pre-commit run --all-files
-```
+| Component            | Description                                         |
+| -------------------- | --------------------------------------------------- |
+| **Application**      | Enhanced QApplication with theme/context management |
+| **BaseWindow**       | Framework-integrated QMainWindow base class         |
+| **Store**            | Redux-like state management with middleware         |
+| **ThemeManager**     | YAML-based theming with hot-reload                  |
+| **BabelI18nManager** | Complete internationalization with CLDR support     |
+| **PluginManager**    | Dynamic plugin loading and lifecycle management     |
+| **Validation**       | Input validation with custom validators             |
 
-## i18n Management
+## 🧩 Widget Library
 
-### Adding Translations
+- **Basic**: Labels, Buttons, Inputs, Checkboxes, Badges
+- **Advanced**: DataTable, SearchableList, Charts, Notifications
+- **Dialogs**: ColorPicker, DateTimePicker, FileDialog
+- **Layouts**: FlowLayout, CardLayout, SidebarLayout
 
-```bash
-# Extract translatable strings
-python scripts/i18n_manager.py extract
+## 🤝 Contributing
 
-# Initialize new locale
-python scripts/i18n_manager.py init fr_FR
-
-# Update existing translations
-python scripts/i18n_manager.py update
-
-# Compile translations (automatic with pre-commit)
-python scripts/i18n_manager.py compile
-```
-
-### Translation Workflow
-
-1. Mark strings for translation using `t()` or `_()`
-2. Extract strings: `make i18n-extract`
-3. Edit `.po` files with translations
-4. Translations compile automatically on save (pre-commit hook)
-
-## Contributing
-
-Contributions are welcome! Please read our contributing guidelines and submit pull requests to our repository.
-
-### Development Setup
+Contributions are welcome! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
 1. Fork the repository
-2. Create a feature branch
-3. Install development dependencies: `uv pip install -e ".[dev]"`
-4. Install pre-commit hooks: `pre-commit install`
-5. Make your changes
-6. Run tests: `pytest`
-7. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## Build System
+## 📄 License
 
-```bash
-# Show all available commands
-make help
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-# Common tasks
-make install     # Install dependencies
-make run         # Run the demo application
-make test        # Run tests
-make docs        # Build documentation
-make check       # Run linting and type checking
-```
+## 🙏 Acknowledgments
 
-**Windows users:** Install make via Chocolatey (`choco install make`) or Scoop (`scoop install make`).
+Built with [PySide6](https://wiki.qt.io/Qt_for_Python) and inspired by modern web frameworks like React and Redux.
 
-## License
+---
 
-MIT License - see LICENSE file for details.
-
-## Requirements
-
-- Python 3.10+
-- PySide6 (Qt6)
-- PyYAML (themes)
-- Babel (i18n)
-- watchdog (hot-reload)
-
-## Acknowledgments
-
-Built with PySide6 and inspired by modern UI frameworks.
+**[Documentation](https://qt-framework.readthedocs.io)** • **[Examples](examples/)** • **[Issues](https://github.com/beelzer/QTframework/issues)**
