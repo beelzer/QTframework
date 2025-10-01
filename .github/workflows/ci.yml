@@ -369,8 +369,8 @@ jobs:
             echo "❌ Installation failed with exit code $EXIT_CODE"
 
             # Extract failure details for annotation
-            FAILED_PKG=$(grep -oP 'Failed to build `\K[^`]+' install.log | head -1 || echo "")
-            REQUIRED_BY=$(grep -oP 'help: `\K[^`]+' install.log | head -1 || echo "")
+            FAILED_PKG=$(grep -oP "Failed to build \\\`\\K[^\\\`]+" install.log | head -1 || echo "")
+            REQUIRED_BY=$(grep -oP "help: \\\`\\K[^\\\`]+" install.log | head -1 || echo "")
 
             if [ -n "$FAILED_PKG" ]; then
               if [ -n "$REQUIRED_BY" ]; then
