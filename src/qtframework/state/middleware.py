@@ -22,8 +22,34 @@ def logger_middleware() -> Middleware:
     """Middleware that logs all actions."""
 
     def middleware(store: Store) -> Callable[[Callable], Callable[[Action], Action]]:
+        """Create middleware with access to store.
+
+        Args:
+            store: The Redux store instance
+
+        Returns:
+            Middleware wrapper function
+        """
+
         def next_wrapper(next_dispatch: Callable) -> Callable:
+            """Wrap the next dispatch function.
+
+            Args:
+                next_dispatch: The next dispatch function in the chain
+
+            Returns:
+                Enhanced dispatch function
+            """
+
             def dispatch(action: Action) -> Action:
+                """Dispatch action with logging.
+
+                Args:
+                    action: The action to dispatch
+
+                Returns:
+                    The dispatched action
+                """
                 logger.debug(f"Action: {action.type}")
                 logger.debug(f"Payload: {action.payload}")
                 result: Action = next_dispatch(action)
@@ -38,11 +64,41 @@ def logger_middleware() -> Middleware:
 
 
 def thunk_middleware() -> Middleware:
-    """Middleware for handling thunk actions (functions)."""
+    """Middleware for handling thunk actions (functions).
+
+    Allows dispatching functions that receive dispatch and getState as arguments,
+    enabling async action creators and complex logic before dispatching actions.
+    """
 
     def middleware(store: Store) -> Callable[[Callable], Callable[[Action], Action]]:
+        """Create middleware with access to store.
+
+        Args:
+            store: The Redux store instance
+
+        Returns:
+            Middleware wrapper function
+        """
+
         def next_wrapper(next_dispatch: Callable) -> Callable:
+            """Wrap the next dispatch function.
+
+            Args:
+                next_dispatch: The next dispatch function in the chain
+
+            Returns:
+                Enhanced dispatch function
+            """
+
             def dispatch(action: Action | Callable) -> Any:
+                """Dispatch action or execute thunk function.
+
+                Args:
+                    action: Action object or thunk function to execute
+
+                Returns:
+                    Result of thunk execution or dispatched action
+                """
                 if callable(action) and not isinstance(action, Action):
                     return action(store.dispatch, store.get_state)
                 return next_dispatch(action)
@@ -55,11 +111,41 @@ def thunk_middleware() -> Middleware:
 
 
 def promise_middleware() -> Middleware:
-    """Middleware for handling promise-based async actions."""
+    """Middleware for handling promise-based async actions.
+
+    Automatically dispatches PENDING, SUCCESS, and ERROR actions for AsyncAction
+    instances with promises, following the Redux async action pattern.
+    """
 
     def middleware(store: Store) -> Callable[[Callable], Callable[[Action], Action]]:
+        """Create middleware with access to store.
+
+        Args:
+            store: The Redux store instance
+
+        Returns:
+            Middleware wrapper function
+        """
+
         def next_wrapper(next_dispatch: Callable) -> Callable:
+            """Wrap the next dispatch function.
+
+            Args:
+                next_dispatch: The next dispatch function in the chain
+
+            Returns:
+                Enhanced dispatch function
+            """
+
             def dispatch(action: Action) -> Action:
+                """Dispatch async action with promise handling.
+
+                Args:
+                    action: The action to dispatch
+
+                Returns:
+                    The dispatched action
+                """
                 if isinstance(action, AsyncAction) and action.promise:
                     next_dispatch(
                         Action(
@@ -70,6 +156,11 @@ def promise_middleware() -> Middleware:
                     )
 
                     def on_success(result: Any) -> None:
+                        """Handle promise success.
+
+                        Args:
+                            result: The promise result
+                        """
                         next_dispatch(
                             Action(
                                 type=f"{action.type}_SUCCESS",
@@ -79,6 +170,11 @@ def promise_middleware() -> Middleware:
                         )
 
                     def on_error(error: Any) -> None:
+                        """Handle promise error.
+
+                        Args:
+                            error: The error that occurred
+                        """
                         next_dispatch(
                             Action(
                                 type=f"{action.type}_ERROR",
@@ -103,11 +199,41 @@ def promise_middleware() -> Middleware:
 
 
 def timing_middleware() -> Middleware:
-    """Middleware that measures action processing time."""
+    """Middleware that measures action processing time.
+
+    Logs the execution time of each action dispatch in milliseconds,
+    useful for performance monitoring and optimization.
+    """
 
     def middleware(store: Store) -> Callable[[Callable], Callable[[Action], Action]]:
+        """Create middleware with access to store.
+
+        Args:
+            store: The Redux store instance
+
+        Returns:
+            Middleware wrapper function
+        """
+
         def next_wrapper(next_dispatch: Callable) -> Callable:
+            """Wrap the next dispatch function.
+
+            Args:
+                next_dispatch: The next dispatch function in the chain
+
+            Returns:
+                Enhanced dispatch function
+            """
+
             def dispatch(action: Action) -> Action:
+                """Dispatch action with timing measurement.
+
+                Args:
+                    action: The action to dispatch
+
+                Returns:
+                    The dispatched action
+                """
                 start_time = time.perf_counter()
                 result = next_dispatch(action)
                 elapsed = (time.perf_counter() - start_time) * 1000
@@ -122,11 +248,44 @@ def timing_middleware() -> Middleware:
 
 
 def crash_reporter_middleware() -> Middleware:
-    """Middleware that reports crashes."""
+    """Middleware that reports crashes and dispatches error actions.
+
+    Catches exceptions during action processing, logs them, and dispatches
+    an ERROR_OCCURRED action before re-raising the exception.
+    """
 
     def middleware(store: Store) -> Callable[[Callable], Callable[[Action], Action]]:
+        """Create middleware with access to store.
+
+        Args:
+            store: The Redux store instance
+
+        Returns:
+            Middleware wrapper function
+        """
+
         def next_wrapper(next_dispatch: Callable) -> Callable:
+            """Wrap the next dispatch function.
+
+            Args:
+                next_dispatch: The next dispatch function in the chain
+
+            Returns:
+                Enhanced dispatch function
+            """
+
             def dispatch(action: Action) -> Action:
+                """Dispatch action with error handling.
+
+                Args:
+                    action: The action to dispatch
+
+                Returns:
+                    The dispatched action
+
+                Raises:
+                    Exception: Re-raises any exception that occurs during dispatch
+                """
                 try:
                     return next_dispatch(action)  # type: ignore[no-any-return]
                 except Exception as e:
@@ -148,18 +307,44 @@ def crash_reporter_middleware() -> Middleware:
 
 
 def validation_middleware(validators: dict[str, Callable[[Action], bool]]) -> Middleware:
-    """Middleware that validates actions.
+    """Middleware that validates actions before dispatching.
 
     Args:
-        validators: Dictionary of action validators
+        validators: Dictionary mapping action types to validation functions
 
     Returns:
         Middleware function
     """
 
     def middleware(store: Store) -> Callable[[Callable], Callable[[Action], Action]]:
+        """Create middleware with access to store.
+
+        Args:
+            store: The Redux store instance
+
+        Returns:
+            Middleware wrapper function
+        """
+
         def next_wrapper(next_dispatch: Callable) -> Callable:
+            """Wrap the next dispatch function.
+
+            Args:
+                next_dispatch: The next dispatch function in the chain
+
+            Returns:
+                Enhanced dispatch function
+            """
+
             def dispatch(action: Action) -> Action:
+                """Dispatch action with validation.
+
+                Args:
+                    action: The action to validate and dispatch
+
+                Returns:
+                    The dispatched action, or the original action if validation fails
+                """
                 action_type = action.type if isinstance(action.type, str) else action.type.value
                 validator = validators.get(action_type)
 
@@ -184,8 +369,34 @@ def devtools_middleware() -> Middleware:
     """
 
     def middleware(store: Store) -> Callable[[Callable], Callable[[Action], Action]]:
+        """Create middleware with access to store.
+
+        Args:
+            store: The Redux store instance
+
+        Returns:
+            Middleware wrapper function
+        """
+
         def next_wrapper(next_dispatch: Callable) -> Callable:
+            """Wrap the next dispatch function.
+
+            Args:
+                next_dispatch: The next dispatch function in the chain
+
+            Returns:
+                Enhanced dispatch function
+            """
+
             def dispatch(action: Action) -> Action:
+                """Dispatch action with state snapshot capture.
+
+                Args:
+                    action: The action to dispatch
+
+                Returns:
+                    The dispatched action
+                """
                 prev_state = store.get_state()
                 result = next_dispatch(action)
                 next_state = store.get_state()

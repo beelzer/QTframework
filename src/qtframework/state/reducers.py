@@ -24,6 +24,15 @@ def combine_reducers(reducers: dict[str, Reducer]) -> Reducer:
     """
 
     def combined_reducer(state: dict[str, Any], action: Action) -> dict[str, Any]:
+        """Execute all reducers and combine their results.
+
+        Args:
+            state: Current application state
+            action: Action to process
+
+        Returns:
+            New combined state with updates from all reducers
+        """
         next_state = {}
         has_changed = False
 
@@ -53,6 +62,15 @@ def create_reducer(
     """
 
     def reducer(state: State | None, action: Action) -> State:
+        """Process action and return new state.
+
+        Args:
+            state: Current state (None for initialization)
+            action: Action to process
+
+        Returns:
+            New state after applying action handler
+        """
         if state is None:
             state = copy.deepcopy(initial_state)
 
@@ -90,6 +108,14 @@ class ReducerBuilder:
         """
 
         def decorator(handler: Callable[[State, Action], State]) -> ReducerBuilder:
+            """Register handler for this action type.
+
+            Args:
+                handler: Function to handle the action
+
+            Returns:
+                The builder instance for method chaining
+            """
             self._handlers[action_type] = handler
             return self
 
@@ -172,6 +198,15 @@ def create_slice_reducer(
     action_creators = {}
 
     def slice_reducer(state: Any | None = None, action: Action = Action(type="")) -> Any:
+        """Process actions for this slice.
+
+        Args:
+            state: Current slice state (None for initialization)
+            action: Action to process
+
+        Returns:
+            New slice state after applying action
+        """
         if state is None:
             state = initial_state
         action_type_str = str(action.type)
@@ -188,7 +223,24 @@ def create_slice_reducer(
         action_type = f"{slice_name}/{action_name}"
 
         def make_action_creator(act_type: str) -> Callable[..., Action]:
+            """Create an action creator for this slice.
+
+            Args:
+                act_type: The full action type including slice prefix
+
+            Returns:
+                Action creator function
+            """
+
             def action_creator(payload: Any = None) -> Action:
+                """Create an action with the given payload.
+
+                Args:
+                    payload: Action payload data
+
+                Returns:
+                    Action instance with the specified type and payload
+                """
                 return Action(type=act_type, payload=payload)
 
             return action_creator
