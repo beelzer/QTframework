@@ -278,6 +278,7 @@ class Store(QObject):
             self._subscribers.append(callback)
 
         def unsubscribe() -> None:
+            """Remove the subscriber callback."""
             with self._lock:
                 if callback in self._subscribers:
                     self._subscribers.remove(callback)

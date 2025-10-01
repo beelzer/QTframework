@@ -1,0 +1,22 @@
+# Qt Framework Showcase - Default Configuration
+# This file demonstrates the configuration management features
+
+# Schema version for migration support
+$schema_version: "1.0.0"
+
+# Application settings
+app:
+  name: "Qt Framework Showcase"
+  version: "1.0.0"
+  debug: false
+
+# User interface settings
+ui:
+  theme: "light"  # Available: light, dark, monokai, blue, purple
+  language: "en_US"  # Language code
+  font_size: 12  # Font size in points (8-72)
+
+# Performance settings
+performance:
+  cache_size: 100  # Cache size in MB
+  max_threads: 4  # Maximum number of worker threads

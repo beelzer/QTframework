@@ -264,8 +264,27 @@ def translatable(translation_key: str | None = None, **default_args):
     """
 
     def decorator(func: Callable) -> Callable:
+        """Wrap method to return translated text.
+
+        Args:
+            func: Method to wrap
+
+        Returns:
+            Wrapped method that returns translated text
+        """
+
         @wraps(func)
         def wrapper(self, *args, **kwargs):
+            """Execute method and translate result.
+
+            Args:
+                self: Instance of the class
+                *args: Positional arguments
+                **kwargs: Keyword arguments
+
+            Returns:
+                Translated text or original method result
+            """
             # Get translation
             manager = get_i18n_manager()
             if manager and translation_key:

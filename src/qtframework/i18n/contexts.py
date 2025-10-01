@@ -191,8 +191,25 @@ def translatable_property(context: str | None = None):
     """
 
     def decorator(func: Callable) -> property:
+        """Wrap function as a translatable property.
+
+        Args:
+            func: Function that returns the message ID
+
+        Returns:
+            Property that returns translated string
+        """
+
         @wraps(func)
         def getter(self) -> str:
+            """Get translated value.
+
+            Args:
+                self: Instance of the class
+
+            Returns:
+                Translated string
+            """
             msgid = func(self)
             manager = get_i18n_manager()
 

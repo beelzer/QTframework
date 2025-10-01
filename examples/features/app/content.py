@@ -8,6 +8,8 @@ from PySide6.QtWidgets import QStackedWidget
 
 from .pages.animations import AnimationsPage
 from .pages.buttons import ButtonsPage
+from .pages.config import ConfigPage
+from .pages.config_editor import ConfigEditorPage
 from .pages.dialogs import DialogsPage
 from .pages.display import DisplayPage
 from .pages.forms import FormsPage
@@ -62,6 +64,10 @@ class ContentArea(QStackedWidget):
 
         # State
         self.add_page("State Demo", StatePage(self.parent_window))
+
+        # Configuration
+        self.add_page("Config Overview", ConfigPage(self.parent_window))
+        self.add_page("Config Editor", ConfigEditorPage(self.parent_window))
 
         # Animations
         self.add_page("Transitions", AnimationsPage("transitions"))

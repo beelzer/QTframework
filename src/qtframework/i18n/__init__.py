@@ -36,6 +36,10 @@ from qtframework.i18n.contexts import (
 # Extraction tools
 from qtframework.i18n.extractor import TranslationExtractor, extract_and_update
 
+# New modular components
+from qtframework.i18n.locale_formatter import LocaleFormatter
+from qtframework.i18n.translation_loader import TranslationLoader
+
 # Widget integration
 from qtframework.i18n.widgets import (
     LanguageSelector,
@@ -57,6 +61,7 @@ __all__ = [
     "LanguageSelector",
     "LazyPlural",
     "LazyString",
+    "LocaleFormatter",
     "MessageFormatter",
     "TranslatableAction",
     "TranslatableButton",
@@ -66,6 +71,7 @@ __all__ = [
     "TranslationContext",
     "TranslationExtractor",
     "TranslationHelper",
+    "TranslationLoader",
     "UIContext",
     "_",
     "extract_and_update",

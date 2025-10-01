@@ -312,6 +312,12 @@ def extract_and_update(
 
             # Merge template into existing translations
             def merge_nested(target, source) -> None:
+                """Recursively merge source dictionary into target.
+
+                Args:
+                    target: Target dictionary to merge into
+                    source: Source dictionary to merge from
+                """
                 for key, value in source.items():
                     if key not in target:
                         target[key] = value

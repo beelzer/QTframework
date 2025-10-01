@@ -26,6 +26,13 @@ _original_qt_message_handler: _MessageHandler | None = None
 
 
 def _qt_message_filter(mode: QtMsgType, context: QMessageLogContext, message: str) -> None:
+    """Filter Qt messages to suppress stylesheet parsing warnings.
+
+    Args:
+        mode: Message type (debug, warning, critical, etc.)
+        context: Context information about the message
+        message: The log message
+    """
     if message != "Could not parse application stylesheet" and _original_qt_message_handler:
         _original_qt_message_handler(mode, context, message)
 
@@ -67,6 +74,7 @@ class Application(QApplication):
         self._initialize()
 
     def _install_stylesheet_warning_filter(self) -> None:
+        """Install Qt message handler to filter stylesheet warnings."""
         global _original_qt_message_handler
         if _original_qt_message_handler is None:
             handler = qInstallMessageHandler(_qt_message_filter)

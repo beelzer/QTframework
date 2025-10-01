@@ -29,12 +29,8 @@ class ShowcaseWindow(QMainWindow):
         super().__init__()
         self._setup_managers()
         self._init_ui()
-        # Only apply theme if not already set by Application
-        app = QApplication.instance()
-        current_stylesheet = app.styleSheet() if app else ""
-        if not current_stylesheet:
-            # No theme applied yet, apply initial theme
-            self._apply_initial_theme()
+        # Always apply theme from config.yaml to sync with config file
+        self._apply_initial_theme()
 
     def _setup_managers(self):
         """Initialize framework managers."""
@@ -46,7 +42,53 @@ class ShowcaseWindow(QMainWindow):
             # Fallback in case Application is not used
             resources_path = Path(__file__).parent.parent.parent.parent / "resources"
             self.theme_manager = ThemeManager(resources_path / "themes")
+
+        # Initialize config manager and load from YAML template
         self.config_manager = ConfigManager()
+        config_dir = Path(__file__).parent.parent
+        self.config_file = config_dir / "config.yaml"  # Store path for saving later
+        config_example = config_dir / "config.yaml.example"
+
+        # Copy example to config.yaml if it doesn't exist
+        if not self.config_file.exists() and config_example.exists():
+            try:
+                import shutil
+
+                shutil.copy(config_example, self.config_file)
+                print(f"Created config.yaml from config.yaml.example")
+            except Exception as e:
+                print(f"Warning: Could not copy example config: {e}")
+
+        # Load config file
+        if self.config_file.exists():
+            try:
+                self.config_manager.load_file(self.config_file)
+            except Exception as e:
+                print(f"Warning: Could not load config file: {e}")
+                # Fall back to defaults if file loading fails
+                self._load_default_config()
+        else:
+            self._load_default_config()
+
+    def _load_default_config(self):
+        """Load default configuration as fallback."""
+        self.config_manager.load_defaults({
+            "$schema_version": "1.0.0",
+            "app": {
+                "name": "Qt Framework Showcase",
+                "version": "1.0.0",
+                "debug": False,
+            },
+            "ui": {
+                "theme": "light",
+                "language": "en_US",
+                "font_size": 12,
+            },
+            "performance": {
+                "cache_size": 100,
+                "max_threads": 4,
+            },
+        })
 
         # Create a simple reducer for the demo
         def demo_reducer(state, action):
@@ -110,8 +152,10 @@ class ShowcaseWindow(QMainWindow):
         self.status_bar.showMessage("Qt Framework Showcase - Ready", 5000)
 
     def _apply_initial_theme(self):
-        """Apply the initial theme."""
-        self.apply_theme("light")
+        """Apply the initial theme from config."""
+        # Get theme from config, default to "light" if not set
+        theme_name = self.config_manager.get("ui.theme", "light")
+        self.apply_theme(theme_name)
 
     def apply_theme(self, theme_name: str):
         """Apply the selected theme."""
@@ -120,7 +164,19 @@ class ShowcaseWindow(QMainWindow):
             QApplication.instance().setStyleSheet(stylesheet)
             self.status_bar.showMessage(f"Applied theme: {theme_name}", 3000)
 
+            # Update config with new theme
+            self.config_manager.set("ui.theme", theme_name)
+            self.save_config()
+
             # Update code displays when theme changes
             from .dockwidgets import update_code_display_themes
 
             update_code_display_themes(self)
+
+    def save_config(self):
+        """Save current configuration to file."""
+        if hasattr(self, "config_file") and self.config_file:
+            try:
+                self.config_manager.save(self.config_file)
+            except Exception as e:
+                print(f"Warning: Could not save config file: {e}")

@@ -196,6 +196,12 @@ class Router(QObject):
         """Build route name map."""
 
         def add_to_map(route: Route, parent_path: str = "") -> None:
+            """Recursively add route and children to map.
+
+            Args:
+                route: Route to add
+                parent_path: Path prefix from parent routes
+            """
             full_path = parent_path + route.path
             if route.name:
                 self._route_map[route.name] = route
@@ -299,6 +305,15 @@ class Router(QObject):
         """
 
         def check_route(route: Route, parent_path: str = "") -> Route | None:
+            """Recursively check route and children for match.
+
+            Args:
+                route: Route to check
+                parent_path: Path prefix from parent routes
+
+            Returns:
+                Matching route or None
+            """
             full_path = parent_path + route.path
             matches, _ = route.matches(path)
 

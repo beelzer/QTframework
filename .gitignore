@@ -54,6 +54,9 @@ dmypy.json
 .env.local
 *.log
 
+# User-specific config (example files are committed)
+examples/features/config.yaml
+
 # =====================
 # OS Files
 # =====================

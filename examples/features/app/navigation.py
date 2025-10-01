@@ -63,6 +63,7 @@ class NavigationPanel(QFrame):
             "Theming": ["Theme Switcher", "Color Palette", "Typography", "Spacing"],
             "Forms": ["Basic Form", "Validation", "Complex Form"],
             "State": ["State Demo", "Actions", "Reducers"],
+            "Configuration": ["Config Overview", "Config Editor"],
             "Navigation": ["Router", "Breadcrumbs", "Tabs"],
             "Animations": ["Transitions", "Progress", "Effects"],
             "Internationalization": ["i18n"],

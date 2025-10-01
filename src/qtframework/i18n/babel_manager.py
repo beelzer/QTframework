@@ -4,27 +4,21 @@ from __future__ import annotations
 
 import threading
 from contextlib import contextmanager, suppress
-from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from babel import Locale
-from babel.dates import format_date, format_datetime, format_time
-from babel.numbers import (
-    format_currency,
-    format_decimal,
-    format_number,
-    format_percent,
-    format_scientific,
-)
-from babel.support import LazyProxy, Translations
+from babel.support import LazyProxy
 from PySide6.QtCore import QObject, QSettings, Signal
 
+from qtframework.i18n.locale_formatter import LocaleFormatter
+from qtframework.i18n.translation_loader import TranslationLoader
 from qtframework.utils.logger import get_logger
 
 
 if TYPE_CHECKING:
     from babel.plural import PluralRule
+    from babel.support import Translations
 
 logger = get_logger(__name__)
 
@@ -37,7 +31,6 @@ class BabelI18nManager(QObject):
     - Translation contexts (pgettext)
     - Lazy translations
     - Multiple domains
-    - Fuzzy translation support
     - Locale fallback chains
     - Translation caching
     """
@@ -51,7 +44,6 @@ class BabelI18nManager(QObject):
         domain: str = "qtframework",
         default_locale: str = "en_US",
         fallback_locales: list[str] | None = None,
-        enable_fuzzy: bool = False,
         cache_size: int = 128,
         auto_compile: bool = True,
     ) -> None:
@@ -62,7 +54,6 @@ class BabelI18nManager(QObject):
             domain: The gettext domain (base name of .po files)
             default_locale: Default locale to use
             fallback_locales: List of fallback locales in order
-            enable_fuzzy: Whether to use fuzzy translations
             cache_size: Size of translation cache
             auto_compile: Auto-compile .po to .mo in development (default: True)
         """
@@ -72,25 +63,23 @@ class BabelI18nManager(QObject):
         if locale_dir is None:
             locale_dir = Path(__file__).parent / "locale"
 
-        self.locale_dir = Path(locale_dir)
-        self._domain = domain
         self._current_locale = default_locale
         self._default_locale = default_locale
-        self._fallback_locales = fallback_locales or ["en_US", "en"]
-        self._enable_fuzzy = enable_fuzzy
-        self._auto_compile = auto_compile
-
-        # Translations cache
-        self._translations: dict[str, Translations] = {}
         self._current_translations: Translations | None = None
-        self._translations_lock = threading.RLock()  # Thread-safe access to translations
+
+        # Delegate to specialized components
+        self._translation_loader = TranslationLoader(
+            locale_dir=Path(locale_dir),
+            domain=domain,
+            fallback_locales=fallback_locales or ["en_US", "en"],
+            cache_size=cache_size,
+            auto_compile=auto_compile,
+        )
+        self._formatter = LocaleFormatter(locale=default_locale)
 
         # Locale objects cache
         self._locales: dict[str, Locale] = {}
-        self._locales_lock = threading.RLock()  # Thread-safe access to locales
-
-        # Configure LRU cache for translations
-        self._get_translation_cached = lru_cache(maxsize=cache_size)(self._get_translation_uncached)
+        self._locales_lock = threading.RLock()
 
         # Settings persistence
         self._settings = QSettings()
@@ -98,71 +87,8 @@ class BabelI18nManager(QObject):
         if saved_locale and isinstance(saved_locale, str):
             self._current_locale = saved_locale
 
-        # Auto-compile .po files if needed (development mode)
-        if auto_compile:
-            self._compile_translations()
-
         # Load initial locale
         self.set_locale(self._current_locale)
-
-    def _get_locale_chain(self, locale: str) -> list[str]:
-        """Get the fallback chain for a locale.
-
-        Examples:
-            es_MX -> [es_MX, es, en_US, en]
-            fr_CA -> [fr_CA, fr, en_US, en]
-        """
-        chain = [locale]
-
-        # Add base language if locale has region
-        if "_" in locale:
-            base_lang = locale.split("_", maxsplit=1)[0]
-            if base_lang not in chain:
-                chain.append(base_lang)
-
-        # Add configured fallbacks
-        for fallback in self._fallback_locales:
-            if fallback not in chain:
-                chain.append(fallback)
-
-        return chain
-
-    def _load_translations(self, locale: str) -> Translations | None:
-        """Load translations for a specific locale with fallback support."""
-        with self._translations_lock:
-            if locale in self._translations:
-                return self._translations[locale]
-
-            locale_chain = self._get_locale_chain(locale)
-            base_translation: Translations | None = None
-
-            for loc in locale_chain:
-                locale_path = self.locale_dir / loc / "LC_MESSAGES"
-                if locale_path.exists():
-                    try:
-                        # Load using Babel's support
-                        trans = cast(
-                            "Translations",
-                            Translations.load(
-                                dirname=str(self.locale_dir), locales=[loc], domain=self._domain
-                            ),
-                        )
-
-                        if base_translation is None:
-                            base_translation = trans
-                        else:
-                            # Merge with fallback
-                            base_translation.merge(trans)
-
-                    except Exception as e:
-                        logger.exception(f"Failed to load translations for {loc}: {e}")
-
-            # If no translations found, create null translations
-            if base_translation is None:
-                base_translation = Translations()
-
-            self._translations[locale] = base_translation
-            return base_translation
 
     def _get_locale_object(self, locale_code: str) -> Locale:
         """Get or create a Babel Locale object."""
@@ -181,20 +107,20 @@ class BabelI18nManager(QObject):
         Returns:
             True if locale was set successfully
         """
-        translations = self._load_translations(locale)
+        translations = self._translation_loader.load_translations(locale)
 
         if translations:
-            with self._translations_lock:
-                self._current_translations = translations
-                self._current_locale = locale
+            self._current_translations = translations
+            self._current_locale = locale
+            self._formatter.set_locale(locale)
 
-                # Save to settings
-                self._settings.setValue("i18n/locale", locale)
+            # Save to settings
+            self._settings.setValue("i18n/locale", locale)
 
-                # Clear translation cache when locale changes
-                self._get_translation_cached.cache_clear()
+            # Clear translation cache when locale changes
+            self._translation_loader.clear_cache()
 
-            # Emit signals (outside lock to avoid potential deadlock)
+            # Emit signals
             self.locale_changed.emit(locale)
             self.translations_reloaded.emit()
 
@@ -213,23 +139,11 @@ class BabelI18nManager(QObject):
     @property
     def domain_name(self) -> str:
         """Return the active gettext domain."""
-        return self._domain
+        return self._translation_loader._domain
 
     def get_available_locales(self) -> list[str]:
         """Get list of available locales."""
-        locales = []
-
-        if self.locale_dir.exists():
-            for path in self.locale_dir.iterdir():
-                if path.is_dir():
-                    # Check if it has translation files
-                    mo_file = path / "LC_MESSAGES" / f"{self._domain}.mo"
-                    po_file = path / "LC_MESSAGES" / f"{self._domain}.po"
-
-                    if mo_file.exists() or po_file.exists():
-                        locales.append(path.name)
-
-        return sorted(locales)
+        return self._translation_loader.get_available_locales()
 
     def get_locale_info(self) -> dict[str, dict[str, str]]:
         """Get detailed information about available locales."""
@@ -259,12 +173,6 @@ class BabelI18nManager(QObject):
 
     # Translation methods
 
-    def _get_translation_uncached(self, msgid: str) -> str:
-        """Internal method to get translation without caching."""
-        if self._current_translations:
-            return self._current_translations.ugettext(msgid)
-        return msgid
-
     def t(self, msgid: str, **kwargs) -> str:
         """Translate a message.
 
@@ -275,7 +183,10 @@ class BabelI18nManager(QObject):
         Returns:
             Translated and formatted string
         """
-        translated = self._get_translation_cached(msgid)
+        if self._current_translations:
+            translated = self._current_translations.ugettext(msgid)
+        else:
+            translated = msgid
 
         if kwargs:
             with suppress(KeyError, ValueError):
@@ -388,39 +299,39 @@ class BabelI18nManager(QObject):
         """Lazy translation with context."""
         return LazyProxy(lambda: self.pgettext(context, msgid))
 
-    # Formatting methods using Babel's CLDR data
+    # Formatting methods using Babel's CLDR data (delegate to formatter)
 
     def format_number(self, number: float, **kwargs) -> str:
         """Format number according to locale."""
-        return format_number(number, locale=self._current_locale, **kwargs)
+        return self._formatter.format_number(number, **kwargs)
 
     def format_decimal(self, number: float, **kwargs) -> str:
         """Format decimal according to locale."""
-        return format_decimal(number, locale=self._current_locale, **kwargs)
+        return self._formatter.format_decimal(number, **kwargs)
 
     def format_currency(self, number: float, currency: str, **kwargs) -> str:
         """Format currency according to locale."""
-        return format_currency(number, currency, locale=self._current_locale, **kwargs)
+        return self._formatter.format_currency(number, currency, **kwargs)
 
     def format_percent(self, number: float, **kwargs) -> str:
         """Format percentage according to locale."""
-        return format_percent(number, locale=self._current_locale, **kwargs)
+        return self._formatter.format_percent(number, **kwargs)
 
     def format_scientific(self, number: float, **kwargs) -> str:
         """Format number in scientific notation."""
-        return format_scientific(number, locale=self._current_locale, **kwargs)
+        return self._formatter.format_scientific(number, **kwargs)
 
     def format_date(self, date, format: str = "medium") -> str:
         """Format date according to locale."""
-        return format_date(date, format=format, locale=self._current_locale)
+        return self._formatter.format_date(date, format)
 
     def format_datetime(self, datetime, format: str = "medium") -> str:
         """Format datetime according to locale."""
-        return format_datetime(datetime, format=format, locale=self._current_locale)
+        return self._formatter.format_datetime(datetime, format)
 
     def format_time(self, time, format: str = "medium") -> str:
         """Format time according to locale."""
-        return format_time(time, format=format, locale=self._current_locale)
+        return self._formatter.format_time(time, format)
 
     # Domain support
 
@@ -432,19 +343,19 @@ class BabelI18nManager(QObject):
             with i18n.domain('emails'):
                 subject = i18n.t('welcome_subject')
         """
-        old_domain = self._domain
-        self._domain = domain
+        old_domain = self._translation_loader._domain
+        self._translation_loader._domain = domain
         # Clear cache for new domain
-        self._get_translation_cached.cache_clear()
-        self._translations.clear()
+        self._translation_loader.clear_cache()
+        self._translation_loader.clear_translations()
         self.set_locale(self._current_locale)
 
         try:
             yield
         finally:
-            self._domain = old_domain
-            self._get_translation_cached.cache_clear()
-            self._translations.clear()
+            self._translation_loader._domain = old_domain
+            self._translation_loader.clear_cache()
+            self._translation_loader.clear_translations()
             self.set_locale(self._current_locale)
 
     def get_plural_rule(self) -> PluralRule:
@@ -456,33 +367,6 @@ class BabelI18nManager(QObject):
         """Get plural categories for current locale (zero, one, two, few, many, other)."""
         rule = self.get_plural_rule()
         return list(rule.tags)
-
-    def _compile_translations(self) -> None:
-        """Auto-compile .po files to .mo files if they are newer or missing.
-        Only runs in development mode to avoid runtime overhead.
-        """
-        try:
-            import polib
-
-            for locale_dir in self.locale_dir.iterdir():
-                if locale_dir.is_dir():
-                    po_file = locale_dir / "LC_MESSAGES" / f"{self._domain}.po"
-                    mo_file = locale_dir / "LC_MESSAGES" / f"{self._domain}.mo"
-
-                    if po_file.exists():
-                        # Check if .mo needs updating
-                        if (
-                            not mo_file.exists()
-                            or po_file.stat().st_mtime > mo_file.stat().st_mtime
-                        ):
-                            try:
-                                po = polib.pofile(str(po_file), encoding="utf-8")
-                                po.save_as_mofile(str(mo_file))
-                                logger.debug(f"Compiled {locale_dir.name}: {po_file} -> {mo_file}")
-                            except Exception as e:
-                                logger.warning("Failed to compile %s: %s", po_file, e)
-        except ImportError:
-            logger.debug("polib not available, skipping auto-compilation")
 
 
 # Global instance management

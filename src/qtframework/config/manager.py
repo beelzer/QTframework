@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import copy
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from qtframework.config.config import Config
+from qtframework.config.file_loader import ConfigFileLoader
+from qtframework.config.migrator import ConfigMigrator
+from qtframework.config.validator import ConfigValidator
 from qtframework.utils.exceptions import ConfigurationError
 from qtframework.utils.logger import get_logger
 from qtframework.utils.paths import (
@@ -15,18 +18,16 @@ from qtframework.utils.paths import (
     get_preferred_config_path,
     get_user_config_dir,
 )
-from qtframework.utils.validation import ValidatorChain
-
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
 
 
 logger = get_logger(__name__)
 
 
 class ConfigManager:
-    """Manager for handling configuration from multiple sources."""
+    """Manager for handling configuration from multiple sources.
+
+    Orchestrates file loading, validation, and migration through specialized components.
+    """
 
     def __init__(self) -> None:
         """Initialize config manager."""
@@ -34,43 +35,26 @@ class ConfigManager:
         self._sources: dict[str, Any] = {}
         self._source_metadata: dict[str, dict[str, Any]] = {}
         self._load_order: list[str] = []
-        self._validators: dict[str, ValidatorChain] = {}
-        self._current_schema_version = "1.0.0"
-        self._migration_handlers: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {}
-        self._setup_default_validators()
-        self._setup_schema_migrations()
+
+        # Delegate to specialized components
+        self._file_loader = ConfigFileLoader()
+        self._validator = ConfigValidator()
+        self._migrator = ConfigMigrator()
 
     @property
     def config(self) -> Config:
         """Get configuration object."""
         return self._config
 
-    def _setup_default_validators(self) -> None:
-        """Setup default configuration validators."""
-        from qtframework.utils.validation import (
-            choice_field,
-            number_field,
-            optional_string,
-            required_string,
-        )
+    @property
+    def validator(self) -> ConfigValidator:
+        """Get the configuration validator."""
+        return self._validator
 
-        # Application configuration validators
-        self._validators.update({
-            "app.name": required_string(min_length=1, max_length=100),
-            "app.version": required_string(min_length=1, max_length=20),
-            "app.debug": ValidatorChain(),  # Allow any boolean-like value
-            # Database configuration
-            "database.host": optional_string(max_length=255),
-            "database.port": number_field(min_value=1, max_value=65535),
-            "database.name": optional_string(max_length=100),
-            # UI configuration
-            "ui.theme": choice_field(["light", "dark", "monokai", "blue", "purple", "auto"]),
-            "ui.language": optional_string(max_length=10),
-            "ui.font_size": number_field(min_value=8, max_value=72),
-            # Performance settings
-            "performance.cache_size": number_field(min_value=0, max_value=1000),
-            "performance.max_threads": number_field(min_value=1, max_value=64),
-        })
+    @property
+    def migrator(self) -> ConfigMigrator:
+        """Get the configuration migrator."""
+        return self._migrator
 
     def load_file(self, path: Path | str, format: str = "auto", validate: bool = True) -> bool:
         """Load configuration from file.
@@ -92,25 +76,23 @@ class ConfigManager:
             return False
 
         # Validate file security
-        if not self._validate_config_file_security(path):
+        if not self._file_loader.validate_file_security(path):
             raise ConfigurationError(
                 f"Configuration file failed security validation: {path}", source=str(path)
             )
 
-        resolved_format = format
-        if format == "auto":
-            resolved_format = path.suffix[1:] if path.suffix else "json"
-        else:
-            resolved_format = format
+        resolved_format = (
+            format if format != "auto" else (path.suffix[1:] if path.suffix else "json")
+        )
 
         try:
-            data = self._load_file_data(path, resolved_format)
+            data = self._file_loader.load(path, resolved_format)
 
             # Validate and migrate schema if needed
-            data = self._validate_schema_version(data, str(path))
+            data = self._migrator.validate_and_migrate(data, str(path))
 
             if validate:
-                self._validate_config_data(data, str(path))
+                self._validator.validate(data, str(path))
 
             source_key = str(path)
             self._config.merge(data)
@@ -131,229 +113,6 @@ class ConfigManager:
             raise
         except Exception as e:
             raise ConfigurationError(f"Failed to load config from {path}: {e}", source=str(path))
-
-    def _validate_config_file_security(self, path: Path) -> bool:
-        """Validate configuration file for security concerns.
-
-        Args:
-            path: Configuration file path
-
-        Returns:
-            True if file passes security validation
-        """
-        try:
-            # Check file size (prevent loading huge files)
-            if path.stat().st_size > 10 * 1024 * 1024:  # 10MB limit
-                logger.error("Configuration file too large: %s", path)
-                return False
-
-            # Check file permissions (basic check)
-            if not path.is_file():
-                logger.error("Path is not a file: %s", path)
-                return False
-
-            return True
-        except Exception as e:
-            logger.exception("Error validating config file security: %s", e)
-            return False
-
-    def _load_file_data(self, path: Path, format: str) -> dict[str, Any]:
-        """Load data from configuration file.
-
-        Args:
-            path: File path
-            format: File format
-
-        Returns:
-            Configuration data
-
-        Raises:
-            ConfigurationError: If file loading fails
-        """
-        try:
-            if format == "json":
-                import json
-
-                with Path(path).open(encoding="utf-8") as f:
-                    data = json.load(f)
-            elif format in {"yaml", "yml"}:
-                import yaml
-
-                with Path(path).open(encoding="utf-8") as f:
-                    data = yaml.safe_load(f)
-            elif format == "ini":
-                import configparser
-
-                parser = configparser.ConfigParser()
-                parser.read(path)
-                data = {s: dict(parser.items(s)) for s in parser.sections()}
-            elif format == "env":
-                from dotenv import dotenv_values
-
-                data = dict(dotenv_values(path))
-            else:
-                raise ConfigurationError(f"Unsupported format: {format}", source=str(path))
-
-            if not isinstance(data, dict):
-                raise ConfigurationError(
-                    f"Configuration file must contain a dictionary, got {type(data)}",
-                    source=str(path),
-                )
-
-            return data
-
-        except (json.JSONDecodeError, yaml.YAMLError) as e:
-            raise ConfigurationError(
-                f"Invalid {format.upper()} format in config file: {e}", source=str(path)
-            )
-        except Exception as e:
-            raise ConfigurationError(f"Error reading config file: {e}", source=str(path))
-
-    def _validate_config_data(self, data: dict[str, Any], source: str) -> None:
-        """Validate configuration data.
-
-        Args:
-            data: Configuration data
-            source: Data source identifier
-
-        Raises:
-            ConfigurationError: If validation fails
-        """
-
-        def validate_nested(obj: dict[str, Any], prefix: str = "") -> None:
-            for key, value in obj.items():
-                full_key = f"{prefix}.{key}" if prefix else key
-
-                if isinstance(value, dict):
-                    validate_nested(value, full_key)
-                # Validate individual values
-                elif full_key in self._validators:
-                    try:
-                        result = self._validators[full_key].validate(value, full_key)
-                        if not result.is_valid:
-                            errors = "; ".join(result.get_error_messages())
-                            raise ConfigurationError(
-                                f"Validation failed for '{full_key}': {errors}",
-                                config_key=full_key,
-                                config_value=value,
-                                source=source,
-                            )
-                    except Exception as e:
-                        if isinstance(e, ConfigurationError):
-                            raise
-                        raise ConfigurationError(
-                            f"Validation error for '{full_key}': {e}",
-                            config_key=full_key,
-                            config_value=value,
-                            source=source,
-                        )
-
-        validate_nested(data)
-
-    def _setup_schema_migrations(self) -> None:
-        """Setup schema migration handlers for different versions."""
-
-        # Example migration from 0.9.x to 1.0.0
-        def migrate_0_9_to_1_0(data: dict[str, Any]) -> dict[str, Any]:
-            """Migrate config from version 0.9.x to 1.0.0."""
-            # Example: rename old key names
-            if "ui" in data and "colour" in data["ui"]:
-                data["ui"]["theme"] = data["ui"].pop("colour")
-
-            # Add new required fields with defaults
-            if "performance" not in data:
-                data["performance"] = {"cache_size": 100, "max_threads": 4, "lazy_loading": True}
-
-            return data
-
-        # Register migration handlers
-        self._migration_handlers["0.9.0"] = migrate_0_9_to_1_0
-        self._migration_handlers["0.9.1"] = migrate_0_9_to_1_0
-
-    def _validate_schema_version(self, data: dict[str, Any], source: str) -> dict[str, Any]:
-        """Validate and migrate config schema if needed.
-
-        Args:
-            data: Configuration data
-            source: Data source identifier
-
-        Returns:
-            Migrated configuration data
-
-        Raises:
-            ConfigurationError: If schema validation fails
-        """
-        schema_version = data.get(
-            "$schema_version", "0.9.0"
-        )  # Default to old version if not specified
-
-        # If schema version matches current, no migration needed
-        if schema_version == self._current_schema_version:
-            logger.debug("Config schema version %s is current for %s", schema_version, source)
-            return data
-
-        # Check if migration is possible
-        if schema_version in self._migration_handlers:
-            logger.info(
-                f"Migrating config from schema version {schema_version} to {self._current_schema_version} for {source}"
-            )
-            try:
-                migrated_data = self._migration_handlers[schema_version](data)
-                migrated_data["$schema_version"] = self._current_schema_version
-                return migrated_data
-            except Exception as e:
-                raise ConfigurationError(
-                    f"Failed to migrate config schema from {schema_version} to {self._current_schema_version}: {e}",
-                    source=source,
-                )
-
-        # Check if schema version is newer than supported
-        if self._compare_versions(schema_version, self._current_schema_version) > 0:
-            logger.warning(
-                f"Config schema version {schema_version} is newer than supported {self._current_schema_version} for {source}"
-            )
-            # Allow loading but warn about potential compatibility issues
-            return data
-
-        # Check if schema version is too old and unsupported
-        if self._compare_versions(schema_version, "0.8.0") < 0:
-            raise ConfigurationError(
-                f"Config schema version {schema_version} is too old and unsupported (minimum: 0.8.0)",
-                source=source,
-            )
-
-        # If we get here, it's an unknown version - allow but warn
-        logger.warning(
-            "Unknown config schema version %s for %s, proceeding without migration",
-            schema_version,
-            source,
-        )
-        return data
-
-    def _compare_versions(self, version1: str, version2: str) -> int:
-        """Compare two semantic version strings.
-
-        Args:
-            version1: First version string
-            version2: Second version string
-
-        Returns:
-            -1 if version1 < version2, 0 if equal, 1 if version1 > version2
-        """
-        try:
-            v1 = self._parse_version(version1)
-            v2 = self._parse_version(version2)
-
-            if v1 < v2:
-                return -1
-            if v1 > v2:
-                return 1
-            return 0
-        except (ValueError, IndexError) as e:
-            logger.warning(
-                "Failed to parse version strings '%s' and '%s': %s", version1, version2, e
-            )
-            return 0  # Treat as equal if parsing fails
 
     def _collect_env_data(self, prefix: str = "") -> dict[str, Any]:
         """Collect environment configuration values."""
@@ -411,34 +170,18 @@ class ConfigManager:
             True if saved successfully
         """
         path = Path(path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-
-        if format == "auto":
-            format = path.suffix[1:] if path.suffix else "json"
+        resolved_format = (
+            format if format != "auto" else (path.suffix[1:] if path.suffix else "json")
+        )
 
         try:
             data = self._config.to_dict()
 
             # Ensure schema version is set when saving
             if "$schema_version" not in data:
-                data["$schema_version"] = self._current_schema_version
+                data["$schema_version"] = self._migrator.get_current_version()
 
-            if format == "json":
-                import json
-
-                with Path(path).open("w", encoding="utf-8") as f:
-                    json.dump(data, f, indent=2)
-            elif format in {"yaml", "yml"}:
-                import yaml
-
-                with Path(path).open("w", encoding="utf-8") as f:
-                    yaml.safe_dump(data, f, default_flow_style=False)
-            else:
-                logger.error("Unsupported save format: %s", format)
-                return False
-
-            logger.info("Saved config to: %s", path)
-            return True
+            return self._file_loader.save(path, data, resolved_format)
 
         except Exception as e:
             logger.exception("Failed to save config to %s: %s", path, e)
@@ -460,10 +203,10 @@ class ConfigManager:
                     if not config_path.exists():
                         logger.warning("Configuration source missing: %s", path_str)
                         continue
-                    data = self._load_file_data(config_path, resolved_format)
-                    data = self._validate_schema_version(data, path_str)
+                    data = self._file_loader.load(config_path, resolved_format)
+                    data = self._migrator.validate_and_migrate(data, path_str)
                     if validate:
-                        self._validate_config_data(data, path_str)
+                        self._validator.validate(data, path_str)
                     self._sources[source] = data
                     self._config.merge(data)
                 elif source_type == "env":
@@ -544,10 +287,10 @@ class ConfigManager:
 
         # Ensure defaults have schema version
         if "$schema_version" not in defaults:
-            defaults["$schema_version"] = self._current_schema_version
+            defaults["$schema_version"] = self._migrator.get_current_version()
 
         # Process schema validation for defaults too
-        defaults = self._validate_schema_version(defaults, "defaults")
+        defaults = self._migrator.validate_and_migrate(defaults, "defaults")
 
         defaults_copy = copy.deepcopy(defaults)
         self._config.merge(defaults_copy)
@@ -649,7 +392,7 @@ class ConfigManager:
 
                 # Ensure schema version is included in saved config
                 if "$schema_version" not in filtered_data:
-                    filtered_data["$schema_version"] = self._current_schema_version
+                    filtered_data["$schema_version"] = self._migrator.get_current_version()
                 with Path(config_path).open("w", encoding="utf-8") as f:
                     json.dump(filtered_data, f, indent=2)
                 logger.info("Saved user config to: %s", config_path)
@@ -733,7 +476,7 @@ class ConfigManager:
         Returns:
             Current schema version string
         """
-        return self._current_schema_version
+        return self._migrator.get_current_version()
 
     def get_config_schema_version(self) -> str:
         """Get the schema version of the loaded configuration.
@@ -741,12 +484,10 @@ class ConfigManager:
         Returns:
             Schema version from the configuration, or current version if not set
         """
-        result = self.get("$schema_version", self._current_schema_version)
-        return str(result) if result is not None else self._current_schema_version
+        result = self.get("$schema_version", self._migrator.get_current_version())
+        return str(result) if result is not None else self._migrator.get_current_version()
 
-    def register_migration_handler(
-        self, from_version: str, migration_func: Callable[[dict[str, Any]], dict[str, Any]]
-    ) -> None:
+    def register_migration_handler(self, from_version: str, migration_func) -> None:
         """Register a custom migration handler for a specific version.
 
         Args:
@@ -759,8 +500,7 @@ class ConfigManager:
             ...     return data
             >>> config_manager.register_migration_handler("1.0.0", migrate_1_0_to_1_1)
         """
-        self._migration_handlers[from_version] = migration_func
-        logger.info("Registered migration handler for version %s", from_version)
+        self._migrator.register_handler(from_version, migration_func)
 
     def get_supported_versions(self) -> list[str]:
         """Get list of supported configuration versions.
@@ -768,21 +508,4 @@ class ConfigManager:
         Returns:
             List of version strings that can be migrated
         """
-        versions = [self._current_schema_version]
-        versions.extend(self._migration_handlers.keys())
-        return sorted(set(versions), key=self._parse_version, reverse=True)
-
-    def _parse_version(self, version: str) -> tuple[int, int, int]:
-        """Parse a version string into tuple for comparison.
-
-        Args:
-            version: Version string to parse
-
-        Returns:
-            Tuple of (major, minor, patch) version numbers
-        """
-        try:
-            parts = version.split(".")
-            return (int(parts[0]), int(parts[1]), int(parts[2]) if len(parts) > 2 else 0)
-        except (ValueError, IndexError):
-            return (0, 0, 0)
+        return self._migrator.get_supported_versions()
