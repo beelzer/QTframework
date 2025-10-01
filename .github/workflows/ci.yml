@@ -368,9 +368,9 @@ jobs:
         if: steps.install.outcome == 'failure'
         run: |
           # Extract failed package info from the install output
-          FAILED_PKG=$(grep -oP 'Failed to build `\K[^`]+' install_output.txt | head -1)
-          HELP_MSG=$(grep -oP 'help: `\K[^`]+' install_output.txt | head -1)
-          ERROR_REASON=$(grep -oP 'error: .+' install_output.txt | grep -v "Call to" | head -1)
+          FAILED_PKG=$(grep -oP "Failed to build \`\\K[^\`]+" install_output.txt | head -1)
+          HELP_MSG=$(grep -oP "help: \`\\K[^\`]+" install_output.txt | head -1)
+          ERROR_REASON=$(grep -oP "error: .+" install_output.txt | grep -v "Call to" | head -1)
 
           if [ -n "$FAILED_PKG" ]; then
             MSG="Failed to build: $FAILED_PKG"
