@@ -13,6 +13,7 @@ on:
     branches: [main, master]
     paths:
       - "docs/**"
+      - "src/**"
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -27,18 +28,87 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
-    name: Build Documentation
+  spell-check:
+    name: 📝 Spell Check
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Build documentation
-        uses: ./.github/actions/build-docs
+      - name: Spell check documentation
+        uses: codespell-project/actions-codespell@v2
+        with:
+          path: docs
+          skip: "*.lock,*.min.js,*.min.css,_build"
+
+  link-check:
+    name: 🔗 Link Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: |
+          uv pip install -e ".[docs]" --system
+
+      - name: Check internal links
+        run: |
+          sphinx-build -b linkcheck docs docs/_build/linkcheck 2>&1 | tee linkcheck.log || true
+
+      - name: Parse link check results
+        run: |
+          if grep -q "broken" linkcheck.log; then
+            echo "::warning title=Broken Links::Found broken links in documentation. Check linkcheck.log for details."
+            grep "broken" linkcheck.log | while IFS= read -r line; do
+              echo "::warning::$line"
+            done
+          else
+            echo "✅ No broken links found"
+          fi
+
+  build-html:
+    name: 📚 Build HTML
+    runs-on: ubuntu-latest
+    needs: [spell-check, link-check]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: |
+          uv pip install -e ".[docs]" --system
+
+      - name: Build documentation with annotations
+        run: |
+          python .github/scripts/sphinx_annotate.py -b html docs docs/_build/html
+
+      - name: Create .nojekyll file
+        run: |
+          touch docs/_build/html/.nojekyll
 
       - name: Upload artifact for Pages
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
@@ -46,10 +116,61 @@ jobs:
         with:
           path: docs/_build/html
 
-  deploy:
-    name: Deploy to GitHub Pages
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-html
+          path: docs/_build/html
+          retention-days: 7
+
+  doc-coverage:
+    name: 📊 Doc Coverage
     runs-on: ubuntu-latest
-    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: |
+          uv pip install -e ".[docs]" --system
+          uv pip install interrogate --system
+
+      - name: Check documentation coverage
+        run: |
+          interrogate src/ -v --ignore-init-method --ignore-magic --fail-under=0 --generate-badge docs/_build/ 2>&1 | tee coverage.txt
+
+          # Extract coverage percentage
+          COVERAGE=$(grep -oP '\d+\.\d+%' coverage.txt | tail -1 || echo "0%")
+          echo "Documentation coverage: $COVERAGE"
+          echo "COVERAGE=$COVERAGE" >> "$GITHUB_ENV"
+
+      - name: Create coverage summary
+        run: |
+          {
+            echo "## 📊 Documentation Coverage"
+            echo ""
+            echo "**Coverage:** ${{ env.COVERAGE }}"
+            echo ""
+            echo '```'
+            cat coverage.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    name: 🚀 Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: [build-html, doc-coverage]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
 
     environment:
@@ -60,3 +181,77 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  report:
+    name: 📋 Documentation Summary
+    runs-on: ubuntu-latest
+    needs: [spell-check, link-check, build-html, doc-coverage]
+    if: always()
+
+    steps:
+      - name: Generate documentation summary
+        shell: bash
+        run: |
+          # Helper function to get status emoji
+          get_status_emoji() {
+            case "$1" in
+              success) echo "✅" ;;
+              failure) echo "❌" ;;
+              cancelled) echo "🚫" ;;
+              skipped) echo "⏭️" ;;
+              *) echo "❓" ;;
+            esac
+          }
+
+          # Helper function to get status badge
+          get_status_badge() {
+            case "$1" in
+              success) echo "<img src=\"https://img.shields.io/badge/status-passed-brightgreen\" alt=\"success\" />" ;;
+              failure) echo "<img src=\"https://img.shields.io/badge/status-failed-red\" alt=\"failure\" />" ;;
+              cancelled) echo "<img src=\"https://img.shields.io/badge/status-cancelled-orange\" alt=\"cancelled\" />" ;;
+              skipped) echo "<img src=\"https://img.shields.io/badge/status-skipped-lightgrey\" alt=\"skipped\" />" ;;
+              *) echo "<img src=\"https://img.shields.io/badge/status-unknown-lightgrey\" alt=\"unknown\" />" ;;
+            esac
+          }
+
+          # Calculate overall status
+          all_passed=true
+          [ "${{ needs.spell-check.result }}" != "success" ] && all_passed=false
+          [ "${{ needs.link-check.result }}" != "success" ] && all_passed=false
+          [ "${{ needs.build-html.result }}" != "success" ] && all_passed=false
+          [ "${{ needs.doc-coverage.result }}" != "success" ] && all_passed=false
+
+          {
+            echo "# 📚 Documentation Build Results"
+            echo ""
+
+            if [ "$all_passed" = true ]; then
+              echo "## ✨ All Checks Passed!"
+              echo ""
+              echo "> **Build Status:** 🟢 Documentation ready"
+            else
+              echo "## ⚠️ Issues Detected"
+              echo ""
+              echo "> **Build Status:** 🔴 Requires attention"
+            fi
+
+            echo ""
+            echo "---"
+            echo ""
+            echo "## 📋 Results"
+            echo ""
+            echo "<table>"
+            echo "<tr><td><strong>Quality Checks</strong></td><td></td></tr>"
+            echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;📝 Spell Check</td><td align=\"center\">$(get_status_badge "${{ needs.spell-check.result }}")</td></tr>"
+            echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;🔗 Link Check</td><td align=\"center\">$(get_status_badge "${{ needs.link-check.result }}")</td></tr>"
+            echo "<tr><td><strong>Build</strong></td><td></td></tr>"
+            echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;📚 HTML Build</td><td align=\"center\">$(get_status_badge "${{ needs.build-html.result }}")</td></tr>"
+            echo "<tr><td><strong>Coverage</strong></td><td></td></tr>"
+            echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;📊 Doc Coverage</td><td align=\"center\">$(get_status_badge "${{ needs.doc-coverage.result }}")</td></tr>"
+            echo "</table>"
+            echo ""
+
+            echo "---"
+            echo ""
+            echo "<sub>Generated at $(date -u '+%Y-%m-%d %H:%M:%S UTC') • Commit: \`${GITHUB_SHA:0:7}\`</sub>"
+          } >> "$GITHUB_STEP_SUMMARY"
