@@ -216,7 +216,9 @@ class ConfigPage(DemoPage):
 
     def _on_theme_changed(self, theme_name: str):
         """Handle theme change from theme manager."""
+        # Update config manager with new theme
         self.config_manager.set("ui.theme", theme_name)
+        # Refresh display to show updated config
         self._refresh_config_display()
 
     def page_shown(self):
