@@ -373,7 +373,7 @@ jobs:
             REQUIRED_BY=$(grep -oP "help: \\\`\\K[^\\\`]+" install.log | head -1 || echo "")
 
             if [ -n "$FAILED_PKG" ]; then
-              if [ -n "$REQUIRED_BY" ]; then
+              if [ -n "$REQUIRED_BY" ] && [ "$REQUIRED_BY" != "$FAILED_PKG" ]; then
                 MSG="Cannot build $FAILED_PKG (required by $REQUIRED_BY) on Python 3.14"
               else
                 MSG="Cannot build $FAILED_PKG on Python 3.14"
