@@ -134,6 +134,12 @@ def create_light_theme() -> Theme:
         info="#0000FF",  # Blue
     )
 
+    custom_styles = {
+        'QGroupBox[search-match="true"]': "border: 2px solid #2196F3; border-radius: 4px;",
+        'QLabel[search-match="true"]': "background-color: rgba(33, 150, 243, 0.15); border-radius: 2px; padding: 2px;",
+        'QPushButton[search-match="true"]': "border: 2px solid #2196F3;",
+    }
+
     return Theme(
         name="light",
         display_name="Light",
@@ -141,6 +147,7 @@ def create_light_theme() -> Theme:
         author="Qt Framework",
         version="2.0.0",
         tokens=tokens,
+        custom_styles=custom_styles,
     )
 
 
@@ -355,6 +362,12 @@ def create_dark_theme() -> Theme:
         info="#569CD6",  # Light blue
     )
 
+    custom_styles = {
+        'QGroupBox[search-match="true"]': "border: 2px solid #42A5F5; border-radius: 4px;",
+        'QLabel[search-match="true"]': "background-color: rgba(66, 165, 245, 0.2); border-radius: 2px; padding: 2px;",
+        'QPushButton[search-match="true"]': "border: 2px solid #42A5F5;",
+    }
+
     return Theme(
         name="dark",
         display_name="Dark",
@@ -362,6 +375,7 @@ def create_dark_theme() -> Theme:
         author="Qt Framework",
         version="2.0.0",
         tokens=tokens,
+        custom_styles=custom_styles,
     )
 
 
@@ -497,6 +511,12 @@ def create_high_contrast_theme() -> Theme:
         info="#0000FF",  # Blue
     )
 
+    custom_styles = {
+        'QGroupBox[search-match="true"]': "border: 3px solid #0080FF; border-radius: 4px;",
+        'QLabel[search-match="true"]': "background-color: rgba(0, 128, 255, 0.2); border: 1px solid #0080FF; border-radius: 2px; padding: 2px;",
+        'QPushButton[search-match="true"]': "border: 3px solid #0080FF;",
+    }
+
     return Theme(
         name="high_contrast",
         display_name="High Contrast",
@@ -504,6 +524,7 @@ def create_high_contrast_theme() -> Theme:
         author="Qt Framework",
         version="2.0.0",
         tokens=tokens,
+        custom_styles=custom_styles,
     )
 
 

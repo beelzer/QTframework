@@ -33,6 +33,10 @@ class ConfigEditorPage(DemoPage):
 
             config_manager = ConfigManager()
 
+        # Listen for theme changes to refresh the editor
+        if self.parent_window and hasattr(self.parent_window, "theme_manager"):
+            self.parent_window.theme_manager.theme_changed.connect(self._on_external_theme_change)
+
         # Define fields using the descriptor API
         fields = [
             # App settings group
@@ -142,6 +146,18 @@ class ConfigEditorPage(DemoPage):
                 self.parent_window.theme_manager.set_theme(new_theme)
             except Exception as e:
                 print(f"Error applying theme: {e}")
+
+    def _on_external_theme_change(self, theme_name: str):
+        """Handle theme changes from external sources (menu bar, etc.)."""
+        # Refresh the editor widget to show new theme value
+        if hasattr(self, "editor_widget"):
+            self.editor_widget.refresh_values()
+
+    def page_shown(self):
+        """Called when this page is shown in the content area."""
+        # Refresh editor to show latest values
+        if hasattr(self, "editor_widget"):
+            self.editor_widget.refresh_values()
 
     def _on_config_changed(self):
         """Handle config changes - save to file."""

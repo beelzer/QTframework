@@ -148,12 +148,7 @@ class ConfigEditorWidget(QWidget):
         # Button layout
         btn_layout = QHBoxLayout()
 
-        # Refresh button
-        refresh_btn = Button("Refresh Values", variant=ButtonVariant.SECONDARY)
-        refresh_btn.clicked.connect(self.refresh_values)
-        btn_layout.addWidget(refresh_btn)
-
-        # Apply button
+        # Apply button (removed refresh button - auto-updates now)
         apply_btn = Button("Apply Changes", variant=ButtonVariant.PRIMARY)
         apply_btn.clicked.connect(self.apply_changes)
         btn_layout.addWidget(apply_btn)
@@ -268,6 +263,11 @@ class ConfigEditorWidget(QWidget):
 
         return group
 
+    def showEvent(self, event):
+        """Auto-refresh values when widget becomes visible."""
+        super().showEvent(event)
+        self.refresh_values()
+
     def refresh_values(self) -> None:
         """Refresh all field values from current config."""
         for field in self.fields:
@@ -296,8 +296,6 @@ class ConfigEditorWidget(QWidget):
 
         if self.show_json_view:
             self._update_config_display()
-
-        self.status_label.setText("✓ Values refreshed from configuration")
 
     def apply_changes(self) -> None:
         """Apply changes from widgets to config manager."""

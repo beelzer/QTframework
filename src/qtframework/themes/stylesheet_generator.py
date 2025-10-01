@@ -290,7 +290,7 @@ QComboBox::drop-down {{
 }}
 
 QComboBox::down-arrow {{
-    image: url(resources/icons/dropdown-arrow-filled.svg);
+    image: url(resources/icons/dropdown-arrow.svg);
     width: 16px;
     height: 16px;
 }}

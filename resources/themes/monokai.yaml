@@ -225,4 +225,7 @@ tokens:
     warning: "#FD971F" # orange
     info: "#66D9EF" # cyan
 
-custom_styles: {}
+custom_styles:
+  'QGroupBox[search-match="true"]': "border: 2px solid #66D9EF; border-radius: 4px;"
+  'QLabel[search-match="true"]': "background-color: rgba(102, 217, 239, 0.2); border-radius: 2px; padding: 2px;"
+  'QPushButton[search-match="true"]': "border: 2px solid #66D9EF;"

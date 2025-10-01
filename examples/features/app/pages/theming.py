@@ -55,7 +55,7 @@ class ThemingPage(DemoPage):
 
         layout.addWidget(QLabel("Current Theme:"))
 
-        theme_combo = QComboBox()
+        self.theme_combo = QComboBox()
         if self.parent_window and hasattr(self.parent_window, "theme_manager"):
             theme_manager = self.parent_window.theme_manager
             theme_names = theme_manager.list_themes()
@@ -68,16 +68,27 @@ class ThemingPage(DemoPage):
                     if theme_info
                     else theme_name.replace("_", " ").title()
                 )
-                theme_combo.addItem(display_name, theme_name)  # Store theme_name as data
+                self.theme_combo.addItem(display_name, theme_name)  # Store theme_name as data
+
+            # Set current theme as selected
+            current_theme = theme_manager.get_current_theme()
+            if current_theme:
+                for i in range(self.theme_combo.count()):
+                    if self.theme_combo.itemData(i) == current_theme:
+                        self.theme_combo.setCurrentIndex(i)
+                        break
 
             # Connect to apply theme using the stored data (theme_name)
-            theme_combo.currentIndexChanged.connect(
-                lambda index: self.parent_window.apply_theme(theme_combo.itemData(index))
+            self.theme_combo.currentIndexChanged.connect(
+                lambda index: self.parent_window.apply_theme(self.theme_combo.itemData(index))
             )
-        else:
-            theme_combo.addItems(["Light", "Dark", "Blue", "Green"])
 
-        layout.addWidget(theme_combo)
+            # Listen for theme changes from other sources (menu bar, etc.)
+            theme_manager.theme_changed.connect(self._on_external_theme_change)
+        else:
+            self.theme_combo.addItems(["Light", "Dark", "Blue", "Green"])
+
+        layout.addWidget(self.theme_combo)
 
         live_preview = QCheckBox("Live Preview")
         live_preview.setChecked(True)
@@ -86,6 +97,37 @@ class ThemingPage(DemoPage):
         layout.addStretch()
         group.setLayout(layout)
         self.content_layout.addWidget(group)
+
+    def page_shown(self):
+        """Called when this page is shown in the content area."""
+        self._refresh_theme_dropdown()
+
+    def _on_external_theme_change(self, theme_name: str):
+        """Handle theme changes from external sources (menu bar, etc.)."""
+        self._refresh_theme_dropdown()
+
+    def _refresh_theme_dropdown(self):
+        """Refresh the theme dropdown to match current theme."""
+        if not hasattr(self, "theme_combo"):
+            return
+
+        if not self.parent_window or not hasattr(self.parent_window, "theme_manager"):
+            return
+
+        # Block signals to prevent triggering apply_theme again
+        self.theme_combo.blockSignals(True)
+
+        # Get current theme
+        current_theme = self.parent_window.theme_manager.get_current_theme()
+        if current_theme:
+            # Update dropdown to match current theme
+            for i in range(self.theme_combo.count()):
+                if self.theme_combo.itemData(i) == current_theme.name:
+                    self.theme_combo.setCurrentIndex(i)
+                    break
+
+        # Re-enable signals
+        self.theme_combo.blockSignals(False)
 
     def _create_color_palette(self):
         """Create color palette display."""

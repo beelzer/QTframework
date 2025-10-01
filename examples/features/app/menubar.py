@@ -109,6 +109,10 @@ def _create_theme_menu(window, menu):
     """Create theme menu actions."""
     theme_group = QActionGroup(window)
 
+    # Get current active theme
+    current_theme = window.theme_manager.get_current_theme()
+    current_theme_name = current_theme.name if current_theme else "light"
+
     for theme_name in window.theme_manager.list_themes():
         # Get theme info to get display name
         theme_info = window.theme_manager.get_theme_info(theme_name)
@@ -126,8 +130,8 @@ def _create_theme_menu(window, menu):
         theme_group.addAction(theme_action)
         menu.addAction(theme_action)
 
-        # Check the light theme by default
-        if theme_name == "light":
+        # Check the currently active theme
+        if theme_name == current_theme_name:
             theme_action.setChecked(True)
 
 

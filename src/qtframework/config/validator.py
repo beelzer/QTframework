@@ -23,7 +23,6 @@ class ConfigValidator:
     def _setup_default_validators(self) -> None:
         """Setup default configuration validators."""
         from qtframework.utils.validation import (
-            choice_field,
             number_field,
             optional_string,
             required_string,
@@ -39,7 +38,9 @@ class ConfigValidator:
             "database.port": number_field(min_value=1, max_value=65535),
             "database.name": optional_string(max_length=100),
             # UI configuration
-            "ui.theme": choice_field(["light", "dark", "monokai", "blue", "purple", "auto"]),
+            "ui.theme": optional_string(
+                max_length=50
+            ),  # Allow any theme name since themes can be loaded from files
             "ui.language": optional_string(max_length=10),
             "ui.font_size": number_field(min_value=8, max_value=72),
             # Performance settings

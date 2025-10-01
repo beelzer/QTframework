@@ -57,6 +57,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from PySide6.QtCore import QObject, Signal
+from PySide6.QtGui import QPalette
+from PySide6.QtWidgets import QApplication
 
 from qtframework.themes.builtin_themes import BUILTIN_THEMES
 from qtframework.themes.theme import Theme
@@ -212,29 +214,57 @@ class ThemeManager(QObject):
                 self._themes["light"] = theme
         return theme
 
+    def detect_system_theme(self) -> str:
+        """Detect the system's light/dark mode preference.
+
+        Returns:
+            'dark' if system is in dark mode, 'light' otherwise
+        """
+        app = QApplication.instance()
+        if app:
+            palette = app.palette()
+            # Check if window background is darker than text color
+            bg_color = palette.color(QPalette.ColorRole.Window)
+            # Calculate luminance (perceived brightness)
+            luminance = (
+                0.299 * bg_color.red() + 0.587 * bg_color.green() + 0.114 * bg_color.blue()
+            ) / 255
+            # If luminance is less than 0.5, it's a dark theme
+            if luminance < 0.5:
+                logger.debug("Detected system dark mode")
+                return "dark"
+        logger.debug("Detected system light mode")
+        return "light"
+
     def set_theme(self, theme_name: str) -> bool:
         """Set the current theme.
 
         Args:
-            theme_name: Name of the theme to activate
+            theme_name: Name of the theme to activate (use 'auto' for system theme detection)
 
         Returns:
             True if theme was set successfully
         """
-        if theme_name not in self._themes:
-            logger.error("Theme '%s' not found", theme_name)
+        # Handle auto theme - detect system preference
+        actual_theme_name = theme_name
+        if theme_name == "auto":
+            actual_theme_name = self.detect_system_theme()
+            logger.info("Auto theme: detected system preference as '%s'", actual_theme_name)
+
+        if actual_theme_name not in self._themes:
+            logger.error("Theme '%s' not found", actual_theme_name)
             return False
 
-        if theme_name == self._current_theme_name:
-            logger.debug("Theme '%s' is already active", theme_name)
+        if actual_theme_name == self._current_theme_name:
+            logger.debug("Theme '%s' is already active", actual_theme_name)
             return True
 
         old_theme = self._current_theme_name
-        self._current_theme_name = theme_name
-        logger.info("Theme changed from '%s' to '%s'", old_theme, theme_name)
+        self._current_theme_name = actual_theme_name
+        logger.info("Theme changed from '%s' to '%s'", old_theme, actual_theme_name)
 
-        # Emit signal for theme change
-        self.theme_changed.emit(theme_name)
+        # Emit signal for theme change with the actual theme (not 'auto')
+        self.theme_changed.emit(actual_theme_name)
         return True
 
     def get_stylesheet(self, theme_name: str | None = None) -> str:
@@ -261,9 +291,13 @@ class ThemeManager(QObject):
         """List all available theme names.
 
         Returns:
-            List of theme names
+            List of theme names with 'auto' first
         """
-        return list(self._themes.keys())
+        themes = list(self._themes.keys())
+        # Always put 'auto' first in the list
+        if "auto" not in themes:
+            themes.insert(0, "auto")
+        return themes
 
     def get_theme_info(self, theme_name: str) -> dict[str, str] | None:
         """Get information about a theme.
@@ -274,6 +308,16 @@ class ThemeManager(QObject):
         Returns:
             Theme information dictionary or None
         """
+        # Handle 'auto' theme specially
+        if theme_name == "auto":
+            return {
+                "name": "auto",
+                "display_name": "Auto (System)",
+                "description": "Automatically match system light/dark mode preference",
+                "author": "Qt Framework",
+                "version": "1.0.0",
+            }
+
         theme = self.get_theme(theme_name)
         if not theme:
             return None

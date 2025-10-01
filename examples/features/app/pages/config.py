@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
     QComboBox,
     QFormLayout,
@@ -53,6 +53,9 @@ class ConfigPage(DemoPage):
 
         # Create UI sections (common for both paths)
         self._create_ui()
+
+        # Setup auto-refresh timer for config display
+        self._setup_auto_refresh()
 
     def _sync_config_with_theme(self):
         """Sync config theme value with actual active theme."""
@@ -119,12 +122,8 @@ class ConfigPage(DemoPage):
         self._refresh_config_display()
         layout.addWidget(self.config_display)
 
-        # Action buttons
+        # Action buttons (removed refresh button - auto-updates now)
         btn_layout = QHBoxLayout()
-
-        reload_btn = Button("Refresh Display", variant=ButtonVariant.SECONDARY)
-        reload_btn.clicked.connect(self._reload_config)
-        btn_layout.addWidget(reload_btn)
 
         load_btn = Button("Load from File...", variant=ButtonVariant.SECONDARY)
         load_btn.clicked.connect(self._load_config)
@@ -209,6 +208,28 @@ class ConfigPage(DemoPage):
 
         return widget
 
+    def _setup_auto_refresh(self):
+        """Setup automatic refresh of config display on events."""
+        # Connect to theme manager changes if available
+        if self.parent_window and hasattr(self.parent_window, "theme_manager"):
+            self.parent_window.theme_manager.theme_changed.connect(self._on_theme_changed)
+
+    def _on_theme_changed(self, theme_name: str):
+        """Handle theme change from theme manager."""
+        self.config_manager.set("ui.theme", theme_name)
+        self._refresh_config_display()
+
+    def page_shown(self):
+        """Called when this page is shown in the content area."""
+        # Sync config with current theme when page is shown
+        if self.parent_window and hasattr(self.parent_window, "theme_manager"):
+            current_theme = self.parent_window.theme_manager.get_current_theme()
+            if current_theme:
+                stored_theme = self.config_manager.get("ui.theme")
+                if stored_theme != current_theme.name:
+                    self.config_manager.set("ui.theme", current_theme.name)
+        self._refresh_config_display()
+
     def _get_current_theme(self) -> str:
         """Get the currently active theme from theme manager."""
         if self.parent_window and hasattr(self.parent_window, "theme_manager"):
@@ -216,13 +237,6 @@ class ConfigPage(DemoPage):
             if current_theme:
                 return current_theme.name
         return self.config_manager.get("ui.theme", "light")
-
-    def _reload_config(self):
-        """Reload and display config - just refresh the display from current state."""
-        # Don't call config_manager.reload() as there are no files to reload from
-        # Just refresh the UI to show current state
-        self._refresh_config_display()
-        self.status_label.setText("✓ Display refreshed")
 
     def _refresh_config_display(self):
         """Refresh the config display in the manager demo section."""

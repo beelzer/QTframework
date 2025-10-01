@@ -1,0 +1,245 @@
+name: nord
+display_name: Nord
+description: A cool, arctic-inspired theme with aurora-like accent colors
+author: Qt Framework
+version: 1.0.0
+
+tokens:
+  primitive:
+    # Nord Polar Night (dark backgrounds)
+    gray_50: "#2E3440" # darkest
+    gray_100: "#3B4252" # dark
+    gray_200: "#434C5E" # medium dark
+    gray_300: "#4C566A" # medium
+    gray_400: "#5E6E8A" # medium light
+    gray_500: "#7A8BA0" # light
+    gray_600: "#97A6BA" # lighter
+    gray_700: "#B4C0D4" # very light
+    gray_800: "#D8DEE9" # near white
+    gray_900: "#E5E9F0" # lighter white
+    gray_950: "#ECEFF4" # lightest white
+
+    # Nord Frost (blues/teals) - Primary
+    primary_50: "#1A2A3A"
+    primary_100: "#264050"
+    primary_200: "#335566"
+    primary_300: "#406A7C"
+    primary_400: "#5E81AC" # Nord9 - blue
+    primary_500: "#81A1C1" # Nord10 - lighter blue
+    primary_600: "#88C0D0" # Nord7 - frost teal
+    primary_700: "#8FBCBB" # Nord8 - frost cyan
+    primary_800: "#A3D4E0"
+    primary_900: "#B7E2EB"
+    primary_950: "#CBF0F6"
+
+    # Nord Aurora Green - Secondary
+    secondary_50: "#1A2A1A"
+    secondary_100: "#263826"
+    secondary_200: "#334633"
+    secondary_300: "#405440"
+    secondary_400: "#6A8A6A"
+    secondary_500: "#8FBCAF" # Nord14 - aurora green
+    secondary_600: "#A3BE8C" # slightly adjusted
+    secondary_700: "#B7CCAA"
+    secondary_800: "#CBD9C2"
+    secondary_900: "#DFE6D9"
+    secondary_950: "#F3F4F1"
+
+    # Nord Aurora Red - Error
+    error_50: "#3D1A1A"
+    error_100: "#522626"
+    error_200: "#663333"
+    error_300: "#7A4040"
+    error_400: "#A05A5A"
+    error_500: "#BF616A" # Nord11 - aurora red
+    error_600: "#CC7680"
+    error_700: "#D98B96"
+    error_800: "#E6A0AC"
+    error_900: "#F2B5C2"
+    error_950: "#FFCAD8"
+
+    # Nord Aurora Orange - Warning
+    warning_50: "#3D2A1A"
+    warning_100: "#523826"
+    warning_200: "#664633"
+    warning_300: "#7A5440"
+    warning_400: "#A07060"
+    warning_500: "#D08770" # Nord12 - aurora orange
+    warning_600: "#D99B85"
+    warning_700: "#E2AF9A"
+    warning_800: "#EBC3AF"
+    warning_900: "#F4D7C4"
+    warning_950: "#FDEBD9"
+
+    # Nord Aurora Yellow/Purple - Info
+    info_50: "#2A2A3D"
+    info_100: "#383852"
+    info_200: "#464666"
+    info_300: "#54547A"
+    info_400: "#7070A0"
+    info_500: "#B48EAD" # Nord15 - aurora purple
+    info_600: "#C4A2BD"
+    info_700: "#D4B6CD"
+    info_800: "#E4CADD"
+    info_900: "#F4DEED"
+    info_950: "#FFF2FD"
+
+    # Success - using aurora green
+    success_50: "#1A2A1A"
+    success_500: "#A3BE8C" # Nord14
+
+    white: "#ECEFF4"
+    black: "#2E3440"
+    transparent: "transparent"
+
+  semantic:
+    # Backgrounds - using Polar Night
+    bg_primary: "#2E3440"
+    bg_secondary: "#3B4252"
+    bg_tertiary: "#434C5E"
+    bg_elevated: "#3B4252"
+    bg_overlay: "rgba(46, 52, 64, 0.8)"
+
+    # Foreground - using Snow Storm
+    fg_primary: "#ECEFF4"
+    fg_secondary: "#D8DEE9"
+    fg_tertiary: "#B4C0D4"
+    fg_on_accent: "#2E3440"
+    fg_on_dark: "#ECEFF4"
+    fg_on_light: "#2E3440"
+
+    # Interactive - using Frost colors
+    action_primary: "#88C0D0"
+    action_primary_hover: "#8FBCBB"
+    action_primary_active: "#81A1C1"
+    action_secondary: "#5E81AC"
+    action_secondary_hover: "#81A1C1"
+    action_secondary_active: "#88C0D0"
+
+    # Feedback - using Aurora colors
+    feedback_success: "#A3BE8C"
+    feedback_warning: "#D08770"
+    feedback_error: "#BF616A"
+    feedback_info: "#B48EAD"
+
+    # Borders
+    border_default: "#4C566A"
+    border_subtle: "#3B4252"
+    border_strong: "#5E6E8A"
+    border_focus: "#88C0D0"
+
+    # States
+    state_hover: "#434C5E"
+    state_selected: "#5E81AC"
+    state_disabled: "#4C566A"
+    state_focus: "#88C0D0"
+
+  components:
+    # Buttons
+    button_primary_bg: "#88C0D0"
+    button_primary_fg: "#2E3440"
+    button_primary_border: "#88C0D0"
+    button_secondary_bg: "#4C566A"
+    button_secondary_fg: "#ECEFF4"
+    button_secondary_border: "#5E6E8A"
+
+    # Inputs
+    input_bg: "#3B4252"
+    input_fg: "#ECEFF4"
+    input_border: "#4C566A"
+    input_placeholder: "#7A8BA0"
+
+    # Tables
+    table_header_bg: "#3B4252"
+    table_header_fg: "#ECEFF4"
+    table_row_bg: "#2E3440"
+    table_row_bg_alt: "#3B4252"
+    table_row_hover: "#434C5E"
+    table_row_selected: "#5E81AC"
+    table_border: "#4C566A"
+
+    # Menus
+    menu_bg: "#3B4252"
+    menu_fg: "#ECEFF4"
+    menu_hover_bg: "#434C5E"
+    menu_hover_fg: "#ECEFF4"
+    menu_selected_bg: "#5E81AC"
+    menu_selected_fg: "#ECEFF4"
+
+    # Scrollbars
+    scrollbar_bg: "#3B4252"
+    scrollbar_thumb: "#4C566A"
+    scrollbar_thumb_hover: "#5E6E8A"
+
+    # Tabs
+    tab_bg: "#3B4252"
+    tab_fg: "#D8DEE9"
+    tab_active_bg: "#2E3440"
+    tab_active_fg: "#88C0D0"
+    tab_hover_bg: "#434C5E"
+    tab_hover_fg: "#ECEFF4"
+
+    # Charts
+    chart_1: "#88C0D0" # frost cyan
+    chart_2: "#A3BE8C" # aurora green
+    chart_3: "#EBCB8B" # aurora yellow
+    chart_4: "#D08770" # aurora orange
+    chart_5: "#B48EAD" # aurora purple
+    chart_6: "#BF616A" # aurora red
+    chart_grid: "#4C566A"
+    chart_axis: "#7A8BA0"
+
+    # Badges
+    badge_primary_bg: "#88C0D0"
+    badge_primary_fg: "#2E3440"
+    badge_primary_border: "#88C0D0"
+
+    badge_success_bg: "#A3BE8C"
+    badge_success_fg: "#2E3440"
+    badge_success_border: "#A3BE8C"
+
+    badge_warning_bg: "#D08770"
+    badge_warning_fg: "#2E3440"
+    badge_warning_border: "#D08770"
+
+    badge_danger_bg: "#BF616A"
+    badge_danger_fg: "#ECEFF4"
+    badge_danger_border: "#BF616A"
+
+    badge_info_bg: "#B48EAD"
+    badge_info_fg: "#2E3440"
+    badge_info_border: "#B48EAD"
+
+    badge_light_bg: "#D8DEE9"
+    badge_light_fg: "#2E3440"
+    badge_light_border: "#D8DEE9"
+
+    badge_dark_bg: "#2E3440"
+    badge_dark_fg: "#ECEFF4"
+    badge_dark_border: "#4C566A"
+
+  typography:
+    font_family_code: "JetBrains Mono"
+
+  syntax:
+    keyword: "#81A1C1" # frost blue
+    class_name: "#8FBCBB" # frost cyan
+    function: "#88C0D0" # frost teal
+    string: "#A3BE8C" # aurora green
+    comment: "#616E88" # muted gray-blue
+    number: "#B48EAD" # aurora purple
+    operator: "#81A1C1" # frost blue
+    decorator: "#D08770" # aurora orange
+    constant: "#5E81AC" # dark frost blue
+    variable: "#D8DEE9" # snow storm
+    parameter: "#EBCB8B" # aurora yellow
+    type: "#8FBCBB" # frost cyan
+    namespace: "#88C0D0" # frost teal
+    error: "#BF616A" # aurora red
+    warning: "#D08770" # aurora orange
+    info: "#B48EAD" # aurora purple
+
+custom_styles:
+  'QGroupBox[search-match="true"]': "border: 2px solid #88C0D0; border-radius: 4px;"
+  'QLabel[search-match="true"]': "background-color: rgba(136, 192, 208, 0.2); border-radius: 2px; padding: 2px;"
+  'QPushButton[search-match="true"]': "border: 2px solid #88C0D0;"
