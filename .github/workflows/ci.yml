@@ -372,8 +372,12 @@ jobs:
             FAILED_PKG=$(grep -oP "Failed to build \\\`\\K[^\\\`]+" install.log | head -1 || echo "")
             REQUIRED_BY=$(grep -oP "help: \\\`\\K[^\\\`]+" install.log | head -1 || echo "")
 
+            # Extract just the package name without version for comparison
+            FAILED_PKG_NAME=$(echo "$FAILED_PKG" | sed 's/==.*//')
+            REQUIRED_BY_NAME=$(echo "$REQUIRED_BY" | sed 's/==.*//')
+
             if [ -n "$FAILED_PKG" ]; then
-              if [ -n "$REQUIRED_BY" ] && [ "$REQUIRED_BY" != "$FAILED_PKG" ]; then
+              if [ -n "$REQUIRED_BY" ] && [ "$REQUIRED_BY_NAME" != "$FAILED_PKG_NAME" ]; then
                 MSG="Cannot build $FAILED_PKG (required by $REQUIRED_BY) on Python 3.14"
               else
                 MSG="Cannot build $FAILED_PKG on Python 3.14"
