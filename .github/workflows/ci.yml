@@ -396,7 +396,7 @@ jobs:
           DISPLAY: :99
           PYTHONDONTWRITEBYTECODE: 1
         run: |
-          python .github/scripts/pytest_future_python.py tests/ -v
+          python .github/scripts/pytest_annotate.py tests/ -v
 
   report:
     name: 📋 CI Summary
