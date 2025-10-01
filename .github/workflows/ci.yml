@@ -325,31 +325,72 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Setup environment
-        id: setup
-        continue-on-error: true
-        uses: ./.github/actions/setup-environment
+      - name: Set up Python 3.14
+        id: python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.14"
-          allow-prereleases: "true"
-          install-type: "dev"
+          allow-prereleases: true
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install Qt dependencies (Linux)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgl1-mesa-dri \
+            libglib2.0-0 \
+            libegl1 \
+            libxcb-xinerama0 \
+            libxcb-icccm4 \
+            libxcb-image0 \
+            libxcb-keysyms1 \
+            libxcb-randr0 \
+            libxcb-render-util0 \
+            libxcb-shape0 \
+            libxkbcommon-x11-0 \
+            libdbus-1-3 \
+            xvfb \
+            x11-utils
+
+      - name: Install Python dependencies
+        id: install
+        continue-on-error: true
         env:
           PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+        run: |
+          uv pip install -e ".[dev]" --system 2>&1 | tee install_output.txt
 
       - name: Annotate setup failure
-        if: steps.setup.outcome == 'failure'
+        if: steps.install.outcome == 'failure'
         run: |
-          echo "::warning title=Future Python Compatibility::Failed to set up Python 3.14 environment. Some dependencies may not be compatible yet."
+          # Extract failed package info from the install output
+          FAILED_PKG=$(grep -oP 'Failed to build `\K[^`]+' install_output.txt | head -1)
+          HELP_MSG=$(grep -oP 'help: `\K[^`]+' install_output.txt | head -1)
+          ERROR_REASON=$(grep -oP 'error: .+' install_output.txt | grep -v "Call to" | head -1)
+
+          if [ -n "$FAILED_PKG" ]; then
+            MSG="Failed to build: $FAILED_PKG"
+            [ -n "$HELP_MSG" ] && MSG="$MSG (needed by: $HELP_MSG)"
+            [ -n "$ERROR_REASON" ] && MSG="$MSG - $ERROR_REASON"
+          else
+            MSG="Failed to set up Python 3.14 environment. Some dependencies may not be compatible yet."
+          fi
+
+          echo "::warning title=Future Python Compatibility::$MSG"
 
       - name: Setup display for GUI tests
-        if: steps.setup.outcome == 'success'
+        if: steps.install.outcome == 'success'
         run: |
           export DISPLAY=:99
           sudo Xvfb :99 -screen 0 1920x1080x24 &
           sleep 3
 
       - name: Run tests
-        if: steps.setup.outcome == 'success'
+        if: steps.install.outcome == 'success'
         env:
           QT_QPA_PLATFORM: offscreen
           DISPLAY: :99
