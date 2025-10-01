@@ -373,8 +373,8 @@ jobs:
             REQUIRED_BY=$(grep -oP "help: \\\`\\K[^\\\`]+" install.log | head -1 || echo "")
 
             # Extract just the package name without version for comparison
-            FAILED_PKG_NAME=$(echo "$FAILED_PKG" | sed 's/==.*//')
-            REQUIRED_BY_NAME=$(echo "$REQUIRED_BY" | sed 's/==.*//')
+            FAILED_PKG_NAME="${FAILED_PKG%%==*}"
+            REQUIRED_BY_NAME="${REQUIRED_BY%%==*}"
 
             if [ -n "$FAILED_PKG" ]; then
               if [ -n "$REQUIRED_BY" ] && [ "$REQUIRED_BY_NAME" != "$FAILED_PKG_NAME" ]; then
