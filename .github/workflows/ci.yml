@@ -362,10 +362,14 @@ jobs:
         env:
           PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
         run: |
-          uv pip install -e ".[dev]" --system 2>&1 | tee install_output.txt
+          if uv pip install -e ".[dev]" --system 2>&1 | tee install_output.txt; then
+            echo "INSTALL_SUCCESS=true" >> "$GITHUB_ENV"
+          else
+            echo "INSTALL_SUCCESS=false" >> "$GITHUB_ENV"
+          fi
 
       - name: Annotate setup failure
-        if: steps.install.outcome == 'failure'
+        if: env.INSTALL_SUCCESS == 'false'
         run: |
           # Extract failed package info from the install output
           FAILED_PKG=$(grep -oP "Failed to build \`\\K[^\`]+" install_output.txt | head -1)
@@ -383,14 +387,14 @@ jobs:
           echo "::warning title=Future Python Compatibility::$MSG"
 
       - name: Setup display for GUI tests
-        if: steps.install.outcome == 'success'
+        if: env.INSTALL_SUCCESS == 'true'
         run: |
           export DISPLAY=:99
           sudo Xvfb :99 -screen 0 1920x1080x24 &
           sleep 3
 
       - name: Run tests
-        if: steps.install.outcome == 'success'
+        if: env.INSTALL_SUCCESS == 'true'
         env:
           QT_QPA_PLATFORM: offscreen
           DISPLAY: :99
