@@ -138,6 +138,7 @@ class Config(QObject):
         self._watchers[key].append(callback)
 
         def unwatch() -> None:
+            """Remove the watcher callback."""
             if key in self._watchers and callback in self._watchers[key]:
                 self._watchers[key].remove(callback)
 
@@ -237,6 +238,15 @@ class Config(QObject):
         """
 
         def extract_keys(data: dict, parent: str = "") -> list[str]:
+            """Recursively extract all config keys.
+
+            Args:
+                data: Dictionary to extract keys from
+                parent: Parent key path
+
+            Returns:
+                List of dot-separated keys
+            """
             keys = []
             for key, value in data.items():
                 full_key = f"{parent}.{key}" if parent else key
