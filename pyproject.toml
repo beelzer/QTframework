@@ -215,6 +215,8 @@ unfixable = ["F401"]  # Don't auto-remove imports
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
     "S101",     # assert is expected in tests
+    "S105",     # hardcoded password false positives (test strings)
+    "S110",     # try-except-pass ok in test cleanup
     "ARG",      # unused arguments in fixtures
     "D",        # no docstrings needed in tests
     "ANN",      # no type annotations needed in tests
