@@ -7,9 +7,11 @@ system and stylesheets, making it easier to apply theme-aware styles to widgets.
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from PySide6.QtWidgets import QApplication, QWidget
+
+if TYPE_CHECKING:
+    from PySide6.QtWidgets import QWidget
 
 
 def set_widget_property(

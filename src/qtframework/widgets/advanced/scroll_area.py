@@ -6,10 +6,14 @@ like dynamic margin adjustment for scrollbars.
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QEvent, Qt, QTimer
-from PySide6.QtWidgets import QScrollArea, QWidget
+from PySide6.QtCore import QEvent, QTimer
+from PySide6.QtWidgets import QScrollArea
+
+
+if TYPE_CHECKING:
+    from PySide6.QtWidgets import QWidget
 
 
 class DynamicScrollArea(QScrollArea):
@@ -172,8 +176,8 @@ class DynamicScrollArea(QScrollArea):
         v_bar = self.verticalScrollBar() if self._track_vertical else None
         h_bar = self.horizontalScrollBar() if self._track_horizontal else None
 
-        if watched in (v_bar, h_bar):
-            if event.type() in (QEvent.Show, QEvent.Hide):
+        if watched in {v_bar, h_bar}:
+            if event.type() in {QEvent.Show, QEvent.Hide}:
                 # Scrollbar visibility changed, adjust margins
                 if self._adjustment_enabled:
                     self._adjustment_timer.start(10)

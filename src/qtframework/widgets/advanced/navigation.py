@@ -6,12 +6,11 @@ with search and filtering capabilities.
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import TYPE_CHECKING
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QAction, QIcon
+from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QFrame,
     QLabel,
@@ -19,11 +18,19 @@ from PySide6.QtWidgets import (
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
-    QWidget,
 )
 
-from qtframework.utils.search import SearchHighlighter, collect_searchable_text
+# SearchHighlighter and collect_searchable_text are available for use
 from qtframework.utils.styling import set_heading_level
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from PySide6.QtGui import QIcon
+    from PySide6.QtWidgets import (
+        QWidget,
+    )
 
 
 @dataclass

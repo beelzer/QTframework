@@ -24,7 +24,10 @@
       "Bash(ren:*)",
       "Bash(gh run:*)",
       "Bash(gh pr:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(markdownlint:*)",
+      "Bash(npx --yes markdownlint-cli . --config pyproject.toml --configPointer /tool/markdownlint --ignore node_modules --json)",
+      "Bash(npx --yes markdownlint-cli README.md --json)"
     ],
     "deny": [],
     "ask": []

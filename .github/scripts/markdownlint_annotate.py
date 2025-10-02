@@ -65,15 +65,18 @@ def main() -> int:
             check=False,
         )
 
-        if not result.stdout.strip():
-            return result.returncode
+        # Markdownlint outputs JSON to stderr when there are errors, stdout when there are none
+        json_output = result.stderr if result.stderr.strip() else result.stdout
+
+        if not json_output.strip():
+            # No violations found
+            return 0
 
         try:
-            violations = json.loads(result.stdout)
+            violations = json.loads(json_output)
         except json.JSONDecodeError:
             print("Failed to parse markdownlint JSON output", file=sys.stderr)
-            if result.stderr:
-                print(result.stderr, file=sys.stderr)
+            print(f"Output: {json_output[:500]}", file=sys.stderr)
             return result.returncode
 
         # violations is an array of error objects

@@ -6,10 +6,7 @@ and color information.
 
 from __future__ import annotations
 
-from typing import Optional
-
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
@@ -285,7 +282,7 @@ class ColorPaletteWidget(QWidget):
         else:
             layout = QVBoxLayout()
 
-        for color, name, description in colors:
+        for color, name, _description in colors:
             item_widget = QWidget()
             item_widget.setStyleSheet("background: transparent;")
             item_widget.setFixedSize(100, 100)

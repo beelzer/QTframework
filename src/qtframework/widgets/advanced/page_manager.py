@@ -6,12 +6,15 @@ stacked layouts and transitions.
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from enum import Enum
-from typing import Optional, Union
+from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QTimer, Signal
 from PySide6.QtWidgets import QStackedWidget, QWidget
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class PageTransition(Enum):

@@ -6,11 +6,15 @@ and automatic height adjustment.
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QRegularExpression, Qt
 from PySide6.QtGui import QColor, QFont, QPalette, QSyntaxHighlighter, QTextCharFormat
-from PySide6.QtWidgets import QApplication, QTextEdit, QWidget
+from PySide6.QtWidgets import QApplication, QTextEdit
+
+
+if TYPE_CHECKING:
+    from PySide6.QtWidgets import QWidget
 
 
 class CodeHighlighter(QSyntaxHighlighter):
@@ -300,7 +304,7 @@ class JavaScriptHighlighter(CodeHighlighter):
 
 
 class CodeDisplay(QTextEdit):
-    """Widget for displaying code with syntax highlighting.
+    r"""Widget for displaying code with syntax highlighting.
 
     Automatically adjusts height to fit content without vertical scrolling,
     and provides horizontal scrolling for long lines.
@@ -356,7 +360,7 @@ class CodeDisplay(QTextEdit):
         """Create the appropriate syntax highlighter for the language."""
         if self.language == "python":
             return PythonHighlighter(self.document())
-        if self.language in ("javascript", "js"):
+        if self.language in {"javascript", "js"}:
             return JavaScriptHighlighter(self.document())
         return None
 

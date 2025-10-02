@@ -6,8 +6,7 @@ in widget hierarchies.
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import Optional
+from typing import TYPE_CHECKING
 
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -16,10 +15,17 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QPushButton,
     QRadioButton,
-    QWidget,
 )
 
 from qtframework.utils.styling import refresh_widget_style
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from PySide6.QtWidgets import (
+        QWidget,
+    )
 
 
 class SearchHighlighter:
@@ -102,7 +108,7 @@ class SearchHighlighter:
         Args:
             root_widget: The root widget to clear highlights from
         """
-        for widget_type in self.supported_widgets.keys():
+        for widget_type in self.supported_widgets:
             for widget in root_widget.findChildren(widget_type):
                 widget.setProperty(self.property_name, False)
                 refresh_widget_style(widget)
@@ -164,12 +170,10 @@ def collect_searchable_text(widget: QWidget, include_placeholders: bool = True) 
     Returns:
         Concatenated searchable text
     """
-    searchable_text = []
-
     # Add section titles from QGroupBox
-    for group_box in widget.findChildren(QGroupBox):
-        if group_box.title():
-            searchable_text.append(group_box.title())
+    searchable_text = [
+        group_box.title() for group_box in widget.findChildren(QGroupBox) if group_box.title()
+    ]
 
     # Add text from labels
     for label in widget.findChildren(QLabel):
@@ -178,23 +182,25 @@ def collect_searchable_text(widget: QWidget, include_placeholders: bool = True) 
             searchable_text.append(text)
 
     # Add button text
-    for button in widget.findChildren(QPushButton):
-        if button.text():
-            searchable_text.append(button.text())
+    searchable_text.extend(
+        button.text() for button in widget.findChildren(QPushButton) if button.text()
+    )
 
     if include_placeholders:
         # Add placeholder text from line edits
-        for line_edit in widget.findChildren(QLineEdit):
-            if line_edit.placeholderText():
-                searchable_text.append(line_edit.placeholderText())
+        searchable_text.extend(
+            line_edit.placeholderText()
+            for line_edit in widget.findChildren(QLineEdit)
+            if line_edit.placeholderText()
+        )
 
     # Add checkbox/radio button text
-    for checkbox in widget.findChildren(QCheckBox):
-        if checkbox.text():
-            searchable_text.append(checkbox.text())
+    searchable_text.extend(
+        checkbox.text() for checkbox in widget.findChildren(QCheckBox) if checkbox.text()
+    )
 
-    for radio in widget.findChildren(QRadioButton):
-        if radio.text():
-            searchable_text.append(radio.text())
+    searchable_text.extend(
+        radio.text() for radio in widget.findChildren(QRadioButton) if radio.text()
+    )
 
     return " ".join(searchable_text)
