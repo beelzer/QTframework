@@ -295,6 +295,47 @@ theme.tokens.spacing.space_8   # 16px
 theme.tokens.spacing.space_12  # 24px
 ```
 
+## Font Scaling
+
+The theme system supports dynamic font scaling to improve accessibility. You can scale all typography tokens proportionally using a percentage value:
+
+```python
+# Initialize theme manager with font scaling
+theme_manager = ThemeManager(font_scale=125)  # 125% larger fonts
+
+# Or update font scale dynamically
+theme_manager.set_font_scale(150)  # 150% larger fonts
+
+# Regenerate stylesheet with new scale
+app.setStyleSheet(theme_manager.get_stylesheet())
+```
+
+**Font Scale Range**: 50% to 200%
+
+- `100` = Normal size (default)
+- `125` = 25% larger (recommended for accessibility)
+- `150` = 50% larger
+- `75` = 25% smaller
+
+Font scaling maintains the visual hierarchy by scaling all typography tokens (xs, sm, md, lg, xl, etc.) proportionally.
+
+### Configuration Integration
+
+You can integrate font scaling with your configuration system:
+
+```yaml
+# config.yaml
+ui:
+  font_scale: 125 # 125% font size
+```
+
+```python
+# Load and apply font scale from config
+config_manager = ConfigManager()
+font_scale = config_manager.get("ui.font_scale", 100)
+theme_manager = ThemeManager(font_scale=font_scale)
+```
+
 ## Best Practices
 
 1. **Use Semantic Tokens** - Prefer semantic tokens over primitive colors in your widgets
@@ -302,6 +343,7 @@ theme.tokens.spacing.space_12  # 24px
 3. **Test Both Themes** - Always test your app in both light and dark themes
 4. **Accessibility** - Ensure sufficient contrast ratios (WCAG AA: 4.5:1 for text)
 5. **Document Custom Tokens** - If adding custom component tokens, document their purpose
+6. **Support Font Scaling** - Allow users to adjust font scale for accessibility (50-200%)
 
 ## Advanced: Custom Stylesheet Generation
 

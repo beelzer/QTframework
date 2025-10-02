@@ -80,12 +80,13 @@ class ConfigEditorPage(DemoPage):
                 group="User Interface",
             ),
             ConfigFieldDescriptor(
-                key="ui.font_size",
-                label="Font Size",
+                key="ui.font_scale",
+                label="Font Scale (%)",
                 field_type="int",
-                default=12,
-                min_value=8,
-                max_value=72,
+                default=100,
+                min_value=50,
+                max_value=200,
+                on_change=self._on_font_scale_changed,
                 group="User Interface",
             ),
             # Performance settings group
@@ -146,6 +147,20 @@ class ConfigEditorPage(DemoPage):
                 self.parent_window.theme_manager.set_theme(new_theme)
             except Exception as e:
                 print(f"Error applying theme: {e}")
+
+    def _on_font_scale_changed(self, new_scale: int):
+        """Handle font scale changes by applying to theme manager."""
+        if self.parent_window and hasattr(self.parent_window, "theme_manager"):
+            try:
+                self.parent_window.theme_manager.set_font_scale(new_scale)
+                # Re-apply the current theme to update the stylesheet
+                from PySide6.QtWidgets import QApplication
+
+                app = QApplication.instance()
+                if app:
+                    app.setStyleSheet(self.parent_window.theme_manager.get_stylesheet())
+            except Exception as e:
+                print(f"Error applying font scale: {e}")
 
     def _on_external_theme_change(self, theme_name: str):
         """Handle theme changes from external sources (menu bar, etc.)."""

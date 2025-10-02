@@ -34,6 +34,9 @@ class ShowcaseWindow(QMainWindow):
 
     def _setup_managers(self):
         """Initialize framework managers."""
+        # Initialize config manager first to get font_scale
+        self._init_config_manager()
+
         # Use the theme manager from the Application instance
         app = QApplication.instance()
         if hasattr(app, "theme_manager"):
@@ -41,7 +44,11 @@ class ShowcaseWindow(QMainWindow):
         else:
             # Fallback in case Application is not used
             resources_path = Path(__file__).parent.parent.parent.parent / "resources"
-            self.theme_manager = ThemeManager(resources_path / "themes")
+            font_scale = self.config_manager.get("ui.font_scale", 100)
+            self.theme_manager = ThemeManager(resources_path / "themes", font_scale=font_scale)
+
+    def _init_config_manager(self):
+        """Initialize config manager and load configuration."""
 
         # Initialize config manager and load from YAML template
         self.config_manager = ConfigManager()
@@ -82,7 +89,7 @@ class ShowcaseWindow(QMainWindow):
             "ui": {
                 "theme": "light",
                 "language": "en_US",
-                "font_size": 12,
+                "font_scale": 100,
             },
             "performance": {
                 "cache_size": 100,

@@ -381,6 +381,28 @@ class DesignTokens:
     transitions: Transitions = field(default_factory=Transitions)
     syntax: SyntaxColors = field(default_factory=SyntaxColors)
 
+    def apply_font_scale(self, scale_percent: int = 100) -> None:
+        """Apply font scaling to all typography tokens.
+
+        Args:
+            scale_percent: Percentage to scale fonts (e.g., 100 = normal, 125 = 125%, 150 = 150%)
+        """
+        if scale_percent == 100:
+            return  # No scaling needed
+
+        scale_factor = scale_percent / 100.0
+
+        # Scale all font sizes
+        self.typography.font_size_xs = int(self.typography.font_size_xs * scale_factor)
+        self.typography.font_size_sm = int(self.typography.font_size_sm * scale_factor)
+        self.typography.font_size_md = int(self.typography.font_size_md * scale_factor)
+        self.typography.font_size_lg = int(self.typography.font_size_lg * scale_factor)
+        self.typography.font_size_xl = int(self.typography.font_size_xl * scale_factor)
+        self.typography.font_size_2xl = int(self.typography.font_size_2xl * scale_factor)
+        self.typography.font_size_3xl = int(self.typography.font_size_3xl * scale_factor)
+        self.typography.font_size_4xl = int(self.typography.font_size_4xl * scale_factor)
+        self.typography.font_size_5xl = int(self.typography.font_size_5xl * scale_factor)
+
     def resolve_token(self, token_path: str) -> str | None:
         """Resolve a token path to its value.
 

@@ -42,7 +42,7 @@ class ConfigValidator:
                 max_length=50
             ),  # Allow any theme name since themes can be loaded from files
             "ui.language": optional_string(max_length=10),
-            "ui.font_size": number_field(min_value=8, max_value=72),
+            "ui.font_scale": number_field(min_value=50, max_value=200),  # Percentage: 50% to 200%
             # Performance settings
             "performance.cache_size": number_field(min_value=0, max_value=1000),
             "performance.max_threads": number_field(min_value=1, max_value=64),

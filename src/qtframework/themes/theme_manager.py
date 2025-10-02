@@ -73,17 +73,19 @@ class ThemeManager(QObject):
 
     theme_changed = Signal(str)  # Emits theme name when changed
 
-    def __init__(self, themes_dir: Path | None = None) -> None:
+    def __init__(self, themes_dir: Path | None = None, font_scale: int = 100) -> None:
         """Initialize theme manager.
 
         Args:
             themes_dir: Directory to load custom themes from (default: resources/themes)
+            font_scale: Font scale percentage (50-200, default 100)
         """
         super().__init__()
         self._themes: dict[str, Theme] = {}
         self._current_theme_name: str = "light"
         self._requested_theme_name: str = "light"  # Track what user requested (e.g., 'auto')
         self._themes_dir = themes_dir or Path("resources/themes")
+        self._font_scale: int = font_scale
 
         # Load built-in themes
         self._load_builtin_themes()
@@ -278,6 +280,15 @@ class ThemeManager(QObject):
         self.theme_changed.emit(actual_theme_name)
         return True
 
+    def set_font_scale(self, scale_percent: int) -> None:
+        """Set the font scale percentage.
+
+        Args:
+            scale_percent: Font scale percentage (50-200)
+        """
+        self._font_scale = scale_percent
+        logger.debug("Font scale set to %d%%", scale_percent)
+
     def get_stylesheet(self, theme_name: str | None = None) -> str:
         """Get the stylesheet for a theme.
 
@@ -293,7 +304,14 @@ class ThemeManager(QObject):
             return ""
 
         try:
-            return theme.generate_stylesheet()
+            # Apply font scaling to a copy of the theme's tokens
+            from copy import deepcopy
+
+            tokens = deepcopy(theme.tokens)
+            tokens.apply_font_scale(self._font_scale)
+
+            # Generate stylesheet with scaled tokens
+            return theme._stylesheet_generator.generate(tokens, theme.custom_styles)
         except Exception as e:
             logger.exception("Failed to generate stylesheet for theme '%s': %s", theme_name, e)
             return ""

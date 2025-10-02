@@ -40,12 +40,12 @@ fields = [
         group="User Interface"
     ),
     ConfigFieldDescriptor(
-        key="ui.font_size",
-        label="Font Size",
+        key="ui.font_scale",
+        label="Font Scale (%)",
         field_type="int",
-        default=12,
-        min_value=8,
-        max_value=72,
+        default=100,
+        min_value=50,
+        max_value=200,
         group="User Interface"
     ),
 ]

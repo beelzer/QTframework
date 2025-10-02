@@ -14,7 +14,7 @@ app:
 ui:
   theme: "auto"  # Theme name (auto: match system, built-in: light, dark, monokai, nord, high_contrast; or custom from themes folder)
   language: "en_US"  # Language code
-  font_size: 12  # Font size in points (8-72)
+  font_scale: 100  # Font scale percentage (50-200, 100 is normal size)
 
 # Performance settings
 performance:
