@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from PySide6.QtWidgets import QHBoxLayout, QListWidget, QTreeWidget, QTreeWidgetItem, QWidget
 
-from .base import DemoPage
+from qtframework.widgets import ScrollablePage as DemoPage
 
 
 class TreesListsPage(DemoPage):

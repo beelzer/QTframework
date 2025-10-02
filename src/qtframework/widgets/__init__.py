@@ -70,23 +70,49 @@ from __future__ import annotations
 from qtframework.widgets.badge import Badge, BadgeVariant
 from qtframework.widgets.base import Widget
 from qtframework.widgets.buttons import Button, CloseButton, IconButton, ToggleButton
+from qtframework.widgets.code_display import (
+    CodeDisplay,
+    CodeHighlighter,
+    JavaScriptHighlighter,
+    PythonHighlighter,
+)
+from qtframework.widgets.color_swatch import (
+    ColorPaletteWidget,
+    ColorSwatch,
+    LargeColorSwatch,
+)
 from qtframework.widgets.config_editor import ConfigEditorWidget, ConfigFieldDescriptor
+from qtframework.widgets.containers import Card, CollapsibleCard, InfoCard, StatCard
 from qtframework.widgets.count_badge import CountBadge
 from qtframework.widgets.inputs import Input, PasswordInput, SearchInput, TextArea
+from qtframework.widgets.pages import NonScrollablePage, ScrollablePage
 
 
 __all__ = [
     "Badge",
     "BadgeVariant",
     "Button",
+    "Card",
     "CloseButton",
+    "CodeDisplay",
+    "CodeHighlighter",
+    "CollapsibleCard",
+    "ColorPaletteWidget",
+    "ColorSwatch",
     "ConfigEditorWidget",
     "ConfigFieldDescriptor",
     "CountBadge",
     "IconButton",
+    "InfoCard",
     "Input",
+    "JavaScriptHighlighter",
+    "LargeColorSwatch",
+    "NonScrollablePage",
     "PasswordInput",
+    "PythonHighlighter",
+    "ScrollablePage",
     "SearchInput",
+    "StatCard",
     "TextArea",
     "ToggleButton",
     "Widget",

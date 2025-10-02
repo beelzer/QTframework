@@ -8,7 +8,7 @@ import json
 
 from PySide6.QtWidgets import QGroupBox, QHBoxLayout, QLabel, QPushButton, QTextEdit, QVBoxLayout
 
-from .base import DemoPage
+from qtframework.widgets import ScrollablePage as DemoPage
 
 
 class StatePage(DemoPage):

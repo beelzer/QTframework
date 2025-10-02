@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from PySide6.QtWidgets import QPushButton, QTableWidget, QTableWidgetItem
 
-from .base import DemoPage
+from qtframework.widgets import ScrollablePage as DemoPage
 
 
 class TablesPage(DemoPage):

@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QGroupBox, QHBoxLayout, QPushButton, QToolButton, 
 
 from qtframework.layouts import FlowLayout
 
-from .base import DemoPage
+from qtframework.widgets import ScrollablePage as DemoPage
 
 
 class ButtonsPage(DemoPage):

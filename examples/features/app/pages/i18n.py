@@ -26,7 +26,7 @@ from qtframework.i18n import (
 )
 from qtframework.widgets import Badge, CountBadge
 
-from .base import DemoPage
+from qtframework.widgets import ScrollablePage as DemoPage
 
 
 class I18nPage(DemoPage):

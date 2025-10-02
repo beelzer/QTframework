@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QPushButton,
 )
 
-from .base import DemoPage
+from qtframework.widgets import ScrollablePage as DemoPage
 
 
 class DialogsPage(DemoPage):

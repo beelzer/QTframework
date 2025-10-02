@@ -4,7 +4,7 @@ Content area manager for the showcase.
 
 from __future__ import annotations
 
-from PySide6.QtWidgets import QStackedWidget
+from qtframework.widgets.advanced import PageManager
 
 from .pages.animations import AnimationsPage
 from .pages.buttons import ButtonsPage
@@ -23,14 +23,13 @@ from .pages.theming import ThemingPage
 from .pages.trees_lists import TreesListsPage
 
 
-class ContentArea(QStackedWidget):
-    """Content area with stacked pages."""
+class ContentArea(PageManager):
+    """Content area with stacked pages - now using framework's PageManager."""
 
     def __init__(self, parent=None):
         """Initialize the content area."""
         super().__init__(parent)
         self.parent_window = parent
-        self.pages = {}
         self._init_pages()
 
     def _init_pages(self):
@@ -77,47 +76,4 @@ class ContentArea(QStackedWidget):
         self.add_page("i18n", I18nPage())
 
         # Show first page (Buttons) by default
-        self.setCurrentIndex(0)
-
-    def add_page(self, name: str, widget):
-        """Add a page to the stack."""
-        index = self.addWidget(widget)
-        self.pages[name] = index
-
-    def show_page(self, name: str):
-        """Show a specific page by name."""
-        if name in self.pages:
-            self.setCurrentIndex(self.pages[name])
-
-            # Force layout updates on the new page, especially for FlowLayouts
-            current_widget = self.currentWidget()
-            if current_widget:
-                # Notify page that it's being shown if it has a page_shown method
-                if hasattr(current_widget, "page_shown"):
-                    current_widget.page_shown()
-                # Schedule a deferred update to ensure layouts are properly calculated
-                from PySide6.QtCore import QTimer
-
-                def update_page_layouts():
-                    # Find and update all FlowLayouts in the page
-                    from PySide6.QtWidgets import QWidget
-
-                    from qtframework.layouts import FlowLayout
-
-                    def update_flow_layouts(widget):
-                        if widget.layout() and isinstance(widget.layout(), FlowLayout):
-                            widget.layout().invalidate()
-                            widget.layout().activate()
-                            widget.adjustSize()
-
-                        for child in widget.findChildren(QWidget):
-                            if child.layout() and isinstance(child.layout(), FlowLayout):
-                                child.layout().invalidate()
-                                child.layout().activate()
-                                child.adjustSize()
-
-                    update_flow_layouts(current_widget)
-                    current_widget.updateGeometry()
-
-                # Small delay to let the page become visible first
-                QTimer.singleShot(0, update_page_layouts)
+        self.show_page("Buttons")

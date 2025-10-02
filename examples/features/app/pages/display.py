@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QGroupBox, QHBoxLayout, QLabel, QProgressBar, QVBo
 from qtframework.layouts import FlowLayout
 from qtframework.widgets import Badge, BadgeVariant, CountBadge
 
-from .base import DemoPage
+from qtframework.widgets import ScrollablePage as DemoPage
 
 
 class DisplayPage(DemoPage):

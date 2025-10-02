@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
 
 from qtframework.layouts import FlowLayout
 
-from .base import DemoPage
+from qtframework.widgets import ScrollablePage as DemoPage
 
 
 class SelectionsPage(DemoPage):

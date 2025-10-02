@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
 from qtframework.config import ConfigFileLoader, ConfigManager, ConfigMigrator, ConfigValidator
 from qtframework.widgets.buttons import Button, ButtonVariant
 
-from .base import DemoPage
+from qtframework.widgets import ScrollablePage as DemoPage
 
 
 class ConfigPage(DemoPage):

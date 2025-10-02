@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .code_display import CodeDisplay, PythonHighlighter
+# No custom widgets - all using framework components now
+# CodeDisplay and other widgets are imported directly from qtframework
 
-
-__all__ = ["CodeDisplay", "PythonHighlighter"]
+__all__ = []
