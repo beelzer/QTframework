@@ -7,11 +7,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
 
-import pytest
-
 from qtframework.themes.theme import Theme
 from qtframework.themes.theme_manager import ThemeManager
 from qtframework.themes.tokens import DesignTokens
+
 
 if TYPE_CHECKING:
     from pytest_qt.qtbot import QtBot
@@ -302,9 +301,11 @@ class TestThemeManagerSetTheme:
         """Test setting theme to auto."""
         manager = ThemeManager()
 
-        with patch.object(manager, "detect_system_theme", return_value="dark"):
-            with qtbot.waitSignal(manager.theme_changed, timeout=1000) as blocker:
-                result = manager.set_theme("auto")
+        with (
+            patch.object(manager, "detect_system_theme", return_value="dark"),
+            qtbot.waitSignal(manager.theme_changed, timeout=1000) as blocker,
+        ):
+            result = manager.set_theme("auto")
 
         assert result is True
         # Signal should emit the actual theme, not 'auto'

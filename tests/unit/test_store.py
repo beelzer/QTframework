@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import operator
 from typing import TYPE_CHECKING, Any
 from unittest.mock import Mock
 
@@ -9,6 +10,7 @@ import pytest
 
 from qtframework.state.actions import Action
 from qtframework.state.store import Store
+
 
 if TYPE_CHECKING:
     from pytest_qt.qtbot import QtBot
@@ -21,11 +23,11 @@ def simple_reducer():
     def reducer(state: dict[str, Any], action: Action) -> dict[str, Any]:
         if action.type == "INCREMENT":
             return {**state, "count": state.get("count", 0) + 1}
-        elif action.type == "DECREMENT":
+        if action.type == "DECREMENT":
             return {**state, "count": state.get("count", 0) - 1}
-        elif action.type == "SET_VALUE":
+        if action.type == "SET_VALUE":
             return {**state, "value": action.payload}
-        elif action.type == "RESET_COUNT":
+        if action.type == "RESET_COUNT":
             return {**state, "count": 0}
         return state
 
@@ -157,9 +159,7 @@ class TestStoreDispatch:
 class TestStoreSignals:
     """Test Store Qt signals."""
 
-    def test_state_changed_signal_emitted(
-        self, simple_reducer, qtbot: QtBot
-    ) -> None:
+    def test_state_changed_signal_emitted(self, simple_reducer, qtbot: QtBot) -> None:
         """Test state_changed signal is emitted."""
         store = Store(reducer=simple_reducer, initial_state={"count": 0})
 
@@ -178,9 +178,7 @@ class TestStoreSignals:
         with qtbot.assertNotEmitted(store.state_changed, wait=100):
             store.dispatch(Action(type="UNKNOWN"))
 
-    def test_action_dispatched_signal_emitted(
-        self, simple_reducer, qtbot: QtBot
-    ) -> None:
+    def test_action_dispatched_signal_emitted(self, simple_reducer, qtbot: QtBot) -> None:
         """Test action_dispatched signal is emitted."""
         store = Store(reducer=simple_reducer, initial_state={"count": 0})
 
@@ -420,9 +418,7 @@ class TestStoreReducerReplacement:
 
         assert store.state["count"] == 0  # 0 * 2
 
-    def test_replace_reducer_dispatches_replace_action(
-        self, simple_reducer, qtbot: QtBot
-    ) -> None:
+    def test_replace_reducer_dispatches_replace_action(self, simple_reducer, qtbot: QtBot) -> None:
         """Test replace_reducer dispatches @@REPLACE action."""
         store = Store(reducer=simple_reducer, initial_state={"count": 0})
 
@@ -628,11 +624,9 @@ class TestStoreSelectors:
 
     def test_select_with_function(self, simple_reducer) -> None:
         """Test select with selector function."""
-        store = Store(
-            reducer=simple_reducer, initial_state={"count": 5, "name": "test"}
-        )
+        store = Store(reducer=simple_reducer, initial_state={"count": 5, "name": "test"})
 
-        result = store.select(lambda state: state["count"])
+        result = store.select(operator.itemgetter("count"))
         assert result == 5
 
     def test_select_with_complex_selector(self, simple_reducer) -> None:
@@ -698,7 +692,6 @@ class TestStoreIntegration:
         # Undo - this will also call callback
         store.undo()
         assert store.state["count"] == 1
-        call_count_after_undo = callback.call_count
 
         # Redo - this will also call callback
         store.redo()

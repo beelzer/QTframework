@@ -4,9 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import pytest
-
 from qtframework.layouts.base import Alignment, Direction, FlexLayout
+
 
 if TYPE_CHECKING:
     from pytest_qt.qtbot import QtBot

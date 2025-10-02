@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from qtframework.config.config import Config
 
+
 if TYPE_CHECKING:
     from pytest_qt.qtbot import QtBot
 
@@ -157,7 +158,7 @@ class TestConfigWatch:
         config = Config()
         changes = []
 
-        config.watch("key", lambda v: changes.append(v))
+        config.watch("key", changes.append)
 
         config.set("key", "value1")
         config.set("key", "value2")
@@ -170,7 +171,7 @@ class TestConfigWatch:
         config = Config()
         changes = []
 
-        unwatch = config.watch("key", lambda v: changes.append(v))
+        unwatch = config.watch("key", changes.append)
 
         config.set("key", "value1")
         unwatch()
@@ -183,7 +184,7 @@ class TestConfigWatch:
         config = Config({"level1": {"level2": "value"}})
         changes = []
 
-        config.watch("level1.level2", lambda v: changes.append(v))
+        config.watch("level1.level2", changes.append)
         config.set("level1.level2", "new_value")
 
         assert changes == ["new_value"]
@@ -193,7 +194,7 @@ class TestConfigWatch:
         config = Config({"key": "value"})
         changes = []
 
-        config.watch("key", lambda v: changes.append(v))
+        config.watch("key", changes.append)
         config.set("key", "value")  # Same value
 
         assert changes == []
@@ -299,7 +300,10 @@ class TestConfigKeys:
 
     def test_keys_with_prefix(self) -> None:
         """Test getting keys with prefix."""
-        config = Config({"app": {"name": "test", "version": "1.0"}, "database": {"host": "localhost"}})
+        config = Config({
+            "app": {"name": "test", "version": "1.0"},
+            "database": {"host": "localhost"},
+        })
         keys = config.keys(prefix="app")
 
         assert "app" in keys

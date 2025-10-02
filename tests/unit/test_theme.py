@@ -250,14 +250,16 @@ class TestThemeYaml:
             description="Test theme",
         )
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".yaml"
+        ) as f:
             path = Path(f.name)
 
         try:
             theme.save_yaml(path)
             assert path.exists()
 
-            with path.open() as f:
+            with path.open(encoding="utf-8") as f:
                 data = yaml.safe_load(f)
 
             assert data["name"] == "yaml_test"
@@ -275,7 +277,9 @@ class TestThemeYaml:
             "version": "1.0.0",
         }
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".yaml"
+        ) as f:
             yaml.safe_dump(data, f)
             path = Path(f.name)
 
@@ -304,7 +308,9 @@ class TestThemeYaml:
             version="2.0.0",
         )
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".yaml"
+        ) as f:
             path = Path(f.name)
 
         try:

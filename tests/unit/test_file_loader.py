@@ -19,7 +19,9 @@ class TestConfigFileLoaderSecurity:
     def test_validate_file_security_valid_file(self) -> None:
         """Test security validation passes for valid file."""
         loader = ConfigFileLoader()
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             f.write('{"key": "value"}')
             f.flush()
             path = Path(f.name)
@@ -65,7 +67,9 @@ class TestConfigFileLoaderJSON:
         loader = ConfigFileLoader()
         data = {"key": "value", "nested": {"key2": "value2"}}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             json.dump(data, f)
             f.flush()
             path = Path(f.name)
@@ -80,7 +84,9 @@ class TestConfigFileLoaderJSON:
         """Test loading JSON with invalid syntax."""
         loader = ConfigFileLoader()
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             f.write("{invalid json")
             f.flush()
             path = Path(f.name)
@@ -96,7 +102,9 @@ class TestConfigFileLoaderJSON:
         """Test loading JSON that's not a dictionary."""
         loader = ConfigFileLoader()
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             json.dump(["list", "not", "dict"], f)
             f.flush()
             path = Path(f.name)
@@ -113,7 +121,9 @@ class TestConfigFileLoaderJSON:
         loader = ConfigFileLoader()
         data = {"key": "value", "nested": {"key2": "value2"}}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             path = Path(f.name)
 
         try:
@@ -122,7 +132,7 @@ class TestConfigFileLoaderJSON:
             assert path.exists()
 
             # Verify content
-            with path.open() as f:
+            with path.open(encoding="utf-8") as f:
                 loaded = json.load(f)
             assert loaded == data
         finally:
@@ -137,7 +147,9 @@ class TestConfigFileLoaderYAML:
         loader = ConfigFileLoader()
         data = {"key": "value", "nested": {"key2": "value2"}}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".yaml"
+        ) as f:
             yaml.safe_dump(data, f)
             f.flush()
             path = Path(f.name)
@@ -153,7 +165,9 @@ class TestConfigFileLoaderYAML:
         loader = ConfigFileLoader()
         data = {"key": "value"}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yml") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".yml"
+        ) as f:
             yaml.safe_dump(data, f)
             f.flush()
             path = Path(f.name)
@@ -168,7 +182,9 @@ class TestConfigFileLoaderYAML:
         """Test loading YAML with invalid syntax."""
         loader = ConfigFileLoader()
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".yaml"
+        ) as f:
             f.write("invalid: yaml: syntax: error")
             f.flush()
             path = Path(f.name)
@@ -184,7 +200,9 @@ class TestConfigFileLoaderYAML:
         """Test loading YAML that's not a dictionary."""
         loader = ConfigFileLoader()
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".yaml"
+        ) as f:
             yaml.safe_dump(["list", "not", "dict"], f)
             f.flush()
             path = Path(f.name)
@@ -201,7 +219,9 @@ class TestConfigFileLoaderYAML:
         loader = ConfigFileLoader()
         data = {"key": "value", "nested": {"key2": "value2"}}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".yaml"
+        ) as f:
             path = Path(f.name)
 
         try:
@@ -210,7 +230,7 @@ class TestConfigFileLoaderYAML:
             assert path.exists()
 
             # Verify content
-            with path.open() as f:
+            with path.open(encoding="utf-8") as f:
                 loaded = yaml.safe_load(f)
             assert loaded == data
         finally:
@@ -224,7 +244,9 @@ class TestConfigFileLoaderINI:
         """Test loading valid INI file."""
         loader = ConfigFileLoader()
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".ini") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".ini"
+        ) as f:
             f.write("[section1]\n")
             f.write("key1 = value1\n")
             f.write("[section2]\n")
@@ -245,7 +267,9 @@ class TestConfigFileLoaderINI:
         """Test loading empty INI file."""
         loader = ConfigFileLoader()
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".ini") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".ini"
+        ) as f:
             f.write("")
             f.flush()
             path = Path(f.name)
@@ -264,7 +288,9 @@ class TestConfigFileLoaderENV:
         """Test loading valid .env file."""
         loader = ConfigFileLoader()
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".env") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".env"
+        ) as f:
             f.write("KEY1=value1\n")
             f.write("KEY2=value2\n")
             f.write("# Comment\n")
@@ -284,7 +310,9 @@ class TestConfigFileLoaderENV:
         """Test loading empty .env file."""
         loader = ConfigFileLoader()
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".env") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".env"
+        ) as f:
             f.write("")
             f.flush()
             path = Path(f.name)
@@ -303,7 +331,7 @@ class TestConfigFileLoaderErrors:
         """Test loading unsupported format."""
         loader = ConfigFileLoader()
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
+        with tempfile.NamedTemporaryFile(encoding="utf-8", mode="w", delete=False) as f:
             f.write("data")
             f.flush()
             path = Path(f.name)

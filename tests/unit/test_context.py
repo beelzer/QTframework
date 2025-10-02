@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from qtframework.core.context import Context
 
+
 if TYPE_CHECKING:
     from pytest_qt.qtbot import QtBot
 

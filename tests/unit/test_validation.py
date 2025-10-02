@@ -544,8 +544,10 @@ class TestValidatorChain:
 
     def test_validator_chain_fluent_interface(self) -> None:
         """Test validator chain fluent interface."""
-        chain = ValidatorChain().add_validator(RequiredValidator()).add_validator(
-            LengthValidator(min_length=3)
+        chain = (
+            ValidatorChain()
+            .add_validator(RequiredValidator())
+            .add_validator(LengthValidator(min_length=3))
         )
         assert len(chain.validators) == 2
 
@@ -783,11 +785,16 @@ class TestValidationIntegration:
             return 18 <= age <= 65
 
         form = FormValidator()
-        form.add_field("age", [
-            RequiredValidator(),
-            NumberValidator(min_value=0, max_value=120),
-            CustomValidator(age_check, message="Age must be between 18 and 65 for this service"),
-        ])
+        form.add_field(
+            "age",
+            [
+                RequiredValidator(),
+                NumberValidator(min_value=0, max_value=120),
+                CustomValidator(
+                    age_check, message="Age must be between 18 and 65 for this service"
+                ),
+            ],
+        )
 
         # Valid age
         result = form.validate({"age": 30})

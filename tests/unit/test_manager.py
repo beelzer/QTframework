@@ -6,13 +6,18 @@ import json
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import Mock, patch
+from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 import pytest
 import yaml
 
 from qtframework.config.manager import ConfigManager
 from qtframework.utils.exceptions import ConfigurationError
+
+
+if TYPE_CHECKING:
+    from unittest.mock import Mock
 
 
 class TestConfigManagerCreation:
@@ -56,7 +61,9 @@ class TestConfigManagerLoadFile:
         manager = ConfigManager()
         data = {"app": {"name": "test"}, "$schema_version": "1.0.0"}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             json.dump(data, f)
             path = Path(f.name)
 
@@ -72,7 +79,9 @@ class TestConfigManagerLoadFile:
         manager = ConfigManager()
         data = {"app": {"name": "yaml_test"}, "$schema_version": "1.0.0"}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".yaml"
+        ) as f:
             yaml.safe_dump(data, f)
             path = Path(f.name)
 
@@ -88,7 +97,9 @@ class TestConfigManagerLoadFile:
         manager = ConfigManager()
         data = {"key": "value", "$schema_version": "1.0.0"}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             json.dump(data, f)
             path = Path(f.name)
 
@@ -109,14 +120,14 @@ class TestConfigManagerLoadFile:
         manager = ConfigManager()
         data = {"key": "value", "$schema_version": "1.0.0"}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             json.dump(data, f)
             path = Path(f.name)
 
         try:
-            with patch.object(
-                manager._file_loader, "validate_file_security", return_value=False
-            ):
+            with patch.object(manager._file_loader, "validate_file_security", return_value=False):
                 with pytest.raises(ConfigurationError) as exc_info:
                     manager.load_file(path)
                 assert "security validation" in str(exc_info.value)
@@ -128,7 +139,9 @@ class TestConfigManagerLoadFile:
         manager = ConfigManager()
         data = {"key": "value", "$schema_version": "1.0.0"}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             json.dump(data, f)
             path = Path(f.name)
 
@@ -144,7 +157,9 @@ class TestConfigManagerLoadFile:
         manager = ConfigManager()
         data = {"app": {"name": ""}, "$schema_version": "1.0.0"}  # Invalid: empty name
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             json.dump(data, f)
             path = Path(f.name)
 
@@ -159,7 +174,9 @@ class TestConfigManagerLoadFile:
         manager = ConfigManager()
         data = {"app": {"name": ""}, "$schema_version": "1.0.0"}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             json.dump(data, f)
             path = Path(f.name)
 
@@ -231,7 +248,9 @@ class TestConfigManagerSave:
         manager = ConfigManager()
         manager.set("app.name", "test")
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             path = Path(f.name)
 
         try:
@@ -239,7 +258,7 @@ class TestConfigManagerSave:
             assert result is True
             assert path.exists()
 
-            with path.open() as f:
+            with path.open(encoding="utf-8") as f:
                 data = json.load(f)
             assert data["app"]["name"] == "test"
         finally:
@@ -250,7 +269,9 @@ class TestConfigManagerSave:
         manager = ConfigManager()
         manager.set("app.name", "test")
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".yaml"
+        ) as f:
             path = Path(f.name)
 
         try:
@@ -265,12 +286,14 @@ class TestConfigManagerSave:
         manager = ConfigManager()
         manager.set("key", "value")
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             path = Path(f.name)
 
         try:
             manager.save(path)
-            with path.open() as f:
+            with path.open(encoding="utf-8") as f:
                 data = json.load(f)
             assert "$schema_version" in data
         finally:
@@ -285,7 +308,9 @@ class TestConfigManagerReload:
         manager = ConfigManager()
         data = {"key": "original", "$schema_version": "1.0.0"}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             json.dump(data, f)
             path = Path(f.name)
 
@@ -295,7 +320,7 @@ class TestConfigManagerReload:
 
             # Modify file
             data["key"] = "updated"
-            with path.open("w") as f:
+            with path.open("w", encoding="utf-8") as f:
                 json.dump(data, f)
 
             manager.reload()
@@ -324,7 +349,9 @@ class TestConfigManagerReload:
         manager = ConfigManager()
         data = {"key": "value", "$schema_version": "1.0.0"}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             json.dump(data, f)
             path = Path(f.name)
 
@@ -442,7 +469,9 @@ class TestConfigManagerSources:
         manager = ConfigManager()
         data = {"key": "value", "$schema_version": "1.0.0"}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             json.dump(data, f)
             path = Path(f.name)
 
@@ -482,7 +511,9 @@ class TestConfigManagerStandardConfigs:
         """Test loading standard configs with existing files."""
         data = {"app": {"name": "test"}, "$schema_version": "1.0.0"}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             json.dump(data, f)
             path = Path(f.name)
 
@@ -517,7 +548,9 @@ class TestConfigManagerSaveUserConfig:
     @patch("qtframework.utils.paths.ensure_directory")
     def test_save_user_config(self, mock_ensure: Mock, mock_path: Mock) -> None:
         """Test saving user config."""
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             path = Path(f.name)
 
         try:
@@ -534,9 +567,7 @@ class TestConfigManagerSaveUserConfig:
 
     @patch("qtframework.utils.paths.get_preferred_config_path")
     @patch("qtframework.utils.paths.ensure_directory")
-    def test_save_user_config_exclude_defaults(
-        self, mock_ensure: Mock, mock_path: Mock
-    ) -> None:
+    def test_save_user_config_exclude_defaults(self, mock_ensure: Mock, mock_path: Mock) -> None:
         """Test saving user config excluding defaults."""
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "config.json"
@@ -556,7 +587,9 @@ class TestConfigManagerSaveUserConfig:
     @patch("qtframework.utils.paths.ensure_directory")
     def test_save_user_config_no_overrides(self, mock_ensure: Mock, mock_path: Mock) -> None:
         """Test saving user config with no overrides."""
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             path = Path(f.name)
 
         try:
@@ -691,9 +724,14 @@ class TestConfigManagerIntegration:
         data1 = {"app": {"name": "test"}, "theme": "light", "$schema_version": "1.0.0"}
         data2 = {"theme": "dark", "debug": True, "$schema_version": "1.0.0"}
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", delete=False, suffix=".json"
-        ) as f1, tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f2:
+        with (
+            tempfile.NamedTemporaryFile(
+                encoding="utf-8", mode="w", delete=False, suffix=".json"
+            ) as f1,
+            tempfile.NamedTemporaryFile(
+                encoding="utf-8", mode="w", delete=False, suffix=".json"
+            ) as f2,
+        ):
             json.dump(data1, f1)
             json.dump(data2, f2)
             path1 = Path(f1.name)
@@ -719,7 +757,9 @@ class TestConfigManagerIntegration:
 
         # Load file
         data = {"theme": "dark", "$schema_version": "1.0.0"}
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             json.dump(data, f)
             path = Path(f.name)
 
@@ -742,7 +782,9 @@ class TestConfigManagerIntegration:
         manager1.set("app.name", "test")
         manager1.set("theme", "dark")
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             path = Path(f.name)
 
         try:

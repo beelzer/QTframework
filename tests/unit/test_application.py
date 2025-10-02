@@ -3,16 +3,18 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 from PySide6.QtCore import QSettings
-from PySide6.QtWidgets import QApplication
 
 from qtframework.core.application import Application
 from qtframework.core.window import BaseWindow
 
+
 if TYPE_CHECKING:
+    from unittest.mock import Mock
+
     from pytest_qt.qtbot import QtBot
 
 
@@ -59,7 +61,7 @@ class TestApplicationContext:
     def test_context_has_theme(self, app: Application) -> None:
         """Test context has theme set."""
         theme = app.context.get("theme")
-        assert theme in ["light", "dark", None]
+        assert theme in {"light", "dark", None}
 
     def test_context_set_value(self, app: Application) -> None:
         """Test setting context value."""
@@ -203,7 +205,7 @@ class TestApplicationSignals:
         """Test theme_changed signal is emitted."""
         signals_received = []
 
-        app.theme_changed.connect(lambda t: signals_received.append(t))
+        app.theme_changed.connect(signals_received.append)
 
         # Set to light first to ensure signal fires
         app.theme_manager.set_theme("light")
@@ -229,13 +231,13 @@ class TestApplicationOSThemeDetection:
     def test_detect_os_theme_returns_string(self, app: Application) -> None:
         """Test OS theme detection returns string."""
         theme = app._detect_os_theme()
-        assert theme in ["light", "dark"]
+        assert theme in {"light", "dark"}
 
     def test_detect_os_theme_fallback_to_palette(self, app: Application) -> None:
         """Test falling back to palette luminance."""
         # Just ensure it doesn't crash and returns valid theme
         theme = app._detect_os_theme()
-        assert theme in ["light", "dark"]
+        assert theme in {"light", "dark"}
 
 
 class TestApplicationInitialization:
@@ -252,7 +254,7 @@ class TestApplicationInitialization:
         """Test initialization connects signals."""
         # Theme manager signal should be connected
         signals_received = []
-        app.theme_changed.connect(lambda t: signals_received.append(t))
+        app.theme_changed.connect(signals_received.append)
 
         app.theme_manager.set_theme("light")
         assert "light" in signals_received
@@ -261,7 +263,7 @@ class TestApplicationInitialization:
         """Test initialization loads settings."""
         # Theme should be loaded from settings or OS
         theme = app.context.get("theme")
-        assert theme in ["light", "dark", None]
+        assert theme in {"light", "dark", None}
 
 
 class TestApplicationExec:
@@ -339,7 +341,7 @@ class TestApplicationIntegration:
     def test_theme_change_propagates(self, app: Application, qtbot: QtBot) -> None:
         """Test theme change propagates to all components."""
         signals_received = []
-        app.theme_changed.connect(lambda t: signals_received.append(t))
+        app.theme_changed.connect(signals_received.append)
 
         # Change theme
         app.theme_manager.set_theme("light")

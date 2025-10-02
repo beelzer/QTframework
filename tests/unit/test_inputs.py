@@ -4,12 +4,19 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import pytest
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import QLineEdit
 
-from qtframework.utils.validation import EmailValidator, LengthValidator, RequiredValidator, ValidatorChain
+from qtframework.utils.validation import (
+    EmailValidator,
+    LengthValidator,
+    RequiredValidator,
+    ValidatorChain,
+)
 from qtframework.widgets.inputs import Input, PasswordInput, SearchInput, TextArea
+
 
 if TYPE_CHECKING:
     from pytest_qt.qtbot import QtBot
@@ -468,11 +475,8 @@ class TestSearchInput:
         search_input = SearchInput()
         qtbot.addWidget(search_input)
 
-        try:
+        with pytest.raises(TypeError, match=r"Qt\.FocusReason"):
             search_input.setFocus("invalid")  # type: ignore
-            assert False, "Should have raised TypeError"
-        except TypeError as e:
-            assert "Qt.FocusReason" in str(e)
 
 
 class TestTextArea:
@@ -600,7 +604,7 @@ class TestInputIntegration:
         qtbot.addWidget(search_input)
 
         signals_received = []
-        search_input.search_triggered.connect(lambda t: signals_received.append(t))
+        search_input.search_triggered.connect(signals_received.append)
 
         # Click search with empty text - should not trigger
         search_input._search_btn.click()

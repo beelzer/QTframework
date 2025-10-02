@@ -9,6 +9,7 @@ from PySide6.QtCore import Qt
 
 from qtframework.core.window import BaseWindow
 
+
 if TYPE_CHECKING:
     from pytest_qt.qtbot import QtBot
 

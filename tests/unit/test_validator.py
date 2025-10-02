@@ -6,7 +6,7 @@ import pytest
 
 from qtframework.config.validator import ConfigValidator
 from qtframework.utils.exceptions import ConfigurationError
-from qtframework.utils.validation import ValidatorChain, number_field, required_string
+from qtframework.utils.validation import ValidatorChain
 
 
 class TestConfigValidator:
@@ -139,7 +139,7 @@ class TestConfigValidator:
             "ui": {
                 "theme": "dark",
                 "font_scale": 100,
-            }
+            },
         }
 
         validator.validate(config, "test_source")

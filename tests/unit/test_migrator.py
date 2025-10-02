@@ -197,7 +197,7 @@ class TestConfigMigratorVersionComparison:
         migrator = ConfigMigrator()
         result = migrator._compare_versions("invalid", "1.0.0")
         # When parsing fails, returns 0 (equal) or compares (0,0,0) tuples
-        assert result in [0, -1]  # Either equal or less than
+        assert result in {0, -1}  # Either equal or less than
 
 
 class TestConfigMigratorVersionParsing:
@@ -220,7 +220,7 @@ class TestConfigMigratorVersionParsing:
         migrator = ConfigMigrator()
         result = migrator._parse_version("2")
         # May fail to parse single digit, returning (0,0,0) or parse as (2,0,0)
-        assert result in [(2, 0, 0), (0, 0, 0)]
+        assert result in {(2, 0, 0), (0, 0, 0)}
 
     def test_parse_version_invalid(self) -> None:
         """Test parsing invalid version."""

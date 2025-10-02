@@ -34,7 +34,7 @@ def qapp() -> Generator[QApplication]:
         app = Application(
             app_name="QtFrameworkTest",
             org_name="QtFrameworkTestOrg",
-            org_domain="test.qtframework.org"
+            org_domain="test.qtframework.org",
         )
     return app
     # Don't quit the app, pytest-qt manages it

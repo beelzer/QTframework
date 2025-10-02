@@ -45,7 +45,9 @@ class TestJsonProvider:
         """Test loading valid JSON file."""
         data = {"app": {"name": "test"}, "debug": True}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             json.dump(data, f)
             f.flush()
             path = f.name
@@ -65,7 +67,9 @@ class TestJsonProvider:
 
     def test_json_provider_load_invalid_json(self) -> None:
         """Test loading invalid JSON returns empty dict."""
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             f.write("{invalid json")
             f.flush()
             path = f.name
@@ -79,7 +83,9 @@ class TestJsonProvider:
 
     def test_json_provider_load_empty_file(self) -> None:
         """Test loading empty JSON file."""
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             f.write("")
             f.flush()
             path = f.name
@@ -98,7 +104,9 @@ class TestJsonProvider:
             "database": {"host": "localhost", "port": 5432},
         }
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".json"
+        ) as f:
             json.dump(data, f)
             f.flush()
             path = f.name
@@ -124,7 +132,9 @@ class TestYamlProvider:
         """Test loading valid YAML file."""
         data = {"app": {"name": "test"}, "debug": True}
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".yaml"
+        ) as f:
             yaml.safe_dump(data, f)
             f.flush()
             path = f.name
@@ -144,7 +154,9 @@ class TestYamlProvider:
 
     def test_yaml_provider_load_invalid_yaml(self) -> None:
         """Test loading invalid YAML returns empty dict."""
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".yaml"
+        ) as f:
             f.write("invalid: yaml: syntax: error")
             f.flush()
             path = f.name
@@ -158,7 +170,9 @@ class TestYamlProvider:
 
     def test_yaml_provider_load_empty_file(self) -> None:
         """Test loading empty YAML file returns empty dict."""
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".yaml"
+        ) as f:
             f.write("")
             f.flush()
             path = f.name
@@ -172,7 +186,9 @@ class TestYamlProvider:
 
     def test_yaml_provider_load_null_content(self) -> None:
         """Test loading YAML with null content."""
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".yaml"
+        ) as f:
             f.write("null")
             f.flush()
             path = f.name
@@ -191,7 +207,9 @@ class TestYamlProvider:
             "database": {"host": "localhost", "port": 5432},
         }
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as f:
+        with tempfile.NamedTemporaryFile(
+            encoding="utf-8", mode="w", delete=False, suffix=".yaml"
+        ) as f:
             yaml.safe_dump(data, f)
             f.flush()
             path = f.name

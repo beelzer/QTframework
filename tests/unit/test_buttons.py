@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QSize
 from PySide6.QtGui import QIcon
 
 from qtframework.widgets.buttons import Button, ButtonSize, ButtonVariant
+
 
 if TYPE_CHECKING:
     from pytest_qt.qtbot import QtBot
