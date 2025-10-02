@@ -143,7 +143,9 @@ class NavigationPanel(QFrame):
 
         # Expand all top-level items by default
         for i in range(self.nav_tree.topLevelItemCount()):
-            self.nav_tree.topLevelItem(i).setExpanded(True)
+            tree_item = self.nav_tree.topLevelItem(i)
+            if tree_item:
+                tree_item.setExpanded(True)
 
     def _add_tree_item(
         self, parent: QTreeWidgetItem | None, item: NavigationItem
@@ -160,7 +162,7 @@ class NavigationPanel(QFrame):
         # Store metadata
         if item.metadata:
             for key, value in item.metadata.items():
-                tree_item.setData(0, Qt.UserRole + hash(key) % 100, value)
+                tree_item.setData(0, Qt.ItemDataRole.UserRole + hash(key) % 100, value)
 
         # Add children recursively
         for child in item.children:
@@ -203,7 +205,8 @@ class NavigationPanel(QFrame):
 
         for i in range(self.nav_tree.topLevelItemCount()):
             category = self.nav_tree.topLevelItem(i)
-            self._filter_item(category, search_text, text)
+            if category:
+                self._filter_item(category, search_text, text)
 
     def _filter_item(self, item: QTreeWidgetItem, search_text: str, original_text: str) -> bool:
         """Filter a tree item and its children.
@@ -265,7 +268,7 @@ class NavigationPanel(QFrame):
         Returns:
             Dictionary containing expanded states
         """
-        state = {"expanded": []}
+        state: dict[str, list[str]] = {"expanded": []}
 
         def collect_expanded(item: QTreeWidgetItem, path: str = ""):
             current_path = f"{path}/{item.text(0)}" if path else item.text(0)
@@ -276,7 +279,9 @@ class NavigationPanel(QFrame):
                 collect_expanded(item.child(i), current_path)
 
         for i in range(self.nav_tree.topLevelItemCount()):
-            collect_expanded(self.nav_tree.topLevelItem(i))
+            item = self.nav_tree.topLevelItem(i)
+            if item:
+                collect_expanded(item)
 
         return state
 
@@ -297,4 +302,6 @@ class NavigationPanel(QFrame):
                 restore_expanded(item.child(i), current_path)
 
         for i in range(self.nav_tree.topLevelItemCount()):
-            restore_expanded(self.nav_tree.topLevelItem(i))
+            tree_item = self.nav_tree.topLevelItem(i)
+            if tree_item:
+                restore_expanded(tree_item)

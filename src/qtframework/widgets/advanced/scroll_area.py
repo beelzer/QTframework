@@ -94,10 +94,11 @@ class DynamicScrollArea(QScrollArea):
     def _do_adjust_margins(self) -> None:
         """Actually perform the margin adjustment."""
         widget = self.widget()
-        if not widget or not widget.layout():
+        layout = widget.layout() if widget else None
+        if not widget or not layout:
             return
 
-        margins = widget.layout().contentsMargins()
+        margins = layout.contentsMargins()
         left, top, right, bottom = (
             margins.left(),
             margins.top(),
@@ -123,9 +124,9 @@ class DynamicScrollArea(QScrollArea):
 
         # Only update if margins need to change
         if right != new_right or bottom != new_bottom:
-            widget.layout().setContentsMargins(left, top, new_right, new_bottom)
+            layout.setContentsMargins(left, top, new_right, new_bottom)
             # Force a layout update to apply changes immediately
-            widget.layout().update()
+            layout.update()
 
     def adjust_content_margins(self) -> None:
         """Manually trigger margin adjustment."""
@@ -177,9 +178,9 @@ class DynamicScrollArea(QScrollArea):
         h_bar = self.horizontalScrollBar() if self._track_horizontal else None
 
         if watched in {v_bar, h_bar}:
-            if event.type() in {QEvent.Show, QEvent.Hide}:
+            if event.type() in {QEvent.Type.Show, QEvent.Type.Hide}:
                 # Scrollbar visibility changed, adjust margins
                 if self._adjustment_enabled:
                     self._adjustment_timer.start(10)
 
-        return super().eventFilter(watched, event)
+        return bool(super().eventFilter(watched, event))
