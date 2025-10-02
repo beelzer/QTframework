@@ -21,6 +21,13 @@ guides/plugins
 ```
 
 ```{toctree}
+:caption: Widgets
+:maxdepth: 2
+
+widgets/config_editor
+```
+
+```{toctree}
 :caption: API Reference
 :maxdepth: 3
 
@@ -74,6 +81,13 @@ Multi-language support with Babel
 :link-type: doc
 
 Build extensible applications with plugins
+:::
+
+:::{grid-item-card} 🧩 Widgets
+:link: widgets/config_editor
+:link-type: doc
+
+Reusable widget components
 :::
 
 :::{grid-item-card} 🔧 API Reference
