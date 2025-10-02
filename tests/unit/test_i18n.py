@@ -161,3 +161,18 @@ class TestLocaleFormatter:
 
         formatter.set_locale("de_DE")
         assert formatter.get_locale() == "de_DE"
+
+    def test_format_decimal_basic(self) -> None:
+        """Test basic decimal formatting."""
+        formatter = LocaleFormatter(locale="en_US")
+        result = formatter.format_decimal(1234.56)
+        assert "1" in result
+        assert "234" in result
+
+    def test_format_scientific_basic(self) -> None:
+        """Test scientific notation formatting."""
+        formatter = LocaleFormatter(locale="en_US")
+        result = formatter.format_scientific(123456.789)
+        # Scientific notation should contain 'E' or 'e'
+        assert "E" in result.upper()
+        assert "1" in result

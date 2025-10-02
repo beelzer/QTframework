@@ -2,7 +2,14 @@
 
 from __future__ import annotations
 
-from qtframework.state.actions import Action, ActionType, AsyncAction
+from qtframework.state.actions import (
+    Action,
+    ActionCreator,
+    ActionType,
+    AsyncAction,
+    create_action,
+    create_async_action,
+)
 
 
 class TestActionType:
@@ -212,3 +219,120 @@ class TestActionIntegration:
         assert actions[0].payload == 1
         assert actions[1].payload == 2
         assert actions[2].payload == 3
+
+
+class TestCreateAction:
+    """Test create_action helper function."""
+
+    def test_create_action_minimal(self) -> None:
+        """Test creating action with minimal parameters."""
+        action = create_action("TEST")
+        assert action.type == "TEST"
+        assert action.payload is None
+        assert action.meta == {}
+
+    def test_create_action_with_payload(self) -> None:
+        """Test creating action with payload."""
+        action = create_action("TEST", payload={"key": "value"})
+        assert action.type == "TEST"
+        assert action.payload == {"key": "value"}
+
+    def test_create_action_with_meta(self) -> None:
+        """Test creating action with metadata."""
+        action = create_action("TEST", meta_key="meta_value", another="data")
+        assert action.type == "TEST"
+        assert action.meta["meta_key"] == "meta_value"
+        assert action.meta["another"] == "data"
+
+    def test_create_action_with_enum(self) -> None:
+        """Test creating action with ActionType enum."""
+        action = create_action(ActionType.UPDATE, payload=123)
+        assert action.type == ActionType.UPDATE
+        assert action.payload == 123
+
+
+class TestCreateAsyncAction:
+    """Test create_async_action helper function."""
+
+    def test_create_async_action_minimal(self) -> None:
+        """Test creating async action with minimal parameters."""
+        promise = object()
+        action = create_async_action("ASYNC_TEST", promise)
+        assert action.type == "ASYNC_TEST"
+        assert action.promise == promise
+        assert action.payload is None
+
+    def test_create_async_action_with_payload(self) -> None:
+        """Test creating async action with payload."""
+        promise = object()
+        action = create_async_action("ASYNC_TEST", promise, payload={"data": 123})
+        assert action.payload == {"data": 123}
+        assert action.promise == promise
+
+    def test_create_async_action_with_meta(self) -> None:
+        """Test creating async action with metadata."""
+        promise = object()
+        action = create_async_action("ASYNC_TEST", promise, timeout=5000)
+        assert action.meta["timeout"] == 5000
+        assert action.promise == promise
+
+
+class TestActionCreator:
+    """Test ActionCreator factory class."""
+
+    def test_action_creator_creation_no_namespace(self) -> None:
+        """Test creating ActionCreator without namespace."""
+        creator = ActionCreator()
+        assert creator.namespace == ""
+
+    def test_action_creator_creation_with_namespace(self) -> None:
+        """Test creating ActionCreator with namespace."""
+        creator = ActionCreator(namespace="app")
+        assert creator.namespace == "app"
+
+    def test_action_creator_create_without_namespace(self) -> None:
+        """Test creating action without namespace."""
+        creator = ActionCreator()
+        action = creator.create("TEST", payload=123)
+        assert action.type == "TEST"
+        assert action.payload == 123
+
+    def test_action_creator_create_with_namespace(self) -> None:
+        """Test creating action with namespace."""
+        creator = ActionCreator(namespace="user")
+        action = creator.create("LOGIN", payload={"username": "test"})
+        assert action.type == "user/LOGIN"
+        assert action.payload == {"username": "test"}
+
+    def test_action_creator_update(self) -> None:
+        """Test ActionCreator.update method."""
+        creator = ActionCreator(namespace="data")
+        action = creator.update("user.name", "John")
+        assert action.type == "data/UPDATE"
+        assert action.payload == {"path": "user.name", "value": "John"}
+
+    def test_action_creator_set(self) -> None:
+        """Test ActionCreator.set method."""
+        creator = ActionCreator(namespace="config")
+        action = creator.set({"theme": "dark", "font": 12})
+        assert action.type == "config/SET"
+        assert action.payload == {"theme": "dark", "font": 12}
+
+    def test_action_creator_delete(self) -> None:
+        """Test ActionCreator.delete method."""
+        creator = ActionCreator(namespace="items")
+        action = creator.delete("items.123")
+        assert action.type == "items/DELETE"
+        assert action.payload == "items.123"
+
+    def test_action_creator_batch(self) -> None:
+        """Test ActionCreator.batch method."""
+        creator = ActionCreator(namespace="bulk")
+        actions_list = [
+            Action(type="ACTION1"),
+            Action(type="ACTION2"),
+        ]
+        action = creator.batch(actions_list)
+        assert action.type == "bulk/BATCH"
+        assert action.payload == actions_list
+        assert len(action.payload) == 2
