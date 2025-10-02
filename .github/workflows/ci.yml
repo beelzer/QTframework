@@ -383,9 +383,11 @@ jobs:
             REQUIRED_BY_NAME="${REQUIRED_BY%%==*}"
 
             # Output for report job
-            echo "failed_package=$FAILED_PKG" >> "$GITHUB_OUTPUT"
-            echo "failed_package_name=$FAILED_PKG_NAME" >> "$GITHUB_OUTPUT"
-            echo "required_by=$REQUIRED_BY" >> "$GITHUB_OUTPUT"
+            {
+              echo "failed_package=$FAILED_PKG"
+              echo "failed_package_name=$FAILED_PKG_NAME"
+              echo "required_by=$REQUIRED_BY"
+            } >> "$GITHUB_OUTPUT"
 
             # Generate PyPI URL for the failed package
             if [ -n "$FAILED_PKG_NAME" ]; then
