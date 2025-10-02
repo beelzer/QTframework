@@ -4,6 +4,7 @@ Theming demonstration page.
 
 from __future__ import annotations
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -34,6 +35,10 @@ class ThemingPage(DemoPage):
         }
         super().__init__(titles.get(page_type, "Theming"))
         self._create_content()
+
+        # Connect to theme changes for live updates
+        if self.parent_window and hasattr(self.parent_window, "theme_manager"):
+            self.parent_window.theme_manager.theme_changed.connect(self._on_external_theme_change)
 
     def _create_content(self):
         """Create content based on page type."""
@@ -101,10 +106,28 @@ class ThemingPage(DemoPage):
     def page_shown(self):
         """Called when this page is shown in the content area."""
         self._refresh_theme_dropdown()
+        # Refresh color palette if this is the palette page
+        if self.page_type == "palette":
+            self._refresh_color_palette()
+
+    def _refresh_color_palette(self):
+        """Refresh the color palette to show current theme colors."""
+        # Clear existing widgets
+        while self.content_layout.count():
+            item = self.content_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        # Recreate the color palette
+        self._create_color_palette()
+        self.add_stretch()
 
     def _on_external_theme_change(self, theme_name: str):
         """Handle theme changes from external sources (menu bar, etc.)."""
         self._refresh_theme_dropdown()
+        # Refresh color palette if this is the palette page
+        if self.page_type == "palette":
+            self._refresh_color_palette()
 
     def _refresh_theme_dropdown(self):
         """Refresh the theme dropdown to match current theme."""
@@ -131,53 +154,135 @@ class ThemingPage(DemoPage):
 
     def _create_color_palette(self):
         """Create color palette display."""
-        group = QGroupBox("Color Palette")
-        layout = QGridLayout()
+        # Get current theme
+        theme = None
+        if self.parent_window and hasattr(self.parent_window, "theme_manager"):
+            theme = self.parent_window.theme_manager.get_current_theme()
 
-        colors = [
-            ("Primary", "#007bff", "Primary brand color"),
-            ("Secondary", "#6c757d", "Secondary brand color"),
-            ("Success", "#28a745", "Success state color"),
-            ("Warning", "#ffc107", "Warning state color"),
-            ("Danger", "#dc3545", "Error state color"),
-            ("Info", "#17a2b8", "Information color"),
-            ("Light", "#f8f9fa", "Light background"),
-            ("Dark", "#343a40", "Dark background"),
-            ("Background", "#ffffff", "Default background"),
-            ("Surface", "#f5f5f5", "Surface color"),
-            ("Text", "#212529", "Primary text"),
-            ("Text Secondary", "#6c757d", "Secondary text"),
-        ]
+        # Main colors section (large swatches)
+        main_group = QGroupBox("Main Colors")
+        main_layout = QGridLayout()
 
-        for i, (name, color, description) in enumerate(colors):
-            row = i // 3
-            col = (i % 3) * 2
+        if theme and theme.tokens:
+            semantic = theme.tokens.semantic
+            main_colors = [
+                ("Primary Action", semantic.action_primary, "Primary interactive color"),
+                ("Secondary Action", semantic.action_secondary, "Secondary interactive color"),
+                ("Success", semantic.feedback_success, "Success feedback color"),
+                ("Warning", semantic.feedback_warning, "Warning feedback color"),
+                ("Error", semantic.feedback_error, "Error feedback color"),
+                ("Info", semantic.feedback_info, "Information feedback color"),
+            ]
 
-            # Color swatch
+            for i, (name, color, description) in enumerate(main_colors):
+                row = i // 3
+                col = (i % 3) * 2
+
+                # Large color swatch
+                swatch = QFrame()
+                swatch.setStyleSheet(
+                    f"background-color: {color}; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px;"
+                )
+                swatch.setFixedSize(80, 80)
+                main_layout.addWidget(swatch, row, col)
+
+                # Color info
+                info_widget = QWidget()
+                info_widget.setStyleSheet("background: transparent;")
+                info_layout = QVBoxLayout(info_widget)
+                info_layout.setContentsMargins(0, 0, 0, 0)
+
+                name_label = QLabel(name)
+                name_label.setProperty("heading", "h3")
+                info_layout.addWidget(name_label)
+
+                color_label = QLabel(color)
+                color_label.setStyleSheet("font-family: monospace;")
+                info_layout.addWidget(color_label)
+
+                desc_label = QLabel(description)
+                desc_label.setProperty("secondary", "true")
+                info_layout.addWidget(desc_label)
+
+                info_layout.addStretch()
+                info_widget.setLayout(info_layout)
+                main_layout.addWidget(info_widget, row, col + 1)
+
+            main_group.setLayout(main_layout)
+            self.content_layout.addWidget(main_group)
+
+            # Additional color groups (smaller swatches)
+            self._add_color_group(
+                "Background Colors",
+                [
+                    ("Primary", semantic.bg_primary),
+                    ("Secondary", semantic.bg_secondary),
+                    ("Tertiary", semantic.bg_tertiary),
+                    ("Elevated", semantic.bg_elevated),
+                ],
+            )
+
+            self._add_color_group(
+                "Text Colors",
+                [
+                    ("Primary", semantic.fg_primary),
+                    ("Secondary", semantic.fg_secondary),
+                    ("Tertiary", semantic.fg_tertiary),
+                    ("On Accent", semantic.fg_on_accent),
+                ],
+            )
+
+            self._add_color_group(
+                "Border Colors",
+                [
+                    ("Default", semantic.border_default),
+                    ("Subtle", semantic.border_subtle),
+                    ("Strong", semantic.border_strong),
+                    ("Focus", semantic.border_focus),
+                ],
+            )
+        else:
+            # Fallback static display
+            placeholder = QLabel("No theme loaded - using application default theme")
+            placeholder.setProperty("secondary", "true")
+            main_group.layout = QVBoxLayout()
+            main_group.layout.addWidget(placeholder)
+            self.content_layout.addWidget(main_group)
+
+    def _add_color_group(self, title: str, colors: list[tuple[str, str]]):
+        """Add a group of colors with smaller swatches."""
+        group = QGroupBox(title)
+        layout = QHBoxLayout()
+
+        for name, color in colors:
+            item_widget = QWidget()
+            item_widget.setStyleSheet("background: transparent;")
+            item_layout = QVBoxLayout(item_widget)
+            item_layout.setContentsMargins(0, 0, 0, 0)
+            item_layout.setSpacing(4)
+
+            # Small swatch
             swatch = QFrame()
-            swatch.setStyleSheet(f"background-color: {color}; border: 1px solid #ddd;")
-            swatch.setFixedSize(60, 60)
-            layout.addWidget(swatch, row, col)
+            swatch.setStyleSheet(
+                f"background-color: {color}; border: 1px solid rgba(0,0,0,0.1); border-radius: 3px;"
+            )
+            swatch.setFixedSize(50, 50)
+            item_layout.addWidget(swatch, alignment=Qt.AlignmentFlag.AlignCenter)
 
-            # Color info
-            info_widget = QWidget()
-            info_layout = QVBoxLayout(info_widget)
-            info_layout.setContentsMargins(0, 0, 0, 0)
-
+            # Name
             name_label = QLabel(name)
-            name_label.setProperty("heading", "h3")
-            info_layout.addWidget(name_label)
+            name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            item_layout.addWidget(name_label)
 
+            # Color value
             color_label = QLabel(color)
-            color_label.setStyleSheet("font-family: monospace;")
-            info_layout.addWidget(color_label)
+            color_label.setStyleSheet("font-family: monospace; font-size: 10px;")
+            color_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            item_layout.addWidget(color_label)
 
-            desc_label = QLabel(description)
-            desc_label.setProperty("secondary", "true")
-            info_layout.addWidget(desc_label)
+            layout.addWidget(item_widget)
 
-            layout.addWidget(info_widget, row, col + 1)
-
+        layout.addStretch()
         group.setLayout(layout)
         self.content_layout.addWidget(group)
 
