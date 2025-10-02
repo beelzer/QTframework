@@ -302,3 +302,18 @@ class TestConfigMigratorCustomMigrations:
         assert result["app"]["name"] == "TestApp"
         assert result["app"]["version"] == "1.0"
         assert result["database"]["host"] == "localhost"
+
+    def test_migration_with_existing_performance_section(self) -> None:
+        """Test migration when performance section already exists."""
+        migrator = ConfigMigrator(current_version="1.0.0")
+        data = {
+            "$schema_version": "0.9.0",
+            "performance": {"cache_size": 200, "custom": "value"},
+        }
+
+        result = migrator.validate_and_migrate(data, "test")
+
+        # Should preserve existing performance section
+        assert result["performance"]["cache_size"] == 200
+        assert result["performance"]["custom"] == "value"
+        assert result["$schema_version"] == "1.0.0"

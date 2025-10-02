@@ -309,3 +309,13 @@ class TestDesignTokens:
 
         assert tokens2.primitive.primary_500 == "#123456"
         assert tokens2.typography.font_size_md == 20
+
+    def test_resolve_token_with_dict_attribute(self) -> None:
+        """Test resolving token path that goes through a dict attribute."""
+        tokens = DesignTokens()
+        # Manually add a custom dict attribute to test the dict branch
+        tokens.custom_dict = {"nested": {"value": "test_value"}}  # type: ignore[attr-defined]
+
+        # Try to resolve through the dict
+        value = tokens.resolve_token("custom_dict.nested.value")
+        assert value == "test_value"

@@ -613,3 +613,16 @@ class TestInputIntegration:
         # Press return with empty text - should not trigger
         search_input._input.returnPressed.emit()
         assert signals_received == []
+
+    def test_textarea_enforce_max_length_deletion(self, qtbot: QtBot) -> None:
+        """Test textarea deletes characters when max length exceeded."""
+        textarea = TextArea(max_length=5)
+        qtbot.addWidget(textarea)
+
+        # Set text that exceeds max length
+        textarea.setPlainText("12345")
+        # Simulate typing an extra character
+        qtbot.keyClick(textarea, "6")
+
+        # Should still be at max length
+        assert len(textarea.toPlainText()) <= 5
