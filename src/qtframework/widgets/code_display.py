@@ -6,7 +6,7 @@ and automatic height adjustment.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from PySide6.QtCore import QRegularExpression, Qt
 from PySide6.QtGui import QColor, QFont, QPalette, QSyntaxHighlighter, QTextCharFormat
@@ -27,18 +27,18 @@ class CodeHighlighter(QSyntaxHighlighter):
 
     def _is_dark_theme(self) -> bool:
         """Determine if we're using a dark theme."""
-        app = QApplication.instance()
+        app = cast("QApplication | None", QApplication.instance())
         if app:
             palette = app.palette()
-            bg_color = palette.color(QPalette.Window)
-            return bg_color.lightness() < 128
+            bg_color = palette.color(QPalette.ColorRole.Window)
+            return bool(bg_color.lightness() < 128)
         return False
 
     def _get_theme_syntax_colors(self) -> dict[str, str]:
         """Get syntax colors from the current theme or defaults."""
         # Try to get colors from the theme manager
         try:
-            app = QApplication.instance()
+            app = cast("QApplication | None", QApplication.instance())
             if app:
                 for widget in app.topLevelWidgets():
                     if hasattr(widget, "theme_manager"):
@@ -59,7 +59,7 @@ class CodeHighlighter(QSyntaxHighlighter):
                                 "operator": syntax.operator,
                                 "decorator": syntax.decorator,
                             }
-        except:
+        except Exception:  # noqa: S110
             pass
 
         # Fallback to default colors based on theme detection
@@ -118,7 +118,7 @@ class PythonHighlighter(CodeHighlighter):
         # Keywords
         keyword_format = QTextCharFormat()
         keyword_format.setForeground(QColor(colors["keyword"]))
-        keyword_format.setFontWeight(QFont.Bold)
+        keyword_format.setFontWeight(QFont.Weight.Bold)
         keywords = [
             "and",
             "as",
@@ -164,7 +164,7 @@ class PythonHighlighter(CodeHighlighter):
         # Class names
         class_format = QTextCharFormat()
         class_format.setForeground(QColor(colors["class"]))
-        class_format.setFontWeight(QFont.Bold)
+        class_format.setFontWeight(QFont.Weight.Bold)
         self.highlighting_rules.append((QRegularExpression("\\bQ[A-Za-z]+\\b"), class_format))
         self.highlighting_rules.append((
             QRegularExpression("\\b[A-Z][A-Za-z0-9_]+\\b"),
@@ -216,7 +216,7 @@ class JavaScriptHighlighter(CodeHighlighter):
         # Keywords
         keyword_format = QTextCharFormat()
         keyword_format.setForeground(QColor(colors["keyword"]))
-        keyword_format.setFontWeight(QFont.Bold)
+        keyword_format.setFontWeight(QFont.Weight.Bold)
         keywords = [
             "async",
             "await",
@@ -370,7 +370,7 @@ class CodeDisplay(QTextEdit):
         font_size = 12
 
         try:
-            app = QApplication.instance()
+            app = cast("QApplication | None", QApplication.instance())
             if app:
                 for widget in app.topLevelWidgets():
                     if hasattr(widget, "theme_manager"):
@@ -383,7 +383,7 @@ class CodeDisplay(QTextEdit):
                                 if hasattr(typography, "font_size_sm"):
                                     font_size = typography.font_size_sm
                             break
-        except:
+        except Exception:  # noqa: S110
             pass
 
         return font_name, font_size
@@ -393,7 +393,7 @@ class CodeDisplay(QTextEdit):
         # Get font from theme if available
         font_name, font_size = self._get_theme_font()
         font = QFont(font_name)
-        font.setStyleHint(QFont.Monospace)
+        font.setStyleHint(QFont.StyleHint.Monospace)
         font.setPointSize(font_size)
         self.setFont(font)
 
@@ -402,13 +402,13 @@ class CodeDisplay(QTextEdit):
 
         # Set wrap mode
         if self._wrap_mode:
-            self.setLineWrapMode(QTextEdit.WidgetWidth)
+            self.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
         else:
-            self.setLineWrapMode(QTextEdit.NoWrap)
+            self.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
 
         # Scrollbar policies
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         # Set minimum dimensions
         self.setMinimumHeight(40)
@@ -488,7 +488,7 @@ class CodeDisplay(QTextEdit):
         # Update font from theme
         font_name, font_size = self._get_theme_font()
         font = QFont(font_name)
-        font.setStyleHint(QFont.Monospace)
+        font.setStyleHint(QFont.StyleHint.Monospace)
         font.setPointSize(font_size)
         self.setFont(font)
 

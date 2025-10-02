@@ -21,7 +21,7 @@ Successfully removed all backward compatibility shims and updated the features e
 
 ### ✅ **Updated to Use Framework Components**
 
-3. **All Page Files** (15 files) - UPDATED ✓
+1. **All Page Files** (15 files) - UPDATED ✓
 
    - Changed: `from .base import DemoPage`
    - To: `from qtframework.widgets import ScrollablePage as DemoPage`
@@ -42,18 +42,18 @@ Successfully removed all backward compatibility shims and updated the features e
      - theming.py
      - trees_lists.py
 
-4. **`app/widgets/__init__.py`** - UPDATED ✓
+2. **`app/widgets/__init__.py`** - UPDATED ✓
 
    - Removed custom widget exports
    - Now just documents that widgets come from framework
 
-5. **`app/dockwidgets.py`** - UPDATED ✓
+3. **`app/dockwidgets.py`** - UPDATED ✓
 
    - Changed: `from .widgets import CodeDisplay`
    - To: `from qtframework.widgets import CodeDisplay`
    - Already using: `from qtframework.widgets.advanced import DynamicScrollArea`
 
-6. **`app/content.py`** - REFACTORED ✓
+4. **`app/content.py`** - REFACTORED ✓
    - Changed base class from `QStackedWidget` to `PageManager`
    - Removed 40+ lines of manual page management logic
    - Now inherits all page management features from framework:

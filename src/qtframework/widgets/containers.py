@@ -95,7 +95,8 @@ class Card(QFrame):
             self._actions_layout.addStretch()
             self._layout.addWidget(self._actions_widget)
 
-        self._actions_layout.addWidget(button)
+        if self._actions_layout:
+            self._actions_layout.addWidget(button)
 
     def set_elevated(self, elevated: bool = True) -> None:
         """Set elevated style for shadow effect.
