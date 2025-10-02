@@ -321,11 +321,15 @@ class TestThemeManagerSystemTheme:
         """Test detecting dark system theme."""
         manager = ThemeManager()
 
-        with patch.object(qapp.palette(), "color") as mock_color:
-            # Mock dark background color (low luminance)
-            mock_color.return_value.red.return_value = 30
-            mock_color.return_value.green.return_value = 30
-            mock_color.return_value.blue.return_value = 30
+        # Create a mock color object with low RGB values (dark)
+        mock_color = Mock()
+        mock_color.red.return_value = 30
+        mock_color.green.return_value = 30
+        mock_color.blue.return_value = 30
+
+        # Patch the palette to return our mock color
+        with patch.object(qapp, "palette") as mock_palette:
+            mock_palette.return_value.color.return_value = mock_color
 
             result = manager.detect_system_theme()
             assert result == "dark"

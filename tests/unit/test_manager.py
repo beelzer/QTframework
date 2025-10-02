@@ -506,24 +506,27 @@ class TestConfigManagerStandardConfigs:
         count = manager.load_standard_configs("TestApp", "config.json", defaults)
         assert count >= 1  # At least defaults loaded
 
-    @patch("qtframework.utils.paths.find_config_files")
+    @patch("qtframework.config.manager.find_config_files")
     def test_load_standard_configs_with_files(self, mock_find: Mock) -> None:
         """Test loading standard configs with existing files."""
-        data = {"app": {"name": "test"}, "$schema_version": "1.0.0"}
+        data = {"custom_key": "custom_value", "$schema_version": "1.0.0"}
 
         with tempfile.NamedTemporaryFile(
             encoding="utf-8", mode="w", delete=False, suffix=".json"
         ) as f:
             json.dump(data, f)
+            f.flush()  # Ensure data is written
             path = Path(f.name)
 
         try:
-            # Set mock before creating manager
+            # Mock must be set up BEFORE creating manager
             mock_find.return_value = [path]
             manager = ConfigManager()
-            count = manager.load_standard_configs("TestApp", "config.json")
-            # Should load at least the file (even if env vars don't match)
-            assert count > 0
+            count = manager.load_standard_configs("TestAppUnique123", "config.json")
+            # Should load at least the file
+            assert count >= 1
+            # Verify the mock was called
+            mock_find.assert_called_once()
         finally:
             path.unlink()
 
