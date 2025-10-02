@@ -3,31 +3,18 @@
 
 from __future__ import annotations
 
-import subprocess  # noqa: S404
 import sys
 
+from annotation_utils import Annotation, parse_json_output, run_tool
 
-def main() -> int:
-    """Run ruff and create GitHub annotations with clean messages."""
-    # Run ruff check with JSON output for easier parsing
-    result = subprocess.run(
-        ["ruff", "check", "src", "tests", "examples", "scripts", "--output-format=json"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
 
-    if not result.stdout.strip():
-        return result.returncode
+def parse_ruff_output(result) -> list[Annotation]:
+    """Parse ruff JSON output into annotations."""
+    violations = parse_json_output(result)
+    if not violations:
+        return []
 
-    import json
-
-    try:
-        violations = json.loads(result.stdout)
-    except json.JSONDecodeError:
-        # Fallback to parsing the default format
-        return result.returncode
-
+    annotations = []
     for violation in violations:
         file = violation.get("filename", "")
         line = violation.get("location", {}).get("row", 0)
@@ -37,16 +24,32 @@ def main() -> int:
         code = violation.get("code", "")
         message = violation.get("message", "")
 
-        # Create annotation with just the code and message (no duplicate file:line)
+        # Create annotation with just the code and message
         annotation_type = "error" if violation.get("fix") is None else "warning"
         title = f"Ruff ({code})" if code else "Ruff"
 
-        print(
-            f"::{annotation_type} title={title},file={file},line={line},col={col},"
-            f"endLine={end_line},endColumn={end_col}::{code}: {message}"
+        annotations.append(
+            Annotation(
+                file=file,
+                line=line,
+                col=col,
+                end_line=end_line,
+                end_col=end_col,
+                message=f"{code}: {message}",
+                title=title,
+                severity=annotation_type,
+            )
         )
 
-    return result.returncode
+    return annotations
+
+
+def main() -> int:
+    """Run ruff and create GitHub annotations with clean messages."""
+    return run_tool(
+        ["ruff", "check", "src", "tests", "examples", "scripts", "--output-format=json"],
+        parse_ruff_output,
+    )
 
 
 if __name__ == "__main__":

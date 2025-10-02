@@ -3,33 +3,36 @@
 
 from __future__ import annotations
 
-import subprocess  # noqa: S404
 import sys
+
+from annotation_utils import Annotation, run_tool
+
+
+def parse_ruff_format_output(result) -> list[Annotation]:
+    """Parse ruff format text output into annotations."""
+    # Parse output looking for "Would reformat: filename"
+    annotations = []
+    for line in result.stdout.splitlines():
+        if line.strip().startswith("Would reformat:"):
+            filename = line.split(":", 1)[1].strip()
+            annotations.append(
+                Annotation(
+                    file=filename,
+                    line=1,
+                    message=f"File needs formatting. Run `ruff format {filename}` to fix.",
+                    title="Ruff Format",
+                )
+            )
+
+    return annotations
 
 
 def main() -> int:
     """Run ruff format and create annotations for files that need formatting."""
-    result = subprocess.run(
+    return run_tool(
         ["ruff", "format", "--check", "src", "tests", "examples", "scripts"],
-        capture_output=True,
-        text=True,
-        check=False,
+        parse_ruff_format_output,
     )
-
-    # Parse output looking for "Would reformat: filename"
-    needs_formatting = []
-    for line in result.stdout.splitlines():
-        if line.strip().startswith("Would reformat:"):
-            filename = line.split(":", 1)[1].strip()
-            needs_formatting.append(filename)
-
-    # Create GitHub annotations
-    for filename in needs_formatting:
-        print(
-            f"::error title=Ruff Format,file={filename},line=1::File needs formatting. Run `ruff format {filename}` to fix."
-        )
-
-    return result.returncode
 
 
 if __name__ == "__main__":

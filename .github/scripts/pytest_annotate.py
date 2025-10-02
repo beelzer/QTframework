@@ -4,30 +4,13 @@
 from __future__ import annotations
 
 import re
-import subprocess  # noqa: S404
 import sys
 
+from annotation_utils import Annotation, run_tool
 
-def main() -> int:
-    """Run pytest and create GitHub annotations for failures."""
-    # Build pytest command from command line args
-    pytest_args = sys.argv[1:] if len(sys.argv) > 1 else ["tests/", "-v"]
 
-    result = subprocess.run(
-        ["pytest", *pytest_args],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-
-    # Print original output for logs
-    print(result.stdout)
-    if result.stderr:
-        print(result.stderr, file=sys.stderr)
-
-    # Parse pytest output for failures
-    # Format: tests/path/test_file.py::test_name FAILED
-    # Followed by file:line: in the traceback
+def parse_pytest_output(result) -> list[Annotation]:
+    """Parse pytest text output into annotations."""
     lines = result.stdout.splitlines()
 
     # Look for short test summary section for detailed error messages
@@ -47,6 +30,7 @@ def main() -> int:
                 test_path, msg = summary_match.groups()
                 summary_errors[test_path] = msg
 
+    annotations = []
     for i, line in enumerate(lines):
         # Look for FAILED test lines
         if " FAILED" in line or " ERROR" in line:
@@ -106,9 +90,28 @@ def main() -> int:
                 if error_details:
                     error_msg = " ".join(error_details[:3])  # First 3 lines of error
 
-                print(f"::error title=Pytest,file={error_file},line={error_line}::{error_msg}")
+                annotations.append(
+                    Annotation(
+                        file=error_file,
+                        line=int(error_line),
+                        message=error_msg,
+                        title="Pytest",
+                    )
+                )
 
-    return result.returncode
+    return annotations
+
+
+def main() -> int:
+    """Run pytest and create GitHub annotations for failures."""
+    # Build pytest command from command line args
+    pytest_args = sys.argv[1:] if len(sys.argv) > 1 else ["tests/", "-v"]
+
+    return run_tool(
+        ["pytest", *pytest_args],
+        parse_pytest_output,
+        print_output=True,
+    )
 
 
 if __name__ == "__main__":

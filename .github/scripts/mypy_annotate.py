@@ -4,22 +4,17 @@
 from __future__ import annotations
 
 import re
-import subprocess  # noqa: S404
 import sys
 
+from annotation_utils import Annotation, run_tool
 
-def main() -> int:
-    """Run mypy and create GitHub annotations."""
-    result = subprocess.run(
-        ["mypy", "src"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
 
+def parse_mypy_output(result) -> list[Annotation]:
+    """Parse mypy text output into annotations."""
     # Parse mypy output format: file.py:line:col: error: message [code]
     pattern = re.compile(r"^(.+?):(\d+):(\d+):\s+(error|warning|note):\s+(.+?)(?:\s+\[(.+?)\])?$")
 
+    annotations = []
     lines = result.stdout.splitlines()
     i = 0
     while i < len(lines):
@@ -60,14 +55,29 @@ def main() -> int:
             code_str = f" [{code}]" if code else ""
             annotation_type = "error" if severity == "error" else "warning"
 
-            print(
-                f"::{annotation_type} title=Mypy{code_str},file={file},line={line_num},col={col}::{full_message}"
+            annotations.append(
+                Annotation(
+                    file=file,
+                    line=int(line_num),
+                    col=int(col),
+                    message=full_message,
+                    title=f"Mypy{code_str}",
+                    severity=annotation_type,
+                )
             )
             i = j
         else:
             i += 1
 
-    return result.returncode
+    return annotations
+
+
+def main() -> int:
+    """Run mypy and create GitHub annotations."""
+    return run_tool(
+        ["mypy", "src"],
+        parse_mypy_output,
+    )
 
 
 if __name__ == "__main__":
