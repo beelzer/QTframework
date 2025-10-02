@@ -6,6 +6,8 @@ and color information.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QApplication,
@@ -16,6 +18,10 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+
+if TYPE_CHECKING:
+    from PySide6.QtWidgets import QLayout
 
 from qtframework.utils.styling import set_heading_level, set_widget_property
 
@@ -101,12 +107,12 @@ class ColorSwatch(QFrame):
             layout.addWidget(desc_label)
 
         if self._interactive:
-            self.setCursor(Qt.PointingHandCursor)
+            self.setCursor(Qt.CursorShape.PointingHandCursor)
             self.setToolTip(f"Click to copy {self.color}")
 
     def mousePressEvent(self, event) -> None:
         """Handle mouse press for interactive swatches."""
-        if self._interactive and event.button() == Qt.LeftButton:
+        if self._interactive and event.button() == Qt.MouseButton.LeftButton:
             # Copy to clipboard
             clipboard = QApplication.clipboard()
             clipboard.setText(self.color)
@@ -249,6 +255,7 @@ class ColorPaletteWidget(QWidget):
             description: Color description
             large: Whether to use large swatch format
         """
+        swatch: ColorSwatch | LargeColorSwatch
         if large:
             swatch = LargeColorSwatch(color, name, description)
         else:
@@ -271,6 +278,7 @@ class ColorPaletteWidget(QWidget):
         """
         group = QGroupBox(title)
 
+        layout: QLayout
         if use_flow_layout:
             try:
                 from qtframework.layouts import FlowLayout

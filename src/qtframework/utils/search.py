@@ -6,7 +6,7 @@ in widget hierarchies.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QPushButton,
     QRadioButton,
+    QWidget,
 )
 
 from qtframework.utils.styling import refresh_widget_style
@@ -91,6 +92,7 @@ class SearchHighlighter:
         search_lower = search_text if case_sensitive else search_text.lower()
 
         for widget_type, text_getter in self.supported_widgets.items():
+            widget: QWidget
             for widget in root_widget.findChildren(widget_type):
                 text = text_getter(widget)
                 if text:
@@ -109,6 +111,7 @@ class SearchHighlighter:
             root_widget: The root widget to clear highlights from
         """
         for widget_type in self.supported_widgets:
+            widget: QWidget
             for widget in root_widget.findChildren(widget_type):
                 widget.setProperty(self.property_name, False)
                 refresh_widget_style(widget)
@@ -152,12 +155,14 @@ class SearchableMixin:
         """
         if not hasattr(self, "_search_highlighter"):
             self.enable_search_highlighting()
-        return self._search_highlighter.highlight(self, text, case_sensitive, fuzzy)
+        return self._search_highlighter.highlight(
+            cast("QWidget", self), text, case_sensitive, fuzzy
+        )
 
     def clear_search(self) -> None:
         """Clear search highlights."""
         if hasattr(self, "_search_highlighter"):
-            self._search_highlighter.clear(self)
+            self._search_highlighter.clear(cast("QWidget", self))
 
 
 def collect_searchable_text(widget: QWidget, include_placeholders: bool = True) -> str:

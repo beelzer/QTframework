@@ -169,15 +169,17 @@ class PageManager(QStackedWidget):
             from qtframework.layouts import FlowLayout
 
             def update_flow_layouts(w: QWidget):
-                if w.layout() and isinstance(w.layout(), FlowLayout):
-                    w.layout().invalidate()
-                    w.layout().activate()
+                layout = w.layout()
+                if layout and isinstance(layout, FlowLayout):
+                    layout.invalidate()
+                    layout.activate()
                     w.adjustSize()
 
                 for child in w.findChildren(QWidget):
-                    if child.layout() and isinstance(child.layout(), FlowLayout):
-                        child.layout().invalidate()
-                        child.layout().activate()
+                    child_layout = child.layout()
+                    if child_layout and isinstance(child_layout, FlowLayout):
+                        child_layout.invalidate()
+                        child_layout.activate()
                         child.adjustSize()
 
             update_flow_layouts(widget)
