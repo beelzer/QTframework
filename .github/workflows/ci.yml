@@ -37,7 +37,7 @@ jobs:
       - name: Run ruff linting
         run: |
           echo "::group::Ruff Check"
-          ruff check src tests examples scripts --output-format=github
+          python .github/scripts/ruff_annotate.py
           echo "::endgroup::"
 
       - name: Run ruff format check
@@ -153,10 +153,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
       - name: Run markdownlint
         run: |
-          npm install -g markdownlint-cli
-          markdownlint . --config pyproject.toml --configPointer /tool/markdownlint --ignore node_modules
+          echo "::group::Markdownlint"
+          python .github/scripts/markdownlint_annotate.py
+          echo "::endgroup::"
 
   type-check:
     name: 🔎 Mypy
