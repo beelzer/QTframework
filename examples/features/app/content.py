@@ -53,7 +53,6 @@ class ContentArea(QStackedWidget):
         self.add_page("Sidebar Layout", LayoutsPage("sidebar"))
 
         # Theming
-        self.add_page("Theme Switcher", ThemingPage(self.parent_window))
         self.add_page("Color Palette", ThemingPage(self.parent_window, "palette"))
         self.add_page("Typography", ThemingPage(self.parent_window, "typography"))
 

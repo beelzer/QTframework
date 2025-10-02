@@ -214,41 +214,41 @@ class ConfigEditorWidget(QWidget):
             return widget
 
         if field.field_type == "int":
-            widget = QSpinBox()
+            int_widget = QSpinBox()
             if field.min_value is not None:
-                widget.setMinimum(int(field.min_value))
+                int_widget.setMinimum(int(field.min_value))
             if field.max_value is not None:
-                widget.setMaximum(int(field.max_value))
-            widget.setValue(int(current_value or field.default or 0))
-            return widget
+                int_widget.setMaximum(int(field.max_value))
+            int_widget.setValue(int(current_value or field.default or 0))
+            return int_widget
 
         if field.field_type == "float":
-            widget = QDoubleSpinBox()
+            float_widget = QDoubleSpinBox()
             if field.min_value is not None:
-                widget.setMinimum(float(field.min_value))
+                float_widget.setMinimum(float(field.min_value))
             if field.max_value is not None:
-                widget.setMaximum(float(field.max_value))
-            widget.setValue(float(current_value or field.default or 0.0))
-            return widget
+                float_widget.setMaximum(float(field.max_value))
+            float_widget.setValue(float(current_value or field.default or 0.0))
+            return float_widget
 
         if field.field_type == "bool":
-            widget = QCheckBox()
-            widget.setChecked(bool(current_value or field.default or False))
-            return widget
+            bool_widget = QCheckBox()
+            bool_widget.setChecked(bool(current_value or field.default or False))
+            return bool_widget
 
         if field.field_type == "choice":
-            widget = QComboBox()
+            choice_widget = QComboBox()
             # Get choices from callback or static list
             choices = field.choices_callback() if field.choices_callback else field.choices or []
-            widget.addItems(choices)
+            choice_widget.addItems(choices)
             if current_value and current_value in choices:
-                widget.setCurrentText(str(current_value))
-            return widget
+                choice_widget.setCurrentText(str(current_value))
+            return choice_widget
 
         # Fallback to string input
-        widget = QLineEdit()
-        widget.setText(str(current_value or ""))
-        return widget
+        fallback_widget = QLineEdit()
+        fallback_widget.setText(str(current_value or ""))
+        return fallback_widget
 
     def _create_json_view(self) -> QWidget:
         """Create config view section."""

@@ -13,8 +13,8 @@ def main() -> int:
     # Build pytest command from command line args
     pytest_args = sys.argv[1:] if len(sys.argv) > 1 else ["tests/", "-v"]
 
-    result = subprocess.run(  # noqa: S603
-        ["pytest", *pytest_args],  # noqa: S607
+    result = subprocess.run(
+        ["pytest", *pytest_args],
         capture_output=True,
         text=True,
         check=False,

@@ -113,6 +113,9 @@ def _create_theme_menu(window, menu):
     current_theme = window.theme_manager.get_current_theme()
     current_theme_name = current_theme.name if current_theme else "light"
 
+    # Store theme actions for updating later
+    theme_actions = {}
+
     for theme_name in window.theme_manager.list_themes():
         # Get theme info to get display name
         theme_info = window.theme_manager.get_theme_info(theme_name)
@@ -130,9 +133,23 @@ def _create_theme_menu(window, menu):
         theme_group.addAction(theme_action)
         menu.addAction(theme_action)
 
+        # Store action for later updates
+        theme_actions[theme_name] = theme_action
+
         # Check the currently active theme
         if theme_name == current_theme_name:
             theme_action.setChecked(True)
+
+    # Store theme actions on window for updates
+    window.theme_menu_actions = theme_actions
+
+    # Connect to theme manager's theme_changed signal to update menu
+    def update_theme_menu(new_theme_name: str):
+        """Update checked state of theme menu items."""
+        for theme_name, action in window.theme_menu_actions.items():
+            action.setChecked(theme_name == new_theme_name)
+
+    window.theme_manager.theme_changed.connect(update_theme_menu)
 
 
 def _create_help_menu(window, menu):

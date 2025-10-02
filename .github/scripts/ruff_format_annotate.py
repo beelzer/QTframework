@@ -9,7 +9,7 @@ import sys
 
 def main() -> int:
     """Run ruff format and create annotations for files that need formatting."""
-    result = subprocess.run(  # noqa: S603, S607
+    result = subprocess.run(
         ["ruff", "format", "--check", "src", "tests", "examples", "scripts"],
         capture_output=True,
         text=True,

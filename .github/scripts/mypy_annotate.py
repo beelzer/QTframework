@@ -10,7 +10,7 @@ import sys
 
 def main() -> int:
     """Run mypy and create GitHub annotations."""
-    result = subprocess.run(  # noqa: S603, S607
+    result = subprocess.run(
         ["mypy", "src"],
         capture_output=True,
         text=True,
@@ -18,9 +18,7 @@ def main() -> int:
     )
 
     # Parse mypy output format: file.py:line:col: error: message [code]
-    pattern = re.compile(
-        r"^(.+?):(\d+):(\d+):\s+(error|warning|note):\s+(.+?)(?:\s+\[(.+?)\])?$"
-    )
+    pattern = re.compile(r"^(.+?):(\d+):(\d+):\s+(error|warning|note):\s+(.+?)(?:\s+\[(.+?)\])?$")
 
     lines = result.stdout.splitlines()
     i = 0

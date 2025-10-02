@@ -88,7 +88,7 @@ class NavigationPanel(QFrame):
             "Core Components": ["Buttons", "Inputs", "Selections", "Display"],
             "Advanced Widgets": ["Tables", "Trees & Lists", "Dialogs", "Notifications"],
             "Layouts": ["Grid Layout", "Flex Layout", "Card Layout", "Sidebar Layout"],
-            "Theming": ["Theme Switcher", "Color Palette", "Typography", "Spacing"],
+            "Theming": ["Color Palette", "Typography", "Spacing"],
             "Forms": ["Basic Form", "Validation", "Complex Form"],
             "State": ["State Demo", "Actions", "Reducers"],
             "Configuration": ["Config Overview", "Config Editor"],
