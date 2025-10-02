@@ -17,6 +17,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from qtframework.layouts import FlowLayout
+
 from .base import DemoPage
 
 
@@ -122,6 +124,10 @@ class ThemingPage(DemoPage):
         self._create_color_palette()
         self.add_stretch()
 
+        # Force layout update
+        self.updateGeometry()
+        self.update()
+
     def _on_external_theme_change(self, theme_name: str):
         """Handle theme changes from external sources (menu bar, etc.)."""
         self._refresh_theme_dropdown()
@@ -159,12 +165,14 @@ class ThemingPage(DemoPage):
         if self.parent_window and hasattr(self.parent_window, "theme_manager"):
             theme = self.parent_window.theme_manager.get_current_theme()
 
-        # Main colors section (large swatches)
-        main_group = QGroupBox("Main Colors")
-        main_layout = QGridLayout()
-
         if theme and theme.tokens:
             semantic = theme.tokens.semantic
+            components = theme.tokens.components
+
+            # Main colors section (large swatches with flow layout)
+            main_group = QGroupBox("Main Action && Feedback Colors")
+            main_layout = FlowLayout()
+
             main_colors = [
                 ("Primary Action", semantic.action_primary, "Primary interactive color"),
                 ("Secondary Action", semantic.action_secondary, "Secondary interactive color"),
@@ -174,9 +182,13 @@ class ThemingPage(DemoPage):
                 ("Info", semantic.feedback_info, "Information feedback color"),
             ]
 
-            for i, (name, color, description) in enumerate(main_colors):
-                row = i // 3
-                col = (i % 3) * 2
+            for name, color, description in main_colors:
+                # Container for each main color item
+                container = QWidget()
+                container.setStyleSheet("background: transparent;")
+                container_layout = QHBoxLayout(container)
+                container_layout.setContentsMargins(0, 0, 10, 0)
+                container_layout.setSpacing(10)
 
                 # Large color swatch
                 swatch = QFrame()
@@ -184,11 +196,12 @@ class ThemingPage(DemoPage):
                     f"background-color: {color}; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px;"
                 )
                 swatch.setFixedSize(80, 80)
-                main_layout.addWidget(swatch, row, col)
+                container_layout.addWidget(swatch)
 
                 # Color info
                 info_widget = QWidget()
                 info_widget.setStyleSheet("background: transparent;")
+                info_widget.setFixedWidth(150)
                 info_layout = QVBoxLayout(info_widget)
                 info_layout.setContentsMargins(0, 0, 0, 0)
 
@@ -202,16 +215,18 @@ class ThemingPage(DemoPage):
 
                 desc_label = QLabel(description)
                 desc_label.setProperty("secondary", "true")
+                desc_label.setWordWrap(True)
                 info_layout.addWidget(desc_label)
 
                 info_layout.addStretch()
-                info_widget.setLayout(info_layout)
-                main_layout.addWidget(info_widget, row, col + 1)
+                container_layout.addWidget(info_widget)
+
+                main_layout.addWidget(container)
 
             main_group.setLayout(main_layout)
             self.content_layout.addWidget(main_group)
 
-            # Additional color groups (smaller swatches)
+            # Semantic colors
             self._add_color_group(
                 "Background Colors",
                 [
@@ -219,6 +234,7 @@ class ThemingPage(DemoPage):
                     ("Secondary", semantic.bg_secondary),
                     ("Tertiary", semantic.bg_tertiary),
                     ("Elevated", semantic.bg_elevated),
+                    ("Overlay", semantic.bg_overlay),
                 ],
             )
 
@@ -229,6 +245,20 @@ class ThemingPage(DemoPage):
                     ("Secondary", semantic.fg_secondary),
                     ("Tertiary", semantic.fg_tertiary),
                     ("On Accent", semantic.fg_on_accent),
+                    ("On Dark", semantic.fg_on_dark),
+                    ("On Light", semantic.fg_on_light),
+                ],
+            )
+
+            self._add_color_group(
+                "Action States",
+                [
+                    ("Primary", semantic.action_primary),
+                    ("Primary Hover", semantic.action_primary_hover),
+                    ("Primary Active", semantic.action_primary_active),
+                    ("Secondary", semantic.action_secondary),
+                    ("Secondary Hover", semantic.action_secondary_hover),
+                    ("Secondary Active", semantic.action_secondary_active),
                 ],
             )
 
@@ -241,8 +271,102 @@ class ThemingPage(DemoPage):
                     ("Focus", semantic.border_focus),
                 ],
             )
+
+            self._add_color_group(
+                "Interaction States",
+                [
+                    ("Hover", semantic.state_hover),
+                    ("Selected", semantic.state_selected),
+                    ("Disabled", semantic.state_disabled),
+                    ("Focus", semantic.state_focus),
+                ],
+            )
+
+            # Component colors
+            self._add_color_group(
+                "Button Colors",
+                [
+                    ("Primary BG", components.button_primary_bg),
+                    ("Primary FG", components.button_primary_fg),
+                    ("Primary Border", components.button_primary_border),
+                    ("Secondary BG", components.button_secondary_bg),
+                    ("Secondary FG", components.button_secondary_fg),
+                    ("Secondary Border", components.button_secondary_border),
+                ],
+            )
+
+            self._add_color_group(
+                "Input Colors",
+                [
+                    ("Background", components.input_bg),
+                    ("Text", components.input_fg),
+                    ("Border", components.input_border),
+                    ("Placeholder", components.input_placeholder),
+                ],
+            )
+
+            self._add_color_group(
+                "Table Colors",
+                [
+                    ("Header BG", components.table_header_bg),
+                    ("Header FG", components.table_header_fg),
+                    ("Row BG", components.table_row_bg),
+                    ("Row Alt BG", components.table_row_bg_alt),
+                    ("Row Hover", components.table_row_hover),
+                    ("Row Selected", components.table_row_selected),
+                    ("Border", components.table_border),
+                ],
+            )
+
+            self._add_color_group(
+                "Menu Colors",
+                [
+                    ("Background", components.menu_bg),
+                    ("Text", components.menu_fg),
+                    ("Hover BG", components.menu_hover_bg),
+                    ("Hover FG", components.menu_hover_fg),
+                    ("Selected BG", components.menu_selected_bg),
+                    ("Selected FG", components.menu_selected_fg),
+                ],
+            )
+
+            self._add_color_group(
+                "Tab Colors",
+                [
+                    ("Background", components.tab_bg),
+                    ("Text", components.tab_fg),
+                    ("Active BG", components.tab_active_bg),
+                    ("Active FG", components.tab_active_fg),
+                    ("Hover BG", components.tab_hover_bg),
+                    ("Hover FG", components.tab_hover_fg),
+                ],
+            )
+
+            self._add_color_group(
+                "Scrollbar Colors",
+                [
+                    ("Background", components.scrollbar_bg),
+                    ("Thumb", components.scrollbar_thumb),
+                    ("Thumb Hover", components.scrollbar_thumb_hover),
+                ],
+            )
+
+            self._add_color_group(
+                "Chart Colors",
+                [
+                    ("Series 1", components.chart_1),
+                    ("Series 2", components.chart_2),
+                    ("Series 3", components.chart_3),
+                    ("Series 4", components.chart_4),
+                    ("Series 5", components.chart_5),
+                    ("Series 6", components.chart_6),
+                    ("Grid", components.chart_grid),
+                    ("Axis", components.chart_axis),
+                ],
+            )
         else:
             # Fallback static display
+            main_group = QGroupBox("Color Palette")
             placeholder = QLabel("No theme loaded - using application default theme")
             placeholder.setProperty("secondary", "true")
             main_group.layout = QVBoxLayout()
@@ -252,11 +376,12 @@ class ThemingPage(DemoPage):
     def _add_color_group(self, title: str, colors: list[tuple[str, str]]):
         """Add a group of colors with smaller swatches."""
         group = QGroupBox(title)
-        layout = QHBoxLayout()
+        layout = FlowLayout()
 
         for name, color in colors:
             item_widget = QWidget()
             item_widget.setStyleSheet("background: transparent;")
+            item_widget.setFixedSize(100, 100)  # Fixed size for flow layout
             item_layout = QVBoxLayout(item_widget)
             item_layout.setContentsMargins(0, 0, 0, 0)
             item_layout.setSpacing(4)
@@ -272,6 +397,7 @@ class ThemingPage(DemoPage):
             # Name
             name_label = QLabel(name)
             name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            name_label.setWordWrap(True)
             item_layout.addWidget(name_label)
 
             # Color value
@@ -282,7 +408,6 @@ class ThemingPage(DemoPage):
 
             layout.addWidget(item_widget)
 
-        layout.addStretch()
         group.setLayout(layout)
         self.content_layout.addWidget(group)
 
