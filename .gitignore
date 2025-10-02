@@ -27,6 +27,8 @@ venv/
 .pytest_cache/
 htmlcov/
 coverage.xml
+coverage.json
+coverage_analysis.txt
 
 # =====================
 # Type Checking & Linting
