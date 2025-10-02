@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from qtframework.utils.exceptions import (
     ConfigurationError,
     NavigationError,
@@ -49,10 +51,8 @@ class TestQtFrameworkError:
 
     def test_error_can_be_raised(self) -> None:
         """Test error can be raised."""
-        try:
+        with pytest.raises(QtFrameworkError, match="Test error"):
             raise QtFrameworkError("Test error")
-        except QtFrameworkError as e:
-            assert str(e) == "Test error"
 
 
 class TestConfigurationError:

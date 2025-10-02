@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import tempfile
+from datetime import UTC
 from pathlib import Path
-
-import pytest
 
 from qtframework.i18n.locale_formatter import LocaleFormatter
 from qtframework.i18n.translation_loader import TranslationLoader
@@ -124,7 +123,7 @@ class TestLocaleFormatter:
         from datetime import datetime
 
         formatter = LocaleFormatter(locale="en_US")
-        date = datetime(2023, 12, 25)
+        date = datetime(2023, 12, 25, tzinfo=UTC)
         result = formatter.format_date(date)
         assert "2023" in result or "23" in result
         assert "12" in result or "25" in result
@@ -134,7 +133,7 @@ class TestLocaleFormatter:
         from datetime import datetime
 
         formatter = LocaleFormatter(locale="en_US")
-        time = datetime(2023, 1, 1, 14, 30, 0)
+        time = datetime(2023, 1, 1, 14, 30, 0, tzinfo=UTC)
         result = formatter.format_time(time)
         assert "14" in result or "2" in result or "30" in result
 
@@ -143,7 +142,7 @@ class TestLocaleFormatter:
         from datetime import datetime
 
         formatter = LocaleFormatter(locale="en_US")
-        dt = datetime(2023, 12, 25, 14, 30, 0)
+        dt = datetime(2023, 12, 25, 14, 30, 0, tzinfo=UTC)
         result = formatter.format_datetime(dt)
         assert len(result) > 0
 
