@@ -320,6 +320,12 @@ jobs:
         markdownlint,
         type-check,
       ]
+    outputs:
+      status: ${{ steps.deps.outputs.status }}
+      failed_package: ${{ steps.deps.outputs.failed_package }}
+      failed_package_name: ${{ steps.deps.outputs.failed_package_name }}
+      required_by: ${{ steps.deps.outputs.required_by }}
+      pypi_url: ${{ steps.deps.outputs.pypi_url }}
 
     steps:
       - name: Checkout code
@@ -376,6 +382,16 @@ jobs:
             FAILED_PKG_NAME="${FAILED_PKG%%==*}"
             REQUIRED_BY_NAME="${REQUIRED_BY%%==*}"
 
+            # Output for report job
+            echo "failed_package=$FAILED_PKG" >> "$GITHUB_OUTPUT"
+            echo "failed_package_name=$FAILED_PKG_NAME" >> "$GITHUB_OUTPUT"
+            echo "required_by=$REQUIRED_BY" >> "$GITHUB_OUTPUT"
+
+            # Generate PyPI URL for the failed package
+            if [ -n "$FAILED_PKG_NAME" ]; then
+              echo "pypi_url=https://pypi.org/project/$FAILED_PKG_NAME/" >> "$GITHUB_OUTPUT"
+            fi
+
             if [ -n "$FAILED_PKG" ]; then
               if [ -n "$REQUIRED_BY" ] && [ "$REQUIRED_BY_NAME" != "$FAILED_PKG_NAME" ]; then
                 MSG="Cannot build $FAILED_PKG (required by $REQUIRED_BY) on Python 3.14"
@@ -420,6 +436,7 @@ jobs:
         type-check,
         test,
         coverage,
+        test-python-3-14,
       ]
     if: always()
 
@@ -507,6 +524,53 @@ jobs:
             fi
             echo "</table>"
             echo ""
+
+            # Python 3.14 Compatibility Section
+            py314_status="${{ needs.test-python-3-14.outputs.status }}"
+            py314_result="${{ needs.test-python-3-14.result }}"
+
+            if [ "$py314_result" != "skipped" ] && [ "$py314_result" != "" ]; then
+              echo "---"
+              echo ""
+              echo "## 🔬 Python 3.14 Compatibility (Experimental)"
+              echo ""
+
+              if [ "$py314_status" = "success" ]; then
+                echo "✅ **All dependencies installed successfully on Python 3.14**"
+                echo ""
+                echo "The project is fully compatible with Python 3.14 (prerelease)."
+              elif [ "$py314_status" = "failed" ]; then
+                failed_pkg="${{ needs.test-python-3-14.outputs.failed_package }}"
+                failed_pkg_name="${{ needs.test-python-3-14.outputs.failed_package_name }}"
+                required_by="${{ needs.test-python-3-14.outputs.required_by }}"
+                pypi_url="${{ needs.test-python-3-14.outputs.pypi_url }}"
+
+                echo "⚠️ **Compatibility Issue Detected**"
+                echo ""
+
+                if [ -n "$failed_pkg_name" ] && [ -n "$pypi_url" ]; then
+                  echo "**Failed Package:** [\`$failed_pkg\`]($pypi_url)"
+                elif [ -n "$failed_pkg" ]; then
+                  echo "**Failed Package:** \`$failed_pkg\`"
+                else
+                  echo "**Failed Package:** Unknown dependency"
+                fi
+
+                if [ -n "$required_by" ]; then
+                  required_by_name="${required_by%%==*}"
+                  if [ "$required_by_name" != "$failed_pkg_name" ]; then
+                    echo ""
+                    echo "**Required by:** \`$required_by\`"
+                  fi
+                fi
+
+                echo ""
+                echo "> 💡 This package does not yet support Python 3.14. This is expected for prerelease versions."
+              else
+                echo "ℹ️ **Status:** Check job logs for details"
+              fi
+              echo ""
+            fi
 
             echo "---"
             echo ""
