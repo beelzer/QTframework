@@ -25,12 +25,17 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 @pytest.fixture(scope="session")
 def qapp() -> Generator[QApplication]:
-    """Session-scoped QApplication instance."""
+    """Session-scoped Application instance."""
+    from qtframework.core.application import Application
+
     app = QApplication.instance()
     if app is None:
-        app = QApplication([])
-        app.setApplicationName("QtFrameworkTest")
-        app.setOrganizationName("QtFrameworkTestOrg")
+        # Create our custom Application instance
+        app = Application(
+            app_name="QtFrameworkTest",
+            org_name="QtFrameworkTestOrg",
+            org_domain="test.qtframework.org"
+        )
     return app
     # Don't quit the app, pytest-qt manages it
 
