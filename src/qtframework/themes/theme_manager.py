@@ -82,6 +82,7 @@ class ThemeManager(QObject):
         super().__init__()
         self._themes: dict[str, Theme] = {}
         self._current_theme_name: str = "light"
+        self._requested_theme_name: str = "light"  # Track what user requested (e.g., 'auto')
         self._themes_dir = themes_dir or Path("resources/themes")
 
         # Load built-in themes
@@ -255,13 +256,23 @@ class ThemeManager(QObject):
             logger.error("Theme '%s' not found", actual_theme_name)
             return False
 
-        if actual_theme_name == self._current_theme_name:
+        # Check if both the requested theme and actual theme are unchanged
+        if (
+            actual_theme_name == self._current_theme_name
+            and theme_name == self._requested_theme_name
+        ):
             logger.debug("Theme '%s' is already active", actual_theme_name)
             return True
 
         old_theme = self._current_theme_name
         self._current_theme_name = actual_theme_name
-        logger.info("Theme changed from '%s' to '%s'", old_theme, actual_theme_name)
+        self._requested_theme_name = theme_name  # Store what user requested
+        logger.info(
+            "Theme changed from '%s' to '%s' (requested: '%s')",
+            old_theme,
+            actual_theme_name,
+            theme_name,
+        )
 
         # Emit signal for theme change with the actual theme (not 'auto')
         self.theme_changed.emit(actual_theme_name)
