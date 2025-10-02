@@ -222,7 +222,7 @@ class ThemeManager(QObject):
             'dark' if system is in dark mode, 'light' otherwise
         """
         app = QApplication.instance()
-        if app:
+        if app and isinstance(app, QApplication):
             palette = app.palette()
             # Check if window background is darker than text color
             bg_color = palette.color(QPalette.ColorRole.Window)
