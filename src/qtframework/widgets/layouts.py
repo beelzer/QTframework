@@ -62,7 +62,6 @@ class VBox(Widget):
 
         self._layout.setAlignment(alignment)
 
-    @property
     def layout(self) -> QVBoxLayout:
         """Get the underlying QVBoxLayout."""
         return self._layout
@@ -211,7 +210,6 @@ class HBox(Widget):
 
         self._layout.setAlignment(alignment)
 
-    @property
     def layout(self) -> QHBoxLayout:
         """Get the underlying QHBoxLayout."""
         return self._layout
