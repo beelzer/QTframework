@@ -9,13 +9,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
 
 from qtframework.widgets.base import Widget
 
 
 if TYPE_CHECKING:
-    from PySide6.QtWidgets import QLayout
+    from PySide6.QtWidgets import QLayout, QWidget
 
 
 class VBox(Widget):
