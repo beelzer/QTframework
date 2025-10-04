@@ -149,9 +149,10 @@ tokens:
 
             manager = ThemeManager(themes_dir=themes_dir)
 
-            # Should use existing built-in theme
+            # Custom theme should override built-in theme
             light_theme = manager.get_theme("light")
-            assert light_theme.display_name != "Custom Light"
+            assert light_theme.display_name == "Custom Light"
+            assert light_theme.description == "A custom light theme"
 
     def test_load_theme_file_invalid_yaml(self) -> None:
         """Test loading invalid YAML theme file."""
@@ -181,10 +182,20 @@ class TestThemeManagerRegistration:
     def test_register_theme_name_conflict(self) -> None:
         """Test registering theme with existing name."""
         manager = ThemeManager()
-        theme = Theme(name="light", display_name="Light", tokens=DesignTokens())
+        theme = Theme(name="light", display_name="Custom Light", tokens=DesignTokens())
 
+        # Default behavior: override existing theme
         result = manager.register_theme(theme)
+        assert result is True
+        assert manager.get_theme("light").display_name == "Custom Light"
+
+        # With override=False: don't override
+        theme2 = Theme(name="light", display_name="Another Light", tokens=DesignTokens())
+        result = manager.register_theme(theme2, override=False)
         assert result is False
+        assert (
+            manager.get_theme("light").display_name == "Custom Light"
+        )  # Still the first custom one
 
     def test_unregister_theme_success(self) -> None:
         """Test unregistering a theme successfully."""

@@ -22,6 +22,7 @@ from qtframework.utils.paths import (
     get_user_config_dir,
     get_user_data_dir,
 )
+from qtframework.utils.resources import ResourceManager
 from qtframework.utils.search import (
     SearchableMixin,
     SearchHighlighter,
@@ -72,6 +73,7 @@ __all__ = [
     "QtFrameworkError",
     "RegexValidator",
     "RequiredValidator",
+    "ResourceManager",
     "SearchHighlighter",
     "SearchableMixin",
     "SecurityError",

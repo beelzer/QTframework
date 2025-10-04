@@ -63,6 +63,7 @@ from PySide6.QtWidgets import QApplication
 from qtframework.themes.builtin_themes import BUILTIN_THEMES
 from qtframework.themes.theme import Theme
 from qtframework.utils.logger import get_logger
+from qtframework.utils.resources import ResourceManager
 
 
 logger = get_logger(__name__)
@@ -73,18 +74,25 @@ class ThemeManager(QObject):
 
     theme_changed = Signal(str)  # Emits theme name when changed
 
-    def __init__(self, themes_dir: Path | None = None, font_scale: int = 100) -> None:
+    def __init__(
+        self,
+        themes_dir: Path | None = None,
+        font_scale: int = 100,
+        resource_manager: ResourceManager | None = None,
+    ) -> None:
         """Initialize theme manager.
 
         Args:
             themes_dir: Directory to load custom themes from (default: resources/themes)
             font_scale: Font scale percentage (50-200, default 100)
+            resource_manager: Optional resource manager for themes and icons
         """
         super().__init__()
         self._themes: dict[str, Theme] = {}
         self._current_theme_name: str = "light"
         self._requested_theme_name: str = "light"  # Track what user requested (e.g., 'auto')
-        self._themes_dir = themes_dir or Path("resources/themes")
+        self._resource_manager = resource_manager or ResourceManager()
+        self._themes_dir = themes_dir or self._get_default_themes_dir()
         self._font_scale: int = font_scale
 
         # Load built-in themes
@@ -93,11 +101,27 @@ class ThemeManager(QObject):
         # Load custom themes
         self._load_custom_themes()
 
+    def _get_default_themes_dir(self) -> Path:
+        """Get default themes directory from resource manager.
+
+        Returns:
+            Path to themes directory
+        """
+        # Use resource manager to find themes directory
+        search_paths = self._resource_manager.get_search_paths("themes")
+        if search_paths:
+            return search_paths[0]
+        return Path("resources/themes")
+
     def _load_builtin_themes(self) -> None:
         """Load all built-in themes."""
         for theme_name, theme_factory in BUILTIN_THEMES.items():
             try:
                 theme = theme_factory()
+                # Inject resource manager into theme's stylesheet generator
+                theme._stylesheet_generator = theme._stylesheet_generator.__class__(
+                    self._resource_manager
+                )
                 self._themes[theme_name] = theme
                 logger.debug("Loaded built-in theme: %s", theme_name)
             except Exception as e:
@@ -131,13 +155,16 @@ class ThemeManager(QObject):
 
             theme = Theme.from_yaml(theme_file)
 
-            # Check for name conflicts
+            # Check for name conflicts - custom themes override built-in themes
             if theme.name in self._themes:
-                logger.warning(
-                    f"Theme '{theme.name}' from {theme_file} conflicts with existing theme. "
-                    f"Using existing theme."
+                logger.info(
+                    f"Custom theme '{theme.name}' from {theme_file} overrides built-in theme"
                 )
-                return
+
+            # Inject resource manager into theme's stylesheet generator
+            theme._stylesheet_generator = theme._stylesheet_generator.__class__(
+                self._resource_manager
+            )
 
             self._themes[theme.name] = theme
             logger.info(f"Loaded custom theme '{theme.name}' from {theme_file}")
@@ -145,18 +172,24 @@ class ThemeManager(QObject):
         except Exception as e:
             logger.exception("Failed to load theme from %s: %s", theme_file, e)
 
-    def register_theme(self, theme: Theme) -> bool:
+    def register_theme(self, theme: Theme, override: bool = True) -> bool:
         """Register a theme programmatically.
 
         Args:
             theme: Theme to register
+            override: If True, override existing theme with same name (default: True)
 
         Returns:
             True if registered successfully
         """
         if theme.name in self._themes:
-            logger.warning(f"Theme '{theme.name}' already exists")
-            return False
+            if not override:
+                logger.warning(f"Theme '{theme.name}' already exists")
+                return False
+            logger.info(f"Theme '{theme.name}' will override existing theme")
+
+        # Inject resource manager into theme's stylesheet generator
+        theme._stylesheet_generator = theme._stylesheet_generator.__class__(self._resource_manager)
 
         self._themes[theme.name] = theme
         logger.debug(f"Registered theme: {theme.name}")

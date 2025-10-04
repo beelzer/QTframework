@@ -53,12 +53,16 @@ See Also:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import yaml
 
 from qtframework.themes.stylesheet_generator import StylesheetGenerator
 from qtframework.themes.tokens import DesignTokens
+
+
+if TYPE_CHECKING:
+    from qtframework.utils.resources import ResourceManager
 
 
 class Theme:
@@ -85,8 +89,10 @@ class Theme:
         description: str = "",
         author: str = "",
         version: str = "1.0.0",
+        *,
         tokens: DesignTokens | None = None,
         custom_styles: dict[str, str] | None = None,
+        resource_manager: ResourceManager | None = None,
     ) -> None:
         """Initialize theme.
 
@@ -98,6 +104,7 @@ class Theme:
             version: Theme version
             tokens: Design tokens for the theme
             custom_styles: Additional custom CSS rules
+            resource_manager: Optional resource manager for resolving resource paths
         """
         self.name = name
         self.display_name = display_name
@@ -106,7 +113,7 @@ class Theme:
         self.version = version
         self.tokens = tokens or DesignTokens()
         self.custom_styles = custom_styles or {}
-        self._stylesheet_generator = StylesheetGenerator()
+        self._stylesheet_generator = StylesheetGenerator(resource_manager)
 
     def generate_stylesheet(self) -> str:
         """Generate Qt stylesheet from theme tokens.

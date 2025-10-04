@@ -7,10 +7,19 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from qtframework.themes.tokens import DesignTokens
+    from qtframework.utils.resources import ResourceManager
 
 
 class StylesheetGenerator:
     """Generate Qt stylesheets from design tokens."""
+
+    def __init__(self, resource_manager: ResourceManager | None = None) -> None:
+        """Initialize stylesheet generator.
+
+        Args:
+            resource_manager: Optional resource manager for resolving icon paths
+        """
+        self._resource_manager = resource_manager
 
     def generate(self, tokens: DesignTokens, custom_styles: dict[str, str]) -> str:
         """Generate complete stylesheet from tokens.
@@ -290,7 +299,7 @@ QComboBox::drop-down {{
 }}
 
 QComboBox::down-arrow {{
-    image: url(resources/icons/dropdown-arrow.svg);
+    {self._get_icon_style("dropdown-arrow.svg")}
     width: 16px;
     height: 16px;
 }}
@@ -849,3 +858,19 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover {{
     background-color: {tokens.semantic.state_hover};
     border-radius: {tokens.borders.radius_sm}px;
 }}"""
+
+    def _get_icon_style(self, icon_name: str) -> str:
+        """Get icon URL style for use in stylesheets.
+
+        Args:
+            icon_name: Name of the icon file
+
+        Returns:
+            CSS image property with icon URL or empty string if not found
+        """
+        if self._resource_manager:
+            icon_url = self._resource_manager.get_resource_url("icons", icon_name)
+            if icon_url:
+                return f"image: url({icon_url});"
+        # Fallback to relative path
+        return f"image: url(resources/icons/{icon_name});"

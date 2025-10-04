@@ -13,6 +13,7 @@ from PySide6.QtWidgets import QApplication
 from qtframework.core.context import Context
 from qtframework.themes import ThemeManager
 from qtframework.utils.logger import get_logger
+from qtframework.utils.resources import ResourceManager
 
 
 if TYPE_CHECKING:
@@ -50,6 +51,7 @@ class Application(QApplication):
         app_name: str = "QtFrameworkApp",
         org_name: str = "QtFramework",
         org_domain: str = "qtframework.local",
+        resource_manager: ResourceManager | None = None,
     ) -> None:
         """Initialize the application.
 
@@ -58,6 +60,7 @@ class Application(QApplication):
             app_name: Application name
             org_name: Organization name
             org_domain: Organization domain
+            resource_manager: Optional custom resource manager for themes/icons/translations
         """
         super().__init__(argv or sys.argv)
 
@@ -66,7 +69,8 @@ class Application(QApplication):
         self.setOrganizationDomain(org_domain)
 
         self._context = Context()
-        self._theme_manager = ThemeManager()
+        self._resource_manager = resource_manager or ResourceManager()
+        self._theme_manager = ThemeManager(resource_manager=self._resource_manager)
         self._current_stylesheet: str = ""
         self._settings = QSettings()
         self._windows: list[BaseWindow] = []
@@ -182,6 +186,11 @@ class Application(QApplication):
     def theme_manager(self) -> ThemeManager:
         """Get theme manager."""
         return self._theme_manager
+
+    @property
+    def resource_manager(self) -> ResourceManager:
+        """Get resource manager."""
+        return self._resource_manager
 
     @property
     def settings(self) -> QSettings:
