@@ -85,6 +85,7 @@ from qtframework.widgets.config_editor import ConfigEditorWidget, ConfigFieldDes
 from qtframework.widgets.containers import Card, CollapsibleCard, InfoCard, StatCard
 from qtframework.widgets.count_badge import CountBadge
 from qtframework.widgets.inputs import Input, PasswordInput, SearchInput, TextArea
+from qtframework.widgets.layouts import HBox, VBox
 from qtframework.widgets.pages import NonScrollablePage, ScrollablePage
 
 
@@ -102,6 +103,7 @@ __all__ = [
     "ConfigEditorWidget",
     "ConfigFieldDescriptor",
     "CountBadge",
+    "HBox",
     "IconButton",
     "InfoCard",
     "Input",
@@ -115,5 +117,6 @@ __all__ = [
     "StatCard",
     "TextArea",
     "ToggleButton",
+    "VBox",
     "Widget",
 ]
