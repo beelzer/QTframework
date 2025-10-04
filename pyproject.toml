@@ -3,14 +3,14 @@ requires = ["hatchling>=1.27.0"]
 build-backend = "hatchling.build"
 
 [project]
-name = "qt-framework"
+name = "qtframework"
 version = "0.1.0"
 description = "Modern, modular Qt application framework for Python"
 readme = "README.md"
 requires-python = ">=3.13"
 license = {text = "MIT"}
 authors = [
-    { name = "Your Name", email = "your.email@example.com" }
+    { name = "beelzer", email = "d.j.flitcroft@gmail.com" }
 ]
 keywords = ["qt", "framework", "gui", "desktop", "application", "pyside6"]
 classifiers = [
@@ -68,7 +68,7 @@ docs = [
 
 [project.urls]
 Homepage = "https://github.com/beelzer/qt-framework"
-Documentation = "https://qt-framework.readthedocs.io"
+Documentation = "https://beelzer.github.io/QTframework/"
 Repository = "https://github.com/beelzer/qt-framework.git"
 Issues = "https://github.com/beelzer/qt-framework/issues"
 

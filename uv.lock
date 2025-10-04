@@ -1214,7 +1214,7 @@ wheels = [
 ]
 
 [[package]]
-name = "qt-framework"
+name = "qtframework"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
