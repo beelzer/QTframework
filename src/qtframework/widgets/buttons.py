@@ -28,8 +28,15 @@ class ButtonVariant(Enum):
 
 
 class ButtonSize(Enum):
-    """Button size options."""
+    """Button size options.
 
+    COMPACT: Matches input field height, ideal for buttons next to QLineEdit/QComboBox
+    SMALL: Small standalone button (28px height)
+    MEDIUM: Default button size (36px height)
+    LARGE: Large emphasis button (44px height)
+    """
+
+    COMPACT = "compact"
     SMALL = "small"
     MEDIUM = "medium"
     LARGE = "large"
@@ -139,14 +146,20 @@ class Button(QPushButton):
         """Apply size styling."""
         self.setProperty("size", self._size.value)
 
-        size_map = {
-            ButtonSize.SMALL: (80, 28),
-            ButtonSize.MEDIUM: (100, 36),
-            ButtonSize.LARGE: (120, 44),
-        }
-        min_width, height = size_map[self._size]
-        self.setMinimumWidth(min_width)
-        self.setFixedHeight(height)
+        if self._size == ButtonSize.COMPACT:
+            # Match input field height with minimal padding
+            # Uses same vertical padding as QLineEdit (6px) with no min-height
+            self.setStyleSheet("padding: 6px 8px; min-height: 0px;")
+            self.setMinimumWidth(60)
+        else:
+            size_map = {
+                ButtonSize.SMALL: (80, 28),
+                ButtonSize.MEDIUM: (100, 36),
+                ButtonSize.LARGE: (120, 44),
+            }
+            min_width, height = size_map[self._size]
+            self.setMinimumWidth(min_width)
+            self.setFixedHeight(height)
 
         self.style().unpolish(self)
         self.style().polish(self)
