@@ -391,6 +391,11 @@ class TextArea(QTextEdit):
         """
         super().__init__(parent)
 
+        # Initialize max_length first before setting text
+        self._max_length = max_length
+        if max_length:
+            self.textChanged.connect(self._enforce_max_length)
+
         if object_name:
             self.setObjectName(object_name)
 
@@ -400,10 +405,6 @@ class TextArea(QTextEdit):
             self.setPlainText(value)
         if read_only:
             self.setReadOnly(read_only)
-
-        self._max_length = max_length
-        if max_length:
-            self.textChanged.connect(self._enforce_max_length)
 
     def _enforce_max_length(self) -> None:
         """Enforce maximum length."""

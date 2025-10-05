@@ -85,8 +85,8 @@ class Notification(QFrame):
         self.setAutoFillBackground(True)
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(16, 12, 16, 12)
-        layout.setSpacing(12)
+        layout.setContentsMargins(12, 8, 12, 8)
+        layout.setSpacing(8)
 
         # Icon
         icon_label = QLabel()
@@ -97,30 +97,34 @@ class Notification(QFrame):
             NotificationType.ERROR: "✕",
         }
         icon_label.setText(icon_text.get(self._type, ""))
-        icon_label.setStyleSheet("font-size: 20px; font-weight: bold; color: white;")
+        icon_label.setStyleSheet("font-size: 16px; font-weight: bold; color: white;")
         layout.addWidget(icon_label)
 
         # Content
         content_layout = QVBoxLayout()
-        content_layout.setSpacing(4)
+        content_layout.setSpacing(2)
 
         if self._title:
             title_label = QLabel(self._title)
             title_font = QFont()
             title_font.setBold(True)
+            title_font.setPointSize(9)
             title_label.setFont(title_font)
             content_layout.addWidget(title_label)
 
         if self._message:
             message_label = QLabel(self._message)
             message_label.setWordWrap(True)
+            message_font = QFont()
+            message_font.setPointSize(8)
+            message_label.setFont(message_font)
             content_layout.addWidget(message_label)
 
         layout.addLayout(content_layout, 1)
 
         # Close button
         if self._closable:
-            close_btn = CloseButton(size=20, style="light")
+            close_btn = CloseButton(size=16, style="light")
             close_btn.clicked.connect(self.close)
             layout.addWidget(close_btn, 0, Qt.AlignmentFlag.AlignTop)
 
@@ -133,8 +137,9 @@ class Notification(QFrame):
 
         theme_name = "light"
         if app and hasattr(app, "theme_manager"):
-            app.theme_manager.get_theme()
-            theme_name = app.theme_manager.get_current_theme_name()
+            current_theme = app.theme_manager.get_current_theme()
+            if current_theme:
+                theme_name = current_theme.name
 
         # Use basic colors for notification types
         if "dark" in theme_name or "monokai" in theme_name:
@@ -163,15 +168,16 @@ class Notification(QFrame):
             Notification {{
                 background-color: {bg_color};
                 border: none;
-                border-radius: 8px;
-                min-width: 300px;
-                max-width: 500px;
-                min-height: 60px;
-                padding: 12px;
+                border-radius: 6px;
+                min-width: 280px;
+                max-width: 450px;
+                padding: 8px;
             }}
             QLabel {{
                 color: {text_color};
                 background: transparent;
+                padding: 0px;
+                margin: 0px;
             }}
         """)
 
