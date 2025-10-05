@@ -162,11 +162,11 @@ QPushButton[variant="primary"] {{
 }}
 
 QPushButton[variant="primary"]:hover {{
-    background-color: {tokens.semantic.action_primary_hover};
+    background-color: {tokens.components.button_primary_border or tokens.semantic.action_primary_hover};
 }}
 
 QPushButton[variant="primary"]:pressed {{
-    background-color: {tokens.semantic.action_primary_active};
+    background-color: {tokens.semantic.action_secondary_active or tokens.semantic.action_primary_active};
 }}
 
 /* Success Button */
@@ -219,6 +219,12 @@ QPushButton[variant="outline"] {{
 QPushButton[variant="outline"]:hover {{
     background-color: {tokens.semantic.action_primary};
     color: {tokens.semantic.fg_on_accent};
+}}
+
+/* Button Sizes */
+QPushButton[size="compact"] {{
+    padding: 2px 8px;
+    min-height: 0px;
 }}
 
 /* Icon Button */

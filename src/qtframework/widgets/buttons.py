@@ -148,9 +148,10 @@ class Button(QPushButton):
 
         if self._size == ButtonSize.COMPACT:
             # Match input field height with minimal padding
-            # Uses same vertical padding as QLineEdit (6px) with no min-height
-            self.setStyleSheet("padding: 6px 8px; min-height: 0px;")
+            # Use size constraints instead of setStyleSheet to preserve theme styling
             self.setMinimumWidth(60)
+            self.setMinimumHeight(0)
+            self.setMaximumHeight(22)  # Very compact to fit in menubar
         else:
             size_map = {
                 ButtonSize.SMALL: (80, 28),
