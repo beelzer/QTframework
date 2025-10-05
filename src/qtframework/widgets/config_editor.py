@@ -47,6 +47,7 @@ class ConfigFieldDescriptor:
         max_value: Maximum value (for int/float)
         choices: List of choices (for choice type)
         choices_callback: Callable that returns list of choices dynamically
+        choices_display_callback: Callable that returns dict mapping choice values to display names
         on_change: Optional callback when value changes
         group: Optional group name to organize fields
     """
@@ -61,6 +62,7 @@ class ConfigFieldDescriptor:
         max_value: float | None = None,
         choices: list[str] | None = None,
         choices_callback: Callable[[], list[str]] | None = None,
+        choices_display_callback: Callable[[], dict[str, str]] | None = None,
         on_change: Callable[[Any], None] | None = None,
         group: str | None = None,
     ):
@@ -75,6 +77,7 @@ class ConfigFieldDescriptor:
             max_value: Maximum value for numeric fields
             choices: Static list of choices for choice fields
             choices_callback: Dynamic callback for choices
+            choices_display_callback: Callback returning dict mapping values to display names
             on_change: Callback when field value changes
             group: Group name for organizing fields
         """
@@ -86,6 +89,7 @@ class ConfigFieldDescriptor:
         self.max_value = max_value
         self.choices = choices
         self.choices_callback = choices_callback
+        self.choices_display_callback = choices_display_callback
         self.on_change = on_change
         self.group = group
 
@@ -240,9 +244,21 @@ class ConfigEditorWidget(QWidget):
             choice_widget = QComboBox()
             # Get choices from callback or static list
             choices = field.choices_callback() if field.choices_callback else field.choices or []
-            choice_widget.addItems(choices)
-            if current_value and current_value in choices:
-                choice_widget.setCurrentText(str(current_value))
+
+            # Get display names if callback provided
+            display_map = field.choices_display_callback() if field.choices_display_callback else {}
+
+            # Add items with display names
+            for choice in choices:
+                display_name = display_map.get(choice, choice)
+                choice_widget.addItem(display_name, choice)  # display name shown, value stored
+
+            # Set current value by finding the item with matching data
+            if current_value:
+                index = choice_widget.findData(current_value)
+                if index >= 0:
+                    choice_widget.setCurrentIndex(index)
+
             return choice_widget
 
         # Fallback to string input
@@ -289,10 +305,19 @@ class ConfigEditorWidget(QWidget):
                 # Refresh choices if dynamic
                 if field.choices_callback:
                     choices = field.choices_callback()
+                    display_map = field.choices_display_callback() if field.choices_display_callback else {}
                     widget.clear()
-                    widget.addItems(choices)
+                    for choice in choices:
+                        display_name = display_map.get(choice, choice)
+                        widget.addItem(display_name, choice)
                 if current_value:
-                    widget.setCurrentText(str(current_value))
+                    # Find item by data value
+                    index = widget.findData(current_value)
+                    if index >= 0:
+                        widget.setCurrentIndex(index)
+                    else:
+                        # Fallback to text match if no data found
+                        widget.setCurrentText(str(current_value))
 
         if self.show_json_view:
             self._update_config_display()
@@ -317,7 +342,9 @@ class ConfigEditorWidget(QWidget):
                 elif isinstance(widget, QCheckBox):
                     new_value = widget.isChecked()
                 elif isinstance(widget, QComboBox):
-                    new_value = widget.currentText()
+                    # Get actual value from data, fallback to text if no data
+                    current_data = widget.currentData()
+                    new_value = current_data if current_data is not None else widget.currentText()
 
                 # Only update if value changed
                 if new_value != old_value:
@@ -450,7 +477,9 @@ class ConfigEditorWidget(QWidget):
         if isinstance(widget, QCheckBox):
             return widget.isChecked()
         if isinstance(widget, QComboBox):
-            return widget.currentText()
+            # Get actual value from data, fallback to text if no data
+            current_data = widget.currentData()
+            return current_data if current_data is not None else widget.currentText()
 
         return None
 
@@ -474,4 +503,10 @@ class ConfigEditorWidget(QWidget):
         elif isinstance(widget, QCheckBox):
             widget.setChecked(bool(value))
         elif isinstance(widget, QComboBox):
-            widget.setCurrentText(str(value))
+            # Try to find by data value first
+            index = widget.findData(value)
+            if index >= 0:
+                widget.setCurrentIndex(index)
+            else:
+                # Fallback to text match
+                widget.setCurrentText(str(value))
