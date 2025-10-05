@@ -128,14 +128,27 @@ class ThemeManager(QObject):
                 logger.exception("Failed to load built-in theme '%s': %s", theme_name, e)
 
     def _load_custom_themes(self) -> None:
-        """Load custom themes from the themes directory."""
-        if not self._themes_dir.exists():
-            logger.debug(f"Themes directory does not exist: {self._themes_dir}")
+        """Load custom themes from all search paths.
+
+        Loads themes from all paths in the resource manager's theme search paths,
+        allowing applications to provide their own themes that override framework themes.
+        """
+        # Get all theme search paths from resource manager
+        search_paths = self._resource_manager.get_search_paths("themes")
+
+        if not search_paths:
+            logger.debug("No theme search paths configured")
             return
 
-        # Load YAML themes only
-        for theme_file in self._themes_dir.glob("*.yaml"):
-            self._load_theme_file(theme_file)
+        # Load themes from all search paths (later paths can override earlier ones)
+        for themes_dir in search_paths:
+            if not themes_dir.exists():
+                logger.debug(f"Themes directory does not exist: {themes_dir}")
+                continue
+
+            # Load YAML themes only
+            for theme_file in themes_dir.glob("*.yaml"):
+                self._load_theme_file(theme_file)
 
     def _load_theme_file(self, theme_file: Path) -> None:
         """Load a theme from a YAML file.
