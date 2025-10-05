@@ -305,7 +305,9 @@ class ConfigEditorWidget(QWidget):
                 # Refresh choices if dynamic
                 if field.choices_callback:
                     choices = field.choices_callback()
-                    display_map = field.choices_display_callback() if field.choices_display_callback else {}
+                    display_map = (
+                        field.choices_display_callback() if field.choices_display_callback else {}
+                    )
                     widget.clear()
                     for choice in choices:
                         display_name = display_map.get(choice, choice)

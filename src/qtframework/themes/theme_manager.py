@@ -132,9 +132,16 @@ class ThemeManager(QObject):
 
         Loads themes from all paths in the resource manager's theme search paths,
         allowing applications to provide their own themes that override framework themes.
+        If a themes_dir was explicitly provided to the constructor, it is added to the
+        search paths with highest priority.
         """
         # Get all theme search paths from resource manager
         search_paths = self._resource_manager.get_search_paths("themes")
+
+        # If themes_dir was explicitly provided (not from resource manager),
+        # add it to search paths with highest priority
+        if self._themes_dir not in search_paths:
+            search_paths = [self._themes_dir, *search_paths]
 
         if not search_paths:
             logger.debug("No theme search paths configured")
