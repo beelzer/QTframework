@@ -52,6 +52,10 @@ class Application(QApplication):
         org_name: str = "QtFramework",
         org_domain: str = "qtframework.local",
         resource_manager: ResourceManager | None = None,
+        excluded_builtin_themes: list[str] | None = None,
+        excluded_themes: list[str] | None = None,
+        included_themes: list[str] | None = None,
+        include_auto_theme: bool = True,
     ) -> None:
         """Initialize the application.
 
@@ -61,6 +65,10 @@ class Application(QApplication):
             org_name: Organization name
             org_domain: Organization domain
             resource_manager: Optional custom resource manager for themes/icons/translations
+            excluded_builtin_themes: List of built-in theme names to exclude from loading
+            excluded_themes: List of custom theme names to exclude from loading
+            included_themes: If specified, ONLY load these built-in framework themes (custom themes always load)
+            include_auto_theme: Whether to include 'auto' theme in theme list (default: True)
         """
         super().__init__(argv or sys.argv)
 
@@ -70,7 +78,13 @@ class Application(QApplication):
 
         self._context = Context()
         self._resource_manager = resource_manager or ResourceManager()
-        self._theme_manager = ThemeManager(resource_manager=self._resource_manager)
+        self._theme_manager = ThemeManager(
+            resource_manager=self._resource_manager,
+            excluded_builtin_themes=excluded_builtin_themes,
+            excluded_themes=excluded_themes,
+            included_themes=included_themes,
+            include_auto_theme=include_auto_theme,
+        )
         self._current_stylesheet: str = ""
         self._settings = QSettings()
         self._windows: list[BaseWindow] = []
@@ -100,14 +114,28 @@ class Application(QApplication):
         saved_theme = self._settings.value("theme", None)
         if saved_theme:
             theme = str(saved_theme)
+            # Verify theme exists, otherwise use first available
+            available_themes = self._theme_manager.list_themes()
+            if theme not in available_themes and theme not in self._theme_manager._themes:
+                logger.warning(f"Saved theme '{theme}' not available, using default")
+                theme = self._theme_manager._current_theme_name
         else:
-            theme = self._detect_os_theme()
+            # Try to detect OS theme, fallback to default if not available
+            detected = self._detect_os_theme()
+            if detected in self._theme_manager._themes or detected == "auto":
+                theme = detected
+            else:
+                theme = self._theme_manager._current_theme_name
         self._context.set("theme", theme)
 
     def _setup_theme(self) -> None:
         """Setup initial theme."""
-        theme_name = self._context.get("theme", "light")
-        self._theme_manager.set_theme(theme_name)
+        theme_name = self._context.get("theme", self._theme_manager._current_theme_name)
+        if not self._theme_manager.set_theme(theme_name):
+            # Fallback to current theme if requested theme not available
+            logger.warning(f"Could not set theme '{theme_name}', using fallback")
+            theme_name = self._theme_manager._current_theme_name
+            self._theme_manager.set_theme(theme_name)
         self._apply_stylesheet(self._theme_manager.get_stylesheet())
 
     def _apply_stylesheet(self, stylesheet: str | None) -> None:
@@ -234,6 +262,10 @@ class Application(QApplication):
         app_name: str = "QtFrameworkApp",
         org_name: str = "QtFramework",
         org_domain: str = "qtframework.local",
+        excluded_builtin_themes: list[str] | None = None,
+        excluded_themes: list[str] | None = None,
+        included_themes: list[str] | None = None,
+        include_auto_theme: bool = True,
         **window_kwargs: Any,
     ) -> int:
         """Create and run application with main window.
@@ -244,6 +276,10 @@ class Application(QApplication):
             app_name: Application name
             org_name: Organization name
             org_domain: Organization domain
+            excluded_builtin_themes: List of built-in theme names to exclude from loading
+            excluded_themes: List of custom theme names to exclude from loading
+            included_themes: If specified, ONLY load these built-in framework themes (custom themes always load)
+            include_auto_theme: Whether to include 'auto' theme in theme list (default: True)
             **window_kwargs: Keyword arguments for window
 
         Returns:
@@ -254,6 +290,10 @@ class Application(QApplication):
             app_name=app_name,
             org_name=org_name,
             org_domain=org_domain,
+            excluded_builtin_themes=excluded_builtin_themes,
+            excluded_themes=excluded_themes,
+            included_themes=included_themes,
+            include_auto_theme=include_auto_theme,
         )
         window = window_class(application=app, **window_kwargs)
         window.show()

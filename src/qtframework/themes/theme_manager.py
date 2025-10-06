@@ -79,6 +79,10 @@ class ThemeManager(QObject):
         themes_dir: Path | None = None,
         font_scale: int = 100,
         resource_manager: ResourceManager | None = None,
+        excluded_builtin_themes: list[str] | None = None,
+        excluded_themes: list[str] | None = None,
+        included_themes: list[str] | None = None,
+        include_auto_theme: bool = True,
     ) -> None:
         """Initialize theme manager.
 
@@ -86,20 +90,50 @@ class ThemeManager(QObject):
             themes_dir: Directory to load custom themes from (default: resources/themes)
             font_scale: Font scale percentage (50-200, default 100)
             resource_manager: Optional resource manager for themes and icons
+            excluded_builtin_themes: List of built-in theme names to exclude from loading
+            excluded_themes: List of custom theme names to exclude from loading
+            included_themes: If specified, ONLY load these built-in framework themes (custom themes always load)
+            include_auto_theme: Whether to include 'auto' theme in theme list (default: True)
         """
         super().__init__()
         self._themes: dict[str, Theme] = {}
-        self._current_theme_name: str = "light"
-        self._requested_theme_name: str = "light"  # Track what user requested (e.g., 'auto')
+        self._current_theme_name: str = ""  # Will be set after loading themes
+        self._requested_theme_name: str = ""  # Track what user requested (e.g., 'auto')
         self._resource_manager = resource_manager or ResourceManager()
         self._themes_dir = themes_dir or self._get_default_themes_dir()
         self._font_scale: int = font_scale
+        self._excluded_builtin_themes = set(excluded_builtin_themes or [])
+        self._excluded_themes = set(excluded_themes or [])
+        # Keep included_themes as a list to preserve order (even if empty)
+        self._included_themes = included_themes
+        self._include_auto_theme = include_auto_theme
 
         # Load built-in themes
         self._load_builtin_themes()
 
         # Load custom themes
         self._load_custom_themes()
+
+        # Set default theme to first available theme
+        if not self._current_theme_name and self._themes:
+            # If included_themes specified, use first from that list
+            if self._included_themes:
+                # Use first available theme from included list
+                for theme_name in self._included_themes:
+                    if theme_name in self._themes:
+                        self._current_theme_name = theme_name
+                        break
+                # If none found, use first available theme
+                if not self._current_theme_name:
+                    self._current_theme_name = next(iter(self._themes.keys()))
+            # Otherwise prefer light or dark if available
+            elif "light" in self._themes and "light" not in self._excluded_builtin_themes:
+                self._current_theme_name = "light"
+            elif "dark" in self._themes and "dark" not in self._excluded_builtin_themes:
+                self._current_theme_name = "dark"
+            else:
+                self._current_theme_name = next(iter(self._themes.keys()))
+            self._requested_theme_name = self._current_theme_name
 
     def _get_default_themes_dir(self) -> Path:
         """Get default themes directory from resource manager.
@@ -114,8 +148,18 @@ class ThemeManager(QObject):
         return Path("resources/themes")
 
     def _load_builtin_themes(self) -> None:
-        """Load all built-in themes."""
+        """Load all built-in themes based on inclusion/exclusion rules."""
         for theme_name, theme_factory in BUILTIN_THEMES.items():
+            # If included_themes is specified (even if empty), only load themes in that list
+            if self._included_themes is not None:
+                if not self._included_themes or theme_name not in self._included_themes:
+                    logger.debug("Skipping non-included built-in theme: %s", theme_name)
+                    continue
+            # Otherwise, skip excluded themes
+            elif theme_name in self._excluded_builtin_themes:
+                logger.debug("Skipping excluded built-in theme: %s", theme_name)
+                continue
+
             try:
                 theme = theme_factory()
                 # Inject resource manager into theme's stylesheet generator
@@ -174,6 +218,12 @@ class ThemeManager(QObject):
                 return
 
             theme = Theme.from_yaml(theme_file)
+
+            # Custom themes are always loaded unless explicitly excluded
+            # The included_themes list only applies to built-in framework themes
+            if theme.name in self._excluded_themes:
+                logger.debug("Skipping excluded custom theme: %s", theme.name)
+                return
 
             # Check for name conflicts - custom themes override built-in themes
             if theme.name in self._themes:
@@ -373,11 +423,11 @@ class ThemeManager(QObject):
         """List all available theme names.
 
         Returns:
-            List of theme names with 'auto' first
+            List of theme names with 'auto' first if enabled
         """
         themes = list(self._themes.keys())
-        # Always put 'auto' first in the list
-        if "auto" not in themes:
+        # Add 'auto' first in the list if enabled
+        if self._include_auto_theme and "auto" not in themes:
             themes.insert(0, "auto")
         return themes
 
