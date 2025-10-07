@@ -471,31 +471,61 @@ QTreeView::branch:!has-children:!has-siblings:adjoins-item {{
         """Generate table styles."""
         return f"""
 /* Table Styles */
-QTableWidget, QTableView {{
+QTableWidget, QTableView, QTreeWidget {{
     background-color: {tokens.semantic.bg_primary};
     gridline-color: {tokens.components.table_border or tokens.semantic.border_subtle};
     border: 1px solid {tokens.semantic.border_default};
     border-radius: {tokens.borders.radius_md}px;
     selection-background-color: {tokens.components.table_row_selected or tokens.semantic.state_selected};
+    alternate-background-color: {tokens.components.table_row_bg_alt or tokens.semantic.bg_secondary};
 }}
 
-QTableWidget::item, QTableView::item {{
+QTableWidget::item, QTableView::item, QTreeWidget::item {{
     padding: {tokens.spacing.space_3}px {tokens.spacing.space_4}px;
     background-color: {tokens.components.table_row_bg or tokens.semantic.bg_primary};
     color: {tokens.semantic.fg_primary};
 }}
 
-QTableWidget::item:alternate, QTableView::item:alternate {{
+QTableWidget::item:alternate, QTableView::item:alternate, QTreeWidget::item:alternate {{
     background-color: {tokens.components.table_row_bg_alt or tokens.semantic.bg_secondary};
 }}
 
-QTableWidget::item:hover, QTableView::item:hover {{
+QTableWidget::item:hover, QTableView::item:hover, QTreeWidget::item:hover {{
     background-color: {tokens.components.table_row_hover or tokens.semantic.state_hover};
 }}
 
-QTableWidget::item:selected, QTableView::item:selected {{
+QTableWidget::item:selected, QTableView::item:selected, QTreeWidget::item:selected {{
     background-color: {tokens.components.table_row_selected or tokens.semantic.state_selected};
     color: {tokens.semantic.fg_on_accent};
+}}
+
+/* Tree-specific styles for branch indicators */
+QTreeWidget::branch {{
+    background-color: transparent;
+}}
+
+QTreeWidget::branch:has-siblings:!adjoins-item {{
+    border-image: none;
+}}
+
+QTreeWidget::branch:has-siblings:adjoins-item {{
+    border-image: none;
+}}
+
+QTreeWidget::branch:!has-children:!has-siblings:adjoins-item {{
+    border-image: none;
+}}
+
+QTreeWidget::branch:has-children:!has-siblings:closed,
+QTreeWidget::branch:closed:has-children:has-siblings {{
+    border-image: none;
+    image: none;
+}}
+
+QTreeWidget::branch:open:has-children:!has-siblings,
+QTreeWidget::branch:open:has-children:has-siblings {{
+    border-image: none;
+    image: none;
 }}
 
 QHeaderView::section {{
