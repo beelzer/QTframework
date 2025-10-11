@@ -218,8 +218,84 @@ tokens:
     badge_dark_fg: "#ECEFF4"
     badge_dark_border: "#4C566A"
 
+    badge_default_bg: "#4C566A"
+    badge_default_fg: "#ECEFF4"
+    badge_default_border: "#5E6E8A"
+
+    badge_secondary_bg: "#5E81AC"
+    badge_secondary_fg: "#ECEFF4"
+    badge_secondary_border: "#81A1C1"
+
   typography:
+    font_family_default: "'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica', sans-serif"
+    font_family_mono: "'JetBrains Mono', 'Cascadia Code', 'Consolas', 'Monaco', monospace"
     font_family_code: "JetBrains Mono"
+
+    # Font sizes
+    font_size_xs: 11
+    font_size_sm: 12
+    font_size_md: 14
+    font_size_lg: 16
+    font_size_xl: 18
+    font_size_2xl: 20
+    font_size_3xl: 24
+    font_size_4xl: 28
+    font_size_5xl: 32
+
+    # Font weights
+    font_weight_thin: 100
+    font_weight_light: 300
+    font_weight_normal: 400
+    font_weight_medium: 500
+    font_weight_semibold: 600
+    font_weight_bold: 700
+    font_weight_black: 900
+
+    # Line heights
+    line_height_tight: 1.2
+    line_height_normal: 1.5
+    line_height_relaxed: 1.75
+    line_height_loose: 2.0
+
+  spacing:
+    space_0: 0
+    space_1: 2
+    space_2: 4
+    space_3: 6
+    space_4: 8
+    space_5: 10
+    space_6: 12
+    space_8: 16
+    space_10: 20
+    space_12: 24
+    space_16: 32
+    space_20: 40
+    space_24: 48
+    space_32: 64
+
+  borders:
+    radius_none: 0
+    radius_sm: 2
+    radius_md: 4
+    radius_lg: 6
+    radius_xl: 8
+    radius_2xl: 12
+    radius_3xl: 16
+    radius_full: 9999
+
+  shadows:
+    shadow_none: "none"
+    shadow_sm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
+    shadow_md: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+    shadow_lg: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+    shadow_xl: "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+    shadow_2xl: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+    shadow_inner: "inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)"
+
+  transitions:
+    transition_fast: "150ms ease-in-out"
+    transition_normal: "250ms ease-in-out"
+    transition_slow: "350ms ease-in-out"
 
   syntax:
     keyword: "#81A1C1" # frost blue

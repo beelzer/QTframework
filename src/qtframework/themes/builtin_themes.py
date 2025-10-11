@@ -4,11 +4,15 @@ from __future__ import annotations
 
 from qtframework.themes.theme import Theme
 from qtframework.themes.tokens import (
+    BorderRadius,
     ComponentColors,
     DesignTokens,
     PrimitiveColors,
     SemanticColors,
+    Shadows,
+    Spacing,
     SyntaxColors,
+    Transitions,
     Typography,
 )
 
@@ -107,11 +111,64 @@ def create_light_theme() -> Theme:
         chart_6="#00BCD4",  # Cyan
         chart_grid=tokens.primitive.gray_200,
         chart_axis=tokens.primitive.gray_600,
+        # Badge colors
+        badge_default_bg=tokens.primitive.gray_200,
+        badge_default_fg=tokens.primitive.gray_900,
+        badge_default_border=tokens.primitive.gray_300,
+        badge_primary_bg=tokens.primitive.primary_500,
+        badge_primary_fg=tokens.primitive.white,
+        badge_primary_border=tokens.primitive.primary_500,
+        badge_secondary_bg=tokens.primitive.secondary_500,
+        badge_secondary_fg=tokens.primitive.white,
+        badge_secondary_border=tokens.primitive.secondary_500,
+        badge_success_bg=tokens.primitive.success_500,
+        badge_success_fg=tokens.primitive.white,
+        badge_success_border=tokens.primitive.success_500,
+        badge_warning_bg=tokens.primitive.warning_500,
+        badge_warning_fg=tokens.primitive.white,
+        badge_warning_border=tokens.primitive.warning_500,
+        badge_danger_bg=tokens.primitive.error_500,
+        badge_danger_fg=tokens.primitive.white,
+        badge_danger_border=tokens.primitive.error_500,
+        badge_info_bg=tokens.primitive.info_500,
+        badge_info_fg=tokens.primitive.white,
+        badge_info_border=tokens.primitive.info_500,
+        badge_light_bg=tokens.primitive.gray_100,
+        badge_light_fg=tokens.primitive.gray_900,
+        badge_light_border=tokens.primitive.gray_200,
+        badge_dark_bg=tokens.primitive.gray_900,
+        badge_dark_fg=tokens.primitive.white,
+        badge_dark_border=tokens.primitive.gray_900,
     )
 
     # Configure typography for light theme
     tokens.typography = Typography(
-        font_family_code="Consolas"  # Windows default monospace
+        font_family_default="'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica', sans-serif",
+        font_family_mono="'Cascadia Code', 'Consolas', 'Monaco', 'Courier New', monospace",
+        font_family_code="Consolas",  # Windows default monospace
+        # Font sizes (using defaults)
+        font_size_xs=11,
+        font_size_sm=12,
+        font_size_md=14,
+        font_size_lg=16,
+        font_size_xl=18,
+        font_size_2xl=20,
+        font_size_3xl=24,
+        font_size_4xl=28,
+        font_size_5xl=32,
+        # Font weights (using defaults)
+        font_weight_thin=100,
+        font_weight_light=300,
+        font_weight_normal=400,
+        font_weight_medium=500,
+        font_weight_semibold=600,
+        font_weight_bold=700,
+        font_weight_black=900,
+        # Line heights (using defaults)
+        line_height_tight=1.2,
+        line_height_normal=1.5,
+        line_height_relaxed=1.75,
+        line_height_loose=2.0,
     )
 
     # Configure syntax highlighting colors for light theme
@@ -132,6 +189,54 @@ def create_light_theme() -> Theme:
         error="#FF0000",  # Red
         warning="#FFA500",  # Orange
         info="#0000FF",  # Blue
+    )
+
+    # Configure spacing
+    tokens.spacing = Spacing(
+        space_0=0,
+        space_1=2,
+        space_2=4,
+        space_3=6,
+        space_4=8,
+        space_5=10,
+        space_6=12,
+        space_8=16,
+        space_10=20,
+        space_12=24,
+        space_16=32,
+        space_20=40,
+        space_24=48,
+        space_32=64,
+    )
+
+    # Configure border radius
+    tokens.borders = BorderRadius(
+        radius_none=0,
+        radius_sm=2,
+        radius_md=4,
+        radius_lg=6,
+        radius_xl=8,
+        radius_2xl=12,
+        radius_3xl=16,
+        radius_full=9999,
+    )
+
+    # Configure shadows
+    tokens.shadows = Shadows(
+        shadow_none="none",
+        shadow_sm="0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        shadow_md="0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+        shadow_lg="0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+        shadow_xl="0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+        shadow_2xl="0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+        shadow_inner="inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)",
+    )
+
+    # Configure transitions
+    tokens.transitions = Transitions(
+        transition_fast="150ms ease-in-out",
+        transition_normal="250ms ease-in-out",
+        transition_slow="350ms ease-in-out",
     )
 
     custom_styles = {
@@ -335,11 +440,64 @@ def create_dark_theme() -> Theme:
         chart_6="#26C6DA",  # Cyan
         chart_grid=tokens.primitive.gray_400,
         chart_axis=tokens.primitive.gray_600,
+        # Badge colors
+        badge_default_bg=tokens.primitive.gray_400,
+        badge_default_fg=tokens.primitive.gray_900,
+        badge_default_border=tokens.primitive.gray_500,
+        badge_primary_bg=tokens.primitive.primary_500,
+        badge_primary_fg=tokens.primitive.white,
+        badge_primary_border=tokens.primitive.primary_500,
+        badge_secondary_bg=tokens.primitive.secondary_500,
+        badge_secondary_fg=tokens.primitive.white,
+        badge_secondary_border=tokens.primitive.secondary_500,
+        badge_success_bg=tokens.primitive.success_500,
+        badge_success_fg=tokens.primitive.white,
+        badge_success_border=tokens.primitive.success_500,
+        badge_warning_bg=tokens.primitive.warning_500,
+        badge_warning_fg=tokens.primitive.white,
+        badge_warning_border=tokens.primitive.warning_500,
+        badge_danger_bg=tokens.primitive.error_500,
+        badge_danger_fg=tokens.primitive.white,
+        badge_danger_border=tokens.primitive.error_500,
+        badge_info_bg=tokens.primitive.info_500,
+        badge_info_fg=tokens.primitive.white,
+        badge_info_border=tokens.primitive.info_500,
+        badge_light_bg=tokens.primitive.gray_800,
+        badge_light_fg=tokens.primitive.gray_100,
+        badge_light_border=tokens.primitive.gray_700,
+        badge_dark_bg=tokens.primitive.gray_100,
+        badge_dark_fg=tokens.primitive.gray_900,
+        badge_dark_border=tokens.primitive.gray_100,
     )
 
     # Configure typography for dark theme
     tokens.typography = Typography(
-        font_family_code="Cascadia Code"  # Modern monospace font
+        font_family_default="'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica', sans-serif",
+        font_family_mono="'Cascadia Code', 'Consolas', 'Monaco', 'Courier New', monospace",
+        font_family_code="Cascadia Code",  # Modern monospace font
+        # Font sizes (using defaults)
+        font_size_xs=11,
+        font_size_sm=12,
+        font_size_md=14,
+        font_size_lg=16,
+        font_size_xl=18,
+        font_size_2xl=20,
+        font_size_3xl=24,
+        font_size_4xl=28,
+        font_size_5xl=32,
+        # Font weights (using defaults)
+        font_weight_thin=100,
+        font_weight_light=300,
+        font_weight_normal=400,
+        font_weight_medium=500,
+        font_weight_semibold=600,
+        font_weight_bold=700,
+        font_weight_black=900,
+        # Line heights (using defaults)
+        line_height_tight=1.2,
+        line_height_normal=1.5,
+        line_height_relaxed=1.75,
+        line_height_loose=2.0,
     )
 
     # Configure syntax highlighting colors for dark theme (VS Code Dark style)
@@ -360,6 +518,54 @@ def create_dark_theme() -> Theme:
         error="#F44747",  # Red
         warning="#FFCC00",  # Yellow
         info="#569CD6",  # Light blue
+    )
+
+    # Configure spacing
+    tokens.spacing = Spacing(
+        space_0=0,
+        space_1=2,
+        space_2=4,
+        space_3=6,
+        space_4=8,
+        space_5=10,
+        space_6=12,
+        space_8=16,
+        space_10=20,
+        space_12=24,
+        space_16=32,
+        space_20=40,
+        space_24=48,
+        space_32=64,
+    )
+
+    # Configure border radius
+    tokens.borders = BorderRadius(
+        radius_none=0,
+        radius_sm=2,
+        radius_md=4,
+        radius_lg=6,
+        radius_xl=8,
+        radius_2xl=12,
+        radius_3xl=16,
+        radius_full=9999,
+    )
+
+    # Configure shadows
+    tokens.shadows = Shadows(
+        shadow_none="none",
+        shadow_sm="0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        shadow_md="0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+        shadow_lg="0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+        shadow_xl="0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+        shadow_2xl="0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+        shadow_inner="inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)",
+    )
+
+    # Configure transitions
+    tokens.transitions = Transitions(
+        transition_fast="150ms ease-in-out",
+        transition_normal="250ms ease-in-out",
+        transition_slow="350ms ease-in-out",
     )
 
     custom_styles = {
@@ -476,19 +682,91 @@ def create_high_contrast_theme() -> Theme:
         table_row_hover=tokens.primitive.gray_200,
         table_row_selected=tokens.primitive.primary_100,
         table_border=tokens.primitive.black,
-        # Other components follow similar pattern
+        # Menu
         menu_bg=tokens.primitive.white,
         menu_fg=tokens.primitive.black,
+        menu_hover_bg=tokens.primitive.gray_200,
+        menu_hover_fg=tokens.primitive.black,
+        menu_selected_bg=tokens.primitive.primary_100,
+        menu_selected_fg=tokens.primitive.black,
+        # Scrollbar
         scrollbar_bg=tokens.primitive.gray_200,
         scrollbar_thumb=tokens.primitive.black,
+        scrollbar_thumb_hover=tokens.primitive.gray_900,
+        # Tab
         tab_bg=tokens.primitive.gray_100,
         tab_fg=tokens.primitive.black,
+        tab_active_bg=tokens.primitive.white,
+        tab_active_fg=tokens.primitive.primary_500,
+        tab_hover_bg=tokens.primitive.gray_200,
+        tab_hover_fg=tokens.primitive.black,
+        # Chart/Graph colors
+        chart_1=tokens.primitive.primary_500,
+        chart_2="#008000",  # Green
+        chart_3="#FF8C00",  # Orange
+        chart_4="#DC143C",  # Red
+        chart_5="#9370DB",  # Purple
+        chart_6="#1E90FF",  # Dodger blue
         chart_grid=tokens.primitive.gray_400,
+        chart_axis=tokens.primitive.black,
+        # Badge colors
+        badge_default_bg=tokens.primitive.gray_200,
+        badge_default_fg=tokens.primitive.black,
+        badge_default_border=tokens.primitive.black,
+        badge_primary_bg=tokens.primitive.primary_500,
+        badge_primary_fg=tokens.primitive.white,
+        badge_primary_border=tokens.primitive.black,
+        badge_secondary_bg=tokens.primitive.gray_700,
+        badge_secondary_fg=tokens.primitive.white,
+        badge_secondary_border=tokens.primitive.black,
+        badge_success_bg="#008000",
+        badge_success_fg=tokens.primitive.white,
+        badge_success_border=tokens.primitive.black,
+        badge_warning_bg="#FF8C00",
+        badge_warning_fg=tokens.primitive.black,
+        badge_warning_border=tokens.primitive.black,
+        badge_danger_bg="#DC143C",
+        badge_danger_fg=tokens.primitive.white,
+        badge_danger_border=tokens.primitive.black,
+        badge_info_bg="#1E90FF",
+        badge_info_fg=tokens.primitive.white,
+        badge_info_border=tokens.primitive.black,
+        badge_light_bg=tokens.primitive.white,
+        badge_light_fg=tokens.primitive.black,
+        badge_light_border=tokens.primitive.black,
+        badge_dark_bg=tokens.primitive.black,
+        badge_dark_fg=tokens.primitive.white,
+        badge_dark_border=tokens.primitive.black,
     )
 
     # Configure typography for high contrast theme
     tokens.typography = Typography(
-        font_family_code="Consolas"  # Clear monospace font
+        font_family_default="'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica', sans-serif",
+        font_family_mono="'Consolas', 'Cascadia Code', 'Monaco', 'Courier New', monospace",
+        font_family_code="Consolas",  # Clear monospace font
+        # Font sizes (using defaults)
+        font_size_xs=11,
+        font_size_sm=12,
+        font_size_md=14,
+        font_size_lg=16,
+        font_size_xl=18,
+        font_size_2xl=20,
+        font_size_3xl=24,
+        font_size_4xl=28,
+        font_size_5xl=32,
+        # Font weights (using defaults)
+        font_weight_thin=100,
+        font_weight_light=300,
+        font_weight_normal=400,
+        font_weight_medium=500,
+        font_weight_semibold=600,
+        font_weight_bold=700,
+        font_weight_black=900,
+        # Line heights (using defaults)
+        line_height_tight=1.2,
+        line_height_normal=1.5,
+        line_height_relaxed=1.75,
+        line_height_loose=2.0,
     )
 
     # Configure syntax highlighting colors for high contrast
@@ -509,6 +787,54 @@ def create_high_contrast_theme() -> Theme:
         error="#FF0000",  # Red
         warning="#FFA500",  # Orange
         info="#0000FF",  # Blue
+    )
+
+    # Configure spacing
+    tokens.spacing = Spacing(
+        space_0=0,
+        space_1=2,
+        space_2=4,
+        space_3=6,
+        space_4=8,
+        space_5=10,
+        space_6=12,
+        space_8=16,
+        space_10=20,
+        space_12=24,
+        space_16=32,
+        space_20=40,
+        space_24=48,
+        space_32=64,
+    )
+
+    # Configure border radius
+    tokens.borders = BorderRadius(
+        radius_none=0,
+        radius_sm=2,
+        radius_md=4,
+        radius_lg=6,
+        radius_xl=8,
+        radius_2xl=12,
+        radius_3xl=16,
+        radius_full=9999,
+    )
+
+    # Configure shadows
+    tokens.shadows = Shadows(
+        shadow_none="none",
+        shadow_sm="0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        shadow_md="0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+        shadow_lg="0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+        shadow_xl="0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+        shadow_2xl="0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+        shadow_inner="inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)",
+    )
+
+    # Configure transitions
+    tokens.transitions = Transitions(
+        transition_fast="150ms ease-in-out",
+        transition_normal="250ms ease-in-out",
+        transition_slow="350ms ease-in-out",
     )
 
     custom_styles = {

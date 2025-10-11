@@ -369,7 +369,23 @@ class SyntaxColors(BaseModel):
 
 @dataclass
 class DesignTokens:
-    """Complete design token system."""
+    """Complete design token system.
+
+    Supports extension with custom token categories for app-specific needs.
+    Custom tokens can be added via the 'custom' field or by adding new top-level
+    categories in YAML that aren't part of the standard token set.
+
+    Example:
+        Add custom ping colors in your theme YAML:
+
+        tokens:
+          ping:
+            excellent: "#00FF00"
+            good: "#FFFF00"
+            poor: "#FF0000"
+
+        Access via: theme.tokens.get_custom("ping.excellent")
+    """
 
     primitive: PrimitiveColors = field(default_factory=PrimitiveColors)
     semantic: SemanticColors = field(default_factory=SemanticColors)
@@ -380,6 +396,7 @@ class DesignTokens:
     shadows: Shadows = field(default_factory=Shadows)
     transitions: Transitions = field(default_factory=Transitions)
     syntax: SyntaxColors = field(default_factory=SyntaxColors)
+    custom: dict[str, Any] = field(default_factory=dict)  # For app-specific tokens
 
     def apply_font_scale(self, scale_percent: int = 100) -> None:
         """Apply font scaling to all typography tokens.
@@ -406,24 +423,63 @@ class DesignTokens:
     def resolve_token(self, token_path: str) -> str | None:
         """Resolve a token path to its value.
 
+        Supports both standard and custom token paths.
+
         Args:
-            token_path: Dot-separated path to token (e.g., "primitive.primary_500")
+            token_path: Dot-separated path to token
+                       (e.g., "primitive.primary_500" or "ping.excellent")
 
         Returns:
             Token value or None if not found
+
+        Example:
+            >>> tokens.resolve_token("primitive.primary_500")
+            "#2196F3"
+            >>> tokens.resolve_token("ping.excellent")  # custom token
+            "#00FF00"
         """
         parts = token_path.split(".")
         current: Any = self
 
-        for part in parts:
+        for i, part in enumerate(parts):
             if hasattr(current, part):
                 current = getattr(current, part)
             elif isinstance(current, dict) and part in current:
                 current = current[part]
+            elif i == 0 and part in self.custom:
+                # First part might be a custom token category
+                current = self.custom[part]
             else:
                 return None
 
         return str(current) if current is not None else None
+
+    def get_custom(self, token_path: str, default: Any = None) -> Any:
+        """Get a custom token value by path.
+
+        Convenience method for accessing custom tokens.
+
+        Args:
+            token_path: Dot-separated path within custom tokens (e.g., "ping.excellent")
+            default: Default value if token not found
+
+        Returns:
+            Token value or default
+
+        Example:
+            >>> tokens.get_custom("ping.excellent", "#00FF00")
+            "#00FF00"
+        """
+        parts = token_path.split(".")
+        current: Any = self.custom
+
+        for part in parts:
+            if isinstance(current, dict) and part in current:
+                current = current[part]
+            else:
+                return default
+
+        return current if current is not None else default
 
     def resolve_semantic_colors(self) -> None:
         """Resolve semantic color references to actual values."""
@@ -440,8 +496,11 @@ class DesignTokens:
                         setattr(self.semantic, attr_name, resolved)
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert tokens to dictionary format."""
-        return {
+        """Convert tokens to dictionary format.
+
+        Includes both standard and custom token categories.
+        """
+        result = {
             "primitive": self.primitive.model_dump(),
             "semantic": self.semantic.model_dump(),
             "components": self.components.model_dump(),
@@ -453,9 +512,35 @@ class DesignTokens:
             "syntax": self.syntax.model_dump(),
         }
 
+        # Merge in custom token categories
+        result.update(self.custom)
+
+        return result
+
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> DesignTokens:
-        """Create DesignTokens from dictionary."""
+        """Create DesignTokens from dictionary.
+
+        Automatically preserves any custom token categories not in the standard set.
+        """
+        # Known token categories
+        known_categories = {
+            "primitive",
+            "semantic",
+            "components",
+            "typography",
+            "spacing",
+            "borders",
+            "shadows",
+            "transitions",
+            "syntax",
+        }
+
+        # Extract custom token categories (anything not in known set)
+        custom_tokens = {
+            key: value for key, value in data.items() if key not in known_categories
+        }
+
         return cls(
             primitive=PrimitiveColors(**data.get("primitive", {})),
             semantic=SemanticColors(**data.get("semantic", {})),
@@ -466,4 +551,5 @@ class DesignTokens:
             shadows=Shadows(**data.get("shadows", {})),
             transitions=Transitions(**data.get("transitions", {})),
             syntax=SyntaxColors(**data.get("syntax", {})),
+            custom=custom_tokens,
         )
