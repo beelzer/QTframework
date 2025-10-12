@@ -210,8 +210,9 @@ class SidebarLayout(QWidget):
         """
         while self._sidebar_layout.count() > (1 if self._collapsible else 0):
             item = self._sidebar_layout.takeAt(1 if self._collapsible else 0)
-            if item and item.widget():
-                item.widget().setParent(None)
+            old_widget = item.widget() if item else None
+            if old_widget:
+                old_widget.setParent(None)
 
         self._sidebar_layout.addWidget(widget)
 
@@ -226,8 +227,9 @@ class SidebarLayout(QWidget):
 
         while self._content_layout.count() > start_index:
             item = self._content_layout.takeAt(start_index)
-            if item and item.widget():
-                item.widget().setParent(None)
+            old_widget = item.widget() if item else None
+            if old_widget:
+                old_widget.setParent(None)
 
         self._content_layout.addWidget(widget)
 

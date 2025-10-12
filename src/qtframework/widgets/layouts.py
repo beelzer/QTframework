@@ -141,8 +141,9 @@ class VBox(Widget):
         """Remove all widgets from the layout."""
         while self._layout.count():
             item = self._layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+            widget = item.widget() if item else None
+            if widget:
+                widget.deleteLater()
 
     def set_spacing(self, spacing: int) -> None:
         """Set spacing between widgets.
@@ -289,8 +290,9 @@ class HBox(Widget):
         """Remove all widgets from the layout."""
         while self._layout.count():
             item = self._layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+            widget = item.widget() if item else None
+            if widget:
+                widget.deleteLater()
 
     def set_spacing(self, spacing: int) -> None:
         """Set spacing between widgets.

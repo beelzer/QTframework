@@ -328,8 +328,9 @@ class ColorPaletteWidget(QWidget):
         """Clear all colors from the palette."""
         while self.main_layout.count():
             item = self.main_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+            widget = item.widget() if item else None
+            if widget:
+                widget.deleteLater()
 
     def load_from_theme(self, theme) -> None:
         """Load colors from a theme object.
