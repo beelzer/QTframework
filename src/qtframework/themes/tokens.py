@@ -537,9 +537,7 @@ class DesignTokens:
         }
 
         # Extract custom token categories (anything not in known set)
-        custom_tokens = {
-            key: value for key, value in data.items() if key not in known_categories
-        }
+        custom_tokens = {key: value for key, value in data.items() if key not in known_categories}
 
         return cls(
             primitive=PrimitiveColors(**data.get("primitive", {})),
