@@ -5,19 +5,20 @@ from __future__ import annotations
 import logging
 import sys
 from pathlib import Path
+from typing import ClassVar
 
 
 class LogFormatter(logging.Formatter):
     """Custom formatter with color support for console output."""
 
     # ANSI color codes
-    COLORS = {
-        'DEBUG': '\033[36m',      # Cyan
-        'INFO': '\033[32m',       # Green
-        'WARNING': '\033[33m',    # Yellow
-        'ERROR': '\033[31m',      # Red
-        'CRITICAL': '\033[35m',   # Magenta
-        'RESET': '\033[0m'        # Reset
+    COLORS: ClassVar[dict[str, str]] = {
+        "DEBUG": "\033[36m",  # Cyan
+        "INFO": "\033[32m",  # Green
+        "WARNING": "\033[33m",  # Yellow
+        "ERROR": "\033[31m",  # Red
+        "CRITICAL": "\033[35m",  # Magenta
+        "RESET": "\033[0m",  # Reset
     }
 
     def __init__(self, fmt: str | None = None, use_color: bool = True):
@@ -27,7 +28,7 @@ class LogFormatter(logging.Formatter):
             fmt: Log format string
             use_color: Whether to use color output
         """
-        super().__init__(fmt, datefmt='%H:%M:%S')
+        super().__init__(fmt, datefmt="%H:%M:%S")
         self.use_color = use_color
 
     def format(self, record: logging.LogRecord) -> str:
@@ -81,16 +82,16 @@ def setup_logging(
     if log_file:
         log_file = Path(log_file)
         log_file.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file, encoding='utf-8')
+        file_handler = logging.FileHandler(log_file, encoding="utf-8")
         file_handler.setLevel(file_level)
         file_formatter = LogFormatter(log_format, use_color=False)
         file_handler.setFormatter(file_formatter)
         root_logger.addHandler(file_handler)
 
     # Suppress noisy third-party loggers
-    logging.getLogger('PySide6').setLevel(logging.WARNING)
-    logging.getLogger('matplotlib.font_manager').setLevel(logging.WARNING)
-    logging.getLogger('PIL').setLevel(logging.WARNING)
+    logging.getLogger("PySide6").setLevel(logging.WARNING)
+    logging.getLogger("matplotlib.font_manager").setLevel(logging.WARNING)
+    logging.getLogger("PIL").setLevel(logging.WARNING)
 
 
 def get_logger(name: str) -> logging.Logger:

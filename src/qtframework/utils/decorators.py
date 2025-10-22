@@ -11,13 +11,18 @@ from __future__ import annotations
 
 import functools
 import time
-from typing import Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, cast
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 from qtframework.utils.logger import get_logger
 
+
 logger = get_logger(__name__)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def with_error_logging(
@@ -42,6 +47,7 @@ def with_error_logging(
         def fetch_data():
             ...
     """
+
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> T:
@@ -53,8 +59,10 @@ def with_error_logging(
                 log_func(f"{op_name} failed: {e}")
                 if reraise:
                     raise
-                return default_return
+                return cast("T", default_return)
+
         return wrapper
+
     return decorator
 
 
@@ -80,6 +88,7 @@ def with_retry(
         def fetch_url(url):
             ...
     """
+
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> T:
@@ -99,13 +108,14 @@ def with_retry(
                         time.sleep(current_delay)
                         current_delay *= backoff
                     else:
-                        logger.warning(
-                            f"{func.__name__} failed after {max_attempts} attempts: {e}"
-                        )
+                        logger.warning(f"{func.__name__} failed after {max_attempts} attempts: {e}")
 
             # All attempts failed
+            assert last_exception is not None, "No exception was raised during retry attempts"
             raise last_exception
+
         return wrapper
+
     return decorator
 
 
@@ -123,6 +133,7 @@ def with_timing(log_threshold_ms: float = 100.0) -> Callable[[Callable[..., T]],
         def slow_operation():
             ...
     """
+
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> T:
@@ -133,7 +144,9 @@ def with_timing(log_threshold_ms: float = 100.0) -> Callable[[Callable[..., T]],
                 elapsed_ms = (time.perf_counter() - start_time) * 1000
                 if elapsed_ms > log_threshold_ms:
                     logger.debug(f"{func.__name__} took {elapsed_ms:.1f}ms")
+
         return wrapper
+
     return decorator
 
 
@@ -151,6 +164,7 @@ def deprecated(message: str = "") -> Callable[[Callable[..., T]], Callable[..., 
         def old_function():
             ...
     """
+
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> T:
@@ -159,5 +173,7 @@ def deprecated(message: str = "") -> Callable[[Callable[..., T]], Callable[..., 
                 warning += f": {message}"
             logger.warning(warning)
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator
