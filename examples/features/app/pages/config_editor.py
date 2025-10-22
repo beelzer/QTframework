@@ -4,9 +4,11 @@ from __future__ import annotations
 
 from PySide6.QtWidgets import QVBoxLayout
 
-from qtframework.widgets import ConfigEditorWidget, ConfigFieldDescriptor
-
-from qtframework.widgets import ScrollablePage as DemoPage
+from qtframework.widgets import (
+    ConfigEditorWidget,
+    ConfigFieldDescriptor,
+    ScrollablePage as DemoPage,
+)
 
 
 class ConfigEditorPage(DemoPage):

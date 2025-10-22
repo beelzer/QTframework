@@ -1,6 +1,4 @@
-"""
-Input controls demonstration page.
-"""
+"""Input controls demonstration page."""
 
 from __future__ import annotations
 

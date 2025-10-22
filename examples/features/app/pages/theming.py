@@ -1,6 +1,4 @@
-"""
-Theming demonstration page.
-"""
+"""Theming demonstration page."""
 
 from __future__ import annotations
 
@@ -18,7 +16,6 @@ from PySide6.QtWidgets import (
 )
 
 from qtframework.layouts import FlowLayout
-
 from qtframework.widgets import ScrollablePage as DemoPage
 
 

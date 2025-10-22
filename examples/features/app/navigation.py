@@ -1,6 +1,4 @@
-"""
-Navigation panel for the showcase.
-"""
+"""Navigation panel for the showcase."""
 
 from __future__ import annotations
 
@@ -67,9 +65,8 @@ class NavigationPanel(QFrame):
 
         if icon_path.exists():
             return QIcon(str(icon_path))
-        else:
-            # Fallback to empty icon if file not found
-            return QIcon()
+        # Fallback to empty icon if file not found
+        return QIcon()
 
     def _populate_tree(self):
         """Populate the navigation tree."""
@@ -112,11 +109,11 @@ class NavigationPanel(QFrame):
 
         # Collect searchable text
         from PySide6.QtWidgets import (
+            QCheckBox,
             QGroupBox,
             QLabel,
-            QPushButton,
             QLineEdit,
-            QCheckBox,
+            QPushButton,
             QRadioButton,
         )
 

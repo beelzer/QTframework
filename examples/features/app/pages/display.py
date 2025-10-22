@@ -1,15 +1,11 @@
-"""
-Display elements demonstration page with responsive layout.
-"""
+"""Display elements demonstration page with responsive layout."""
 
 from __future__ import annotations
 
 from PySide6.QtWidgets import QGroupBox, QHBoxLayout, QLabel, QProgressBar, QVBoxLayout
 
 from qtframework.layouts import FlowLayout
-from qtframework.widgets import Badge, BadgeVariant, CountBadge
-
-from qtframework.widgets import ScrollablePage as DemoPage
+from qtframework.widgets import Badge, BadgeVariant, CountBadge, ScrollablePage as DemoPage
 
 
 class DisplayPage(DemoPage):

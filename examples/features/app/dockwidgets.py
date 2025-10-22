@@ -1,6 +1,4 @@
-"""
-Dock widgets configuration for the showcase.
-"""
+"""Dock widgets configuration for the showcase."""
 
 from __future__ import annotations
 

@@ -21,9 +21,8 @@ from PySide6.QtWidgets import (
 )
 
 from qtframework.config import ConfigFileLoader, ConfigManager, ConfigMigrator, ConfigValidator
-from qtframework.widgets.buttons import Button, ButtonVariant
-
 from qtframework.widgets import ScrollablePage as DemoPage
+from qtframework.widgets.buttons import Button, ButtonVariant
 
 
 class ConfigPage(DemoPage):
@@ -292,8 +291,9 @@ class ConfigPage(DemoPage):
 
     def _save_config(self):
         """Save config to file."""
-        from PySide6.QtWidgets import QFileDialog
         import tempfile
+
+        from PySide6.QtWidgets import QFileDialog
 
         # Suggest a default location
         default_path = Path(tempfile.gettempdir()) / "qtframework_showcase_config.json"

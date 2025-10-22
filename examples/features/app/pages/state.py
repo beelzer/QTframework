@@ -1,6 +1,4 @@
-"""
-State management demonstration page.
-"""
+"""State management demonstration page."""
 
 from __future__ import annotations
 

@@ -1,6 +1,4 @@
-"""
-Dialogs demonstration page.
-"""
+"""Dialogs demonstration page."""
 
 from __future__ import annotations
 

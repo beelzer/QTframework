@@ -1,6 +1,4 @@
-"""
-Forms demonstration page.
-"""
+"""Forms demonstration page."""
 
 from __future__ import annotations
 

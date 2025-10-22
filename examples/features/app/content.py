@@ -1,6 +1,4 @@
-"""
-Content area manager for the showcase.
-"""
+"""Content area manager for the showcase."""
 
 from __future__ import annotations
 

@@ -1,13 +1,10 @@
-"""
-Buttons demonstration page with responsive layout.
-"""
+"""Buttons demonstration page with responsive layout."""
 
 from __future__ import annotations
 
 from PySide6.QtWidgets import QGroupBox, QHBoxLayout, QPushButton, QToolButton, QVBoxLayout
 
 from qtframework.layouts import FlowLayout
-
 from qtframework.widgets import ScrollablePage as DemoPage
 
 

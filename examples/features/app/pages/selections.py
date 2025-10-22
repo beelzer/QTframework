@@ -1,6 +1,4 @@
-"""
-Selection controls demonstration page with responsive layout.
-"""
+"""Selection controls demonstration page with responsive layout."""
 
 from __future__ import annotations
 
@@ -19,7 +17,6 @@ from PySide6.QtWidgets import (
 )
 
 from qtframework.layouts import FlowLayout
-
 from qtframework.widgets import ScrollablePage as DemoPage
 
 

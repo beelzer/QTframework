@@ -1,6 +1,4 @@
-"""
-Qt Framework Feature Showcase - Main Application
-"""
+"""Qt Framework Feature Showcase - Main Application"""
 
 from __future__ import annotations
 

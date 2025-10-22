@@ -1,6 +1,4 @@
-"""
-Trees and lists demonstration page.
-"""
+"""Trees and lists demonstration page."""
 
 from __future__ import annotations
 

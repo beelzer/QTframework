@@ -1,6 +1,4 @@
-"""
-Animations demonstration page.
-"""
+"""Animations demonstration page."""
 
 from __future__ import annotations
 

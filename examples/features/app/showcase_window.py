@@ -1,6 +1,4 @@
-"""
-Main application window for the showcase.
-"""
+"""Main application window for the showcase."""
 
 from __future__ import annotations
 
@@ -49,7 +47,6 @@ class ShowcaseWindow(QMainWindow):
 
     def _init_config_manager(self):
         """Initialize config manager and load configuration."""
-
         # Initialize config manager and load from YAML template
         self.config_manager = ConfigManager()
         config_dir = Path(__file__).parent.parent
@@ -62,7 +59,7 @@ class ShowcaseWindow(QMainWindow):
                 import shutil
 
                 shutil.copy(config_example, self.config_file)
-                print(f"Created config.yaml from config.yaml.example")
+                print("Created config.yaml from config.yaml.example")
             except Exception as e:
                 print(f"Warning: Could not copy example config: {e}")
 

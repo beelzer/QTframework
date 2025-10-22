@@ -1,6 +1,4 @@
-"""
-Toolbar configuration for the showcase.
-"""
+"""Toolbar configuration for the showcase."""
 
 from __future__ import annotations
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+
 # Add project root to Python path for autodoc
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
@@ -29,7 +30,8 @@ templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # Import theme colors from framework
-from qtframework.themes.builtin_themes import create_light_theme, create_dark_theme
+from qtframework.themes.builtin_themes import create_dark_theme, create_light_theme
+
 
 light_theme = create_light_theme()
 dark_theme = create_dark_theme()

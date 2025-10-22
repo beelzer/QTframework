@@ -84,8 +84,15 @@ extend = "config/ruff.toml"
 [tool.ruff.lint.isort]
 known-first-party = ["qtframework"]
 
-# Project-specific per-file ignores (added to base config)
+# Project-specific per-file ignores (must include base + project-specific)
+# Note: per-file-ignores don't merge, so we must repeat base config rules here
 [tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "S105", "S110", "ARG", "D", "ANN", "FBT"]
+"examples/**/*.py" = ["ALL"]
+"**/__init__.py" = ["F401", "D104"]
+"scripts/**/*.py" = ["S603", "S607", "T201"]
+".github/scripts/**/*.py" = ["S603", "S607", "T201"]
+"docs/conf.py" = ["INP001", "E402"]
 "src/qtframework/navigation/router.py" = ["TC003"]
 "src/qtframework/state/store.py" = ["TC003"]
 

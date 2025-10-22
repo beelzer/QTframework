@@ -60,7 +60,7 @@ repos:
     rev: v1.14.1
     hooks:
       - id: mypy
-        args: [--config-file=pyproject.toml]
+        args: [--config-file=config/mypy.ini]
         additional_dependencies:
           - pydantic>=2.0.0
           - PyQt6>=6.8.0
