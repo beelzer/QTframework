@@ -75,7 +75,7 @@ def parse_mypy_output(result) -> list[Annotation]:
 def main() -> int:
     """Run mypy and create GitHub annotations."""
     return run_tool(
-        ["mypy", "src"],
+        ["mypy", "--config-file=config/mypy.ini", "src"],
         parse_mypy_output,
     )
 
