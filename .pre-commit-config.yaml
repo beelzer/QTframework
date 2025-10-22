@@ -39,7 +39,7 @@ repos:
       - id: check-ast
       - id: check-vcs-permalinks
       - id: destroyed-symlinks
-      - id: forbid-submodules
+      # - id: forbid-submodules  # Disabled: We use submodules for shared configs
       - id: fix-encoding-pragma
         args: [--remove]
 

@@ -76,238 +76,34 @@ Issues = "https://github.com/beelzer/qt-framework/issues"
 packages = ["src/qtframework"]
 
 # Ruff - All-in-one Python linter and formatter
+# Inherits base configuration from config submodule
 [tool.ruff]
-target-version = "py313"
-line-length = 100
-indent-width = 4
-src = ["src", "tests", "examples"]
-fix = true
-preview = true
-exclude = ["docs/conf.py", "resources/**/*.py"]
+extend = "config/ruff.toml"
 
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-docstring-code-format = true
-docstring-code-line-length = 80
+# Project-specific overrides
+[tool.ruff.lint.isort]
+known-first-party = ["qtframework"]
 
-[tool.ruff.lint]
-select = [
-    # Core
-    "F",     # Pyflakes
-    "E",     # pycodestyle errors
-    "W",     # pycodestyle warnings
-    "I",     # isort
-    "N",     # pep8-naming
-    "UP",    # pyupgrade
-
-    # Code quality
-    "B",     # flake8-bugbear
-    "C4",    # flake8-comprehensions
-    "DTZ",   # flake8-datetimez
-    "T10",   # flake8-debugger
-    "EM",    # flake8-errmsg
-    "PIE",   # flake8-pie
-    "RSE",   # flake8-raise
-    "RET",   # flake8-return
-    "SIM",   # flake8-simplify
-    "TCH",   # flake8-type-checking
-    "ARG",   # flake8-unused-arguments
-    "PTH",   # flake8-use-pathlib
-    "PGH",   # pygrep-hooks
-
-    # Security
-    "S",     # flake8-bandit
-
-    # Performance
-    "PERF",  # Perflint
-
-    # Type annotations
-    "ANN",   # flake8-annotations
-    "FA",    # flake8-future-annotations
-
-    # Best practices
-    "BLE",   # flake8-blind-except
-    "FBT",   # flake8-boolean-trap
-    "A",     # flake8-builtins
-    "C90",   # mccabe
-    "G",     # flake8-logging-format
-    "INP",   # flake8-no-pep420
-    "PT",    # flake8-pytest-style
-    "SLF",   # flake8-self
-    "SLOT",  # flake8-slots
-    "TID",   # flake8-tidy-imports
-    "RUF",   # Ruff-specific rules
-
-    # Libraries
-    "NPY",   # NumPy-specific rules
-    "PD",    # pandas-vet
-
-    # Documentation
-    "D",     # pydocstyle
-
-    # Modern improvements
-    "FURB",  # refurb
-    "LOG",   # flake8-logging
-    "TRY",   # tryceratops
-    "FLY",   # flynt
-    "PL",    # Pylint (selective)
-]
-ignore = [
-    # Line length (formatter handles this)
-    "E501",
-
-    # Documentation (too strict for now)
-    "D100", "D101", "D102", "D103", "D104", "D105", "D107",
-    "D203",  # one-blank-line-before-class (conflicts with D211)
-    "D213",  # multi-line-summary-second-line (conflicts with D212)
-
-    # Conflicts with formatter
-    "COM812", "ISC001",
-
-    # Too opinionated
-    "S101",   # assert allowed
-    "S311",   # Standard pseudo-random generators (OK for test data)
-    "FBT001", "FBT002",  # Boolean args can be useful
-    "EM101", "EM102",    # Raw exception strings are fine
-    "TRY003",  # Long exception messages are ok
-    "PLR0913", # Too many arguments (Qt often needs many)
-    "PLR2004", # Magic values are sometimes clearer
-    "PLC0415", # Import can be at function level for lazy loading
-    "N802",    # Qt requires camelCase for override methods
-    "D401",    # First line imperative mood (too strict)
-
-    # Too strict for initial development
-    "ANN",     # All type annotations optional for now
-    "PLR6301", # Methods can use self even if not needed
-    "G004",    # f-strings in logging are fine
-    "TRY401", "TRY300", "TRY301",  # Try/except patterns
-    "BLE001",  # Blind except sometimes needed
-    "ARG001", "ARG002",  # Unused arguments (Qt signals)
-    "B904",    # raise from not always needed
-    "A002",    # Shadowing builtins sometimes ok
-    "F821",    # Forward references
-    "SLF001",  # Private member access within framework
-    "E722",    # Bare except for cleanup
-    "PLC1901", # Empty string comparison is clearer
-    "PLR0911", "PLR0912", "PLR0914",  # Complexity limits too strict
-
-    # Remaining edge cases
-    "PLR1702", "PLR0904", "PLR0915",  # Complexity
-    "PLW0603",  # Global statement
-    "A001",     # Builtin shadowing
-    "DTZ005",   # Timezone aware datetime
-    "FBT003",   # Boolean positional
-    "SIM102", "SIM108",  # Simplification
-    "B008",     # Function call in default
-    "C901",     # McCabe complexity
-    "D205",     # Docstring formatting
-    "FURB113",  # Refurb
-    "PGH003",   # Type ignore
-    "PLC0206",  # Dict iteration
-    "RUF001",   # Unicode
-]
-fixable = ["ALL"]
-unfixable = ["F401"]  # Don't auto-remove imports
-
+# Project-specific per-file ignores (added to base config)
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = [
-    "S101",     # assert is expected in tests
-    "S105",     # hardcoded password false positives (test strings)
-    "S110",     # try-except-pass ok in test cleanup
-    "ARG",      # unused arguments in fixtures
-    "D",        # no docstrings needed in tests
-    "ANN",      # no type annotations needed in tests
-    "FBT",      # boolean args ok in tests
-]
-"examples/**/*.py" = ["ALL"]  # Examples are for demonstration, not production
-"**/__init__.py" = ["F401", "D104"]  # __init__ can re-export
-"scripts/**/*.py" = ["S603", "S607", "T201"]  # Shell commands ok in scripts
-".github/scripts/**/*.py" = ["S603", "S607", "T201"]  # CI annotation scripts need subprocess
 "src/qtframework/navigation/router.py" = ["TC003"]
 "src/qtframework/state/store.py" = ["TC003"]
 
-[tool.ruff.lint.isort]
-known-first-party = ["qtframework"]
-required-imports = ["from __future__ import annotations"]
-combine-as-imports = true
-lines-after-imports = 2
-
-[tool.ruff.lint.flake8-type-checking]
-strict = true
-runtime-evaluated-base-classes = ["pydantic.BaseModel", "sqlalchemy.orm.DeclarativeBase"]
-
-[tool.ruff.lint.pydocstyle]
-convention = "google"
-
-[tool.ruff.lint.mccabe]
-max-complexity = 12
-
-[tool.ruff.lint.pylint]
-max-args = 7  # Qt widgets often need many args
-max-branches = 12
-max-returns = 4
-max-statements = 50
-
-[tool.ruff.lint.pyupgrade]
-keep-runtime-typing = true
-
 # MyPy - Static type checking
+# NOTE: Base configuration is in config/mypy.ini
+# Run mypy with: mypy --config-file=config/mypy.ini src/
+# The settings below are kept for IDE integration that reads pyproject.toml
 [tool.mypy]
 python_version = "3.13"
-warn_return_any = true
-warn_unused_configs = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_no_return = true
-warn_unreachable = true
-check_untyped_defs = true
-no_implicit_optional = true
-strict_optional = true
-strict_equality = true
-
-# Start permissive, tighten gradually
-disallow_untyped_defs = false
-disallow_untyped_calls = false
-disallow_incomplete_defs = false
-disallow_any_generics = false
-ignore_missing_imports = false
-
-# Display
 pretty = true
 show_error_codes = true
 show_column_numbers = true
-error_summary = true
 
-# Performance
-incremental = true
-cache_dir = ".mypy_cache"
-
-# Plugins
-plugins = [
-    "pydantic.mypy",
-]
-
-[[tool.mypy.overrides]]
-module = [
-    "matplotlib.*",
-    "pandas.*",
-    "numpy.*",
-    "PySide6.*",
-    "polib.*",
-    "watchdog.*",
-    "babel.*",
-    "dotenv.*",
-]
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = ["tests.*", "examples.*"]
-ignore_errors = true
+# For full configuration, use: mypy --config-file=config/mypy.ini src/
 
 # Pytest - Testing
+# NOTE: Base configuration mirrors config/pytest.ini
+# Pytest doesn't support extends, so config is duplicated here with project-specific additions
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]
@@ -319,13 +115,14 @@ addopts = [
     "--strict-markers",
     "--strict-config",
     "--tb=short",
+    "--maxfail=3",
+    "-vv",
+    # Project-specific: coverage settings
     "--cov=src/qtframework",
     "--cov-report=term-missing:skip-covered",
     "--cov-report=html",
     "--cov-report=xml",
     "--cov-branch",
-    "--maxfail=3",
-    "-vv",
 ]
 markers = [
     "unit: Unit tests (fast, isolated)",
@@ -349,7 +146,6 @@ filterwarnings = [
     "ignore::ResourceWarning",
     "ignore:.*PySide6.*:DeprecationWarning",
 ]
-# Qt specific settings for pytest-qt
 qt_api = "pyside6"
 qt_no_exception_capture = false
 
