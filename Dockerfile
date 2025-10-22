@@ -4,7 +4,7 @@
 # ============================================================================
 # Stage 1: Base Python image with system dependencies
 # ============================================================================
-FROM python:3.13-slim AS base
+FROM python:3.14-slim AS base
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
@@ -205,7 +205,7 @@ RUN sphinx-build -b html docs docs/_build/html
 # ============================================================================
 # Stage 7: Minimal runtime for CI/CD
 # ============================================================================
-FROM python:3.13-alpine AS minimal
+FROM python:3.14-alpine AS minimal
 
 # Install minimal QT runtime dependencies
 RUN apk add --no-cache \
