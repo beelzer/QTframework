@@ -298,7 +298,7 @@ jobs:
           echo "coverage_percentage=$coverage_pct" >> "$GITHUB_OUTPUT"
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: ./coverage.xml
           flags: unittests
