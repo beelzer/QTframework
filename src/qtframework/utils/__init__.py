@@ -2,6 +2,12 @@
 
 from __future__ import annotations
 
+from qtframework.utils.decorators import (
+    deprecated,
+    with_error_logging,
+    with_retry,
+    with_timing,
+)
 from qtframework.utils.exceptions import (
     ConfigurationError,
     NavigationError,
@@ -12,7 +18,7 @@ from qtframework.utils.exceptions import (
     ThemeError,
     ValidationError,
 )
-from qtframework.utils.logger import get_logger, setup_logging
+from qtframework.utils.logger import LogFormatter, get_logger, setup_logging
 from qtframework.utils.paths import (
     ensure_directory,
     find_config_files,
@@ -65,6 +71,7 @@ __all__ = [
     "EmailValidator",
     "FormValidator",
     "LengthValidator",
+    "LogFormatter",
     "NavigationError",
     "NumberValidator",
     "PathValidator",
@@ -87,6 +94,8 @@ __all__ = [
     "batch_style_updates",
     "choice_field",
     "collect_searchable_text",
+    # Decorators
+    "deprecated",
     "email_field",
     "ensure_directory",
     "find_config_files",
@@ -108,4 +117,7 @@ __all__ = [
     "set_widget_property",
     "set_widget_variant",
     "setup_logging",
+    "with_error_logging",
+    "with_retry",
+    "with_timing",
 ]
