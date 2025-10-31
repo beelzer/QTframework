@@ -649,42 +649,232 @@ QTabBar::tab:!selected {{
 }}"""
 
     def _generate_scrollbar_styles(self, tokens: DesignTokens) -> str:
-        """Generate scrollbar styles."""
-        return f"""
+        """Generate scrollbar styles with support for custom textures and comprehensive styling."""
+        # Determine scrollbar dimensions
+        scrollbar_width = tokens.components.scrollbar_width or 12
+        scrollbar_height = tokens.components.scrollbar_height or 12
+        arrow_size = tokens.components.scrollbar_arrow_size or scrollbar_width
+
+        # Check if arrow buttons will be visible
+        has_arrows = any(
+            [
+                tokens.components.scrollbar_up_arrow_image,
+                tokens.components.scrollbar_down_arrow_image,
+                tokens.components.scrollbar_left_arrow_image,
+                tokens.components.scrollbar_right_arrow_image,
+            ]
+        )
+
+        # Base scrollbar styles
+        styles = [f"""
 /* Scrollbar Styles */
 QScrollBar {{
     background-color: {tokens.components.scrollbar_bg or tokens.semantic.bg_secondary};
     border: none;
-    border-radius: {tokens.borders.radius_md}px;
-}}
+    border-radius: {tokens.borders.radius_md}px;"""]
 
-QScrollBar:horizontal {{
-    height: 12px;
-}}
+        # Add background image if specified (use border-image if slice is defined for 9-slice scaling)
+        if tokens.components.scrollbar_bg_image:
+            bg_url = self._resolve_image_url(tokens.components.scrollbar_bg_image)
+            if tokens.components.scrollbar_bg_border_slice:
+                styles.append(
+                    f"    border-image: url({bg_url}) {tokens.components.scrollbar_bg_border_slice};"
+                )
+            else:
+                styles.append(f"    background-image: url({bg_url});")
+                styles.append("    background-repeat: repeat;")
 
-QScrollBar:vertical {{
-    width: 12px;
-}}
+        styles.append("""
+}
 
-QScrollBar::handle {{
-    background-color: {tokens.components.scrollbar_thumb or tokens.semantic.fg_tertiary};
-    border-radius: {tokens.borders.radius_md - 2 if tokens.borders.radius_md > 2 else 0}px;
-    min-height: 20px;
+QScrollBar:horizontal {""")
+        styles.append(f"    height: {scrollbar_height}px;")
+        # Reserve space for left/right arrow buttons if they exist
+        if has_arrows:
+            styles.append(f"    margin: 0px {arrow_size}px 0px {arrow_size}px;")
+        styles.append("""
+}
+
+QScrollBar:vertical {""")
+        styles.append(f"    width: {scrollbar_width}px;")
+        # Reserve space for top/bottom arrow buttons if they exist
+        if has_arrows:
+            styles.append(f"    margin: {arrow_size}px 0px {arrow_size}px 0px;")
+        styles.append("""
+}
+
+/* Scrollbar Handle (Thumb) */
+QScrollBar::handle {""")
+        styles.append(
+            f"    background-color: {tokens.components.scrollbar_thumb or tokens.semantic.fg_tertiary};"
+        )
+
+        # Add thumb border if specified
+        if tokens.components.scrollbar_thumb_border:
+            styles.append(f"    border: 1px solid {tokens.components.scrollbar_thumb_border};")
+
+        styles.append(
+            f"    border-radius: {tokens.borders.radius_md - 2 if tokens.borders.radius_md > 2 else 0}px;"
+        )
+
+        # Add thumb image if specified (use border-image for 9-slice if slice is defined)
+        if tokens.components.scrollbar_thumb_image:
+            thumb_url = self._resolve_image_url(tokens.components.scrollbar_thumb_image)
+            if tokens.components.scrollbar_thumb_border_slice:
+                styles.append(
+                    f"    border-image: url({thumb_url}) {tokens.components.scrollbar_thumb_border_slice};"
+                )
+            else:
+                styles.append(f"    background-image: url({thumb_url});")
+                styles.append("    background-repeat: repeat;")
+
+        styles.append("""    min-height: 20px;
     min-width: 20px;
-}}
+}
 
-QScrollBar::handle:hover {{
-    background-color: {tokens.components.scrollbar_thumb_hover or tokens.semantic.fg_secondary};
-}}
+QScrollBar::handle:hover {""")
+        styles.append(
+            f"    background-color: {tokens.components.scrollbar_thumb_hover or tokens.semantic.fg_secondary};"
+        )
 
-QScrollBar::add-line, QScrollBar::sub-line {{
+        # Add hover image if specified (use border-image for 9-slice if slice is defined)
+        if tokens.components.scrollbar_thumb_hover_image:
+            hover_url = self._resolve_image_url(tokens.components.scrollbar_thumb_hover_image)
+            # Use hover-specific slice, or fall back to normal thumb slice
+            hover_slice = (
+                tokens.components.scrollbar_thumb_hover_border_slice
+                or tokens.components.scrollbar_thumb_border_slice
+            )
+            if hover_slice:
+                styles.append(f"    border-image: url({hover_url}) {hover_slice};")
+            else:
+                styles.append(f"    background-image: url({hover_url});")
+                styles.append("    background-repeat: repeat;")
+
+        styles.append("""
+}
+
+QScrollBar::handle:pressed {""")
+
+        # Use pressed color/image if specified, otherwise use hover
+        if tokens.components.scrollbar_thumb_pressed:
+            styles.append(f"    background-color: {tokens.components.scrollbar_thumb_pressed};")
+        elif tokens.components.scrollbar_thumb_hover:
+            styles.append(f"    background-color: {tokens.components.scrollbar_thumb_hover};")
+
+        if tokens.components.scrollbar_thumb_pressed_image:
+            pressed_url = self._resolve_image_url(tokens.components.scrollbar_thumb_pressed_image)
+            # Use pressed-specific slice, or fall back to normal thumb slice
+            pressed_slice = (
+                tokens.components.scrollbar_thumb_pressed_border_slice
+                or tokens.components.scrollbar_thumb_border_slice
+            )
+            if pressed_slice:
+                styles.append(f"    border-image: url({pressed_url}) {pressed_slice};")
+            else:
+                styles.append(f"    background-image: url({pressed_url});")
+                styles.append("    background-repeat: repeat;")
+
+        styles.append("""
+}
+
+/* Scrollbar Arrow Buttons */
+QScrollBar::add-line, QScrollBar::sub-line {""")
+
+        # If arrow images are specified, show arrow buttons
+        if has_arrows:
+            # Don't set background-color here - we'll use images as backgrounds
+            styles.append("    border: none;")
+            styles.append(f"    width: {arrow_size}px;")
+            styles.append(f"    height: {arrow_size}px;")
+        else:
+            # Hide arrow buttons by default
+            styles.append("    background: none;")
+            styles.append("    border: none;")
+            styles.append("    width: 0px;")
+            styles.append("    height: 0px;")
+
+        styles.append("""
+}""")
+
+        # Only add hover/pressed states if arrow buttons are visible
+        if has_arrows:
+            styles.append("""
+QScrollBar::add-line:hover, QScrollBar::sub-line:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+QScrollBar::add-line:pressed, QScrollBar::sub-line:pressed {
+    background-color: rgba(0, 0, 0, 0.2);
+}""")
+
+        styles.append("""
+/* Vertical Scrollbar Arrows */
+QScrollBar::sub-line:vertical {
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::add-line:vertical {
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+
+/* Horizontal Scrollbar Arrows */
+QScrollBar::sub-line:horizontal {
+    subcontrol-position: left;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::add-line:horizontal {
+    subcontrol-position: right;
+    subcontrol-origin: margin;
+}""")
+
+        # Add button background images (use full texture, not just arrow icon)
+        if tokens.components.scrollbar_up_arrow_image:
+            up_arrow_url = self._resolve_image_url(tokens.components.scrollbar_up_arrow_image)
+            styles.append(f"""
+QScrollBar::sub-line:vertical {{
+    background-image: url({up_arrow_url});
+    background-repeat: no-repeat;
+    background-position: center;
+}}""")
+
+        if tokens.components.scrollbar_down_arrow_image:
+            down_arrow_url = self._resolve_image_url(tokens.components.scrollbar_down_arrow_image)
+            styles.append(f"""
+QScrollBar::add-line:vertical {{
+    background-image: url({down_arrow_url});
+    background-repeat: no-repeat;
+    background-position: center;
+}}""")
+
+        if tokens.components.scrollbar_left_arrow_image:
+            left_arrow_url = self._resolve_image_url(tokens.components.scrollbar_left_arrow_image)
+            styles.append(f"""
+QScrollBar::sub-line:horizontal {{
+    background-image: url({left_arrow_url});
+    background-repeat: no-repeat;
+    background-position: center;
+}}""")
+
+        if tokens.components.scrollbar_right_arrow_image:
+            right_arrow_url = self._resolve_image_url(tokens.components.scrollbar_right_arrow_image)
+            styles.append(f"""
+QScrollBar::add-line:horizontal {{
+    background-image: url({right_arrow_url});
+    background-repeat: no-repeat;
+    background-position: center;
+}}""")
+
+        styles.append("""
+/* Scrollbar Page Areas (track) */
+QScrollBar::add-page, QScrollBar::sub-page {
     background: none;
-    border: none;
-}}
+}""")
 
-QScrollBar::add-page, QScrollBar::sub-page {{
-    background: none;
-}}"""
+        return "".join(styles)
 
     def _generate_container_styles(self, tokens: DesignTokens) -> str:
         """Generate container widget styles."""
@@ -910,3 +1100,44 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover {{
                 return f"image: url({icon_url});"
         # Fallback to relative path
         return f"image: url(resources/icons/{icon_name});"
+
+    def _resolve_image_url(self, image_path: str) -> str:
+        """Resolve an image path to a proper path for Qt stylesheets.
+
+        Args:
+            image_path: Path to image file (relative or absolute)
+
+        Returns:
+            Properly formatted path for use in Qt stylesheets (NOT a URL)
+
+        Note:
+            Qt stylesheets don't use file:/// URLs - they use plain file paths.
+            Paths must use forward slashes, even on Windows.
+        """
+        from pathlib import Path
+
+        if not image_path:
+            return ""
+
+        path = Path(image_path)
+
+        # If already a URL (qrc or http), return as-is
+        if image_path.startswith(("http://", "https://", "qrc:")):
+            return image_path
+
+        # Remove file:// prefix if present (not needed for Qt stylesheets)
+        if image_path.startswith("file://"):
+            image_path = image_path.replace("file:///", "").replace("file://", "")
+            path = Path(image_path)
+
+        # Convert to absolute path if needed
+        if not path.is_absolute():
+            # Try to resolve relative to current working directory
+            try:
+                path = path.resolve()
+            except Exception:
+                # If resolution fails, use as-is
+                pass
+
+        # Return path with forward slashes (works on all platforms for Qt)
+        return path.as_posix()

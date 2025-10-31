@@ -191,6 +191,33 @@ class ComponentColors(BaseModel):
     scrollbar_bg: str = Field(default="")
     scrollbar_thumb: str = Field(default="")
     scrollbar_thumb_hover: str = Field(default="")
+    scrollbar_thumb_pressed: str = Field(default="")
+    scrollbar_thumb_border: str = Field(default="")
+    scrollbar_width: int | None = Field(default=None)  # Custom width for vertical scrollbars
+    scrollbar_height: int | None = Field(default=None)  # Custom height for horizontal scrollbars
+
+    # Scrollbar images (for textured scrollbars like WoW)
+    scrollbar_bg_image: str = Field(default="")
+    scrollbar_thumb_image: str = Field(default="")
+    scrollbar_thumb_hover_image: str = Field(default="")
+    scrollbar_thumb_pressed_image: str = Field(default="")
+
+    # 9-slice border-image support (most advanced - prevents distortion)
+    # Format: "top right bottom left" (pixels from edge that don't stretch)
+    scrollbar_thumb_border_slice: str = Field(default="")  # e.g., "4 4 4 4"
+    scrollbar_thumb_hover_border_slice: str = Field(default="")
+    scrollbar_thumb_pressed_border_slice: str = Field(default="")
+    scrollbar_bg_border_slice: str = Field(default="")
+
+    # Scrollbar arrow buttons
+    scrollbar_arrow_bg: str = Field(default="")
+    scrollbar_arrow_bg_hover: str = Field(default="")
+    scrollbar_arrow_bg_pressed: str = Field(default="")
+    scrollbar_up_arrow_image: str = Field(default="")
+    scrollbar_down_arrow_image: str = Field(default="")
+    scrollbar_left_arrow_image: str = Field(default="")
+    scrollbar_right_arrow_image: str = Field(default="")
+    scrollbar_arrow_size: int | None = Field(default=None)  # Size of arrow buttons
 
     # Tab
     tab_bg: str = Field(default="")
