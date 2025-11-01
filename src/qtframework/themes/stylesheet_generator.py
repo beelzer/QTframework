@@ -690,16 +690,18 @@ QScrollBar {{
 QScrollBar:horizontal {""")
         styles.append(f"    height: {scrollbar_height}px;")
         # Reserve space for left/right arrow buttons if they exist
+        # Margins must match button width (which is scrollbar_height for horizontal scrollbars)
         if has_arrows:
-            styles.append(f"    margin: 0px {arrow_size}px 0px {arrow_size}px;")
+            styles.append(f"    margin: 0px {scrollbar_height}px 0px {scrollbar_height}px;")
         styles.append("""
 }
 
 QScrollBar:vertical {""")
         styles.append(f"    width: {scrollbar_width}px;")
         # Reserve space for top/bottom arrow buttons if they exist
+        # Margins must match button height (which is scrollbar_width for vertical scrollbars)
         if has_arrows:
-            styles.append(f"    margin: {arrow_size}px 0px {arrow_size}px 0px;")
+            styles.append(f"    margin: {scrollbar_width}px 0px {scrollbar_width}px 0px;")
         styles.append("""
 }
 
@@ -709,24 +711,20 @@ QScrollBar::handle {""")
             f"    background-color: {tokens.components.scrollbar_thumb or tokens.semantic.fg_tertiary};"
         )
 
-        # Add thumb border if specified
-        if tokens.components.scrollbar_thumb_border:
-            styles.append(f"    border: 1px solid {tokens.components.scrollbar_thumb_border};")
-
-        styles.append(
-            f"    border-radius: {tokens.borders.radius_md - 2 if tokens.borders.radius_md > 2 else 0}px;"
-        )
-
-        # Add thumb image if specified (use border-image for 9-slice if slice is defined)
+        # Add thumb image if specified - use background-image for simple scaling
         if tokens.components.scrollbar_thumb_image:
             thumb_url = self._resolve_image_url(tokens.components.scrollbar_thumb_image)
-            if tokens.components.scrollbar_thumb_border_slice:
-                styles.append(
-                    f"    border-image: url({thumb_url}) {tokens.components.scrollbar_thumb_border_slice};"
-                )
-            else:
-                styles.append(f"    background-image: url({thumb_url});")
-                styles.append("    background-repeat: repeat;")
+            styles.append(f"    background-image: url({thumb_url});")
+            styles.append("    background-position: center;")
+            styles.append("    background-repeat: no-repeat;")
+            styles.append("    border: none;")
+        else:
+            # No image, apply border and border-radius for clean edges
+            if tokens.components.scrollbar_thumb_border:
+                styles.append(f"    border: 1px solid {tokens.components.scrollbar_thumb_border};")
+            styles.append(
+                f"    border-radius: {tokens.borders.radius_md - 2 if tokens.borders.radius_md > 2 else 0}px;"
+            )
 
         styles.append("""    min-height: 20px;
     min-width: 20px;
@@ -737,19 +735,13 @@ QScrollBar::handle:hover {""")
             f"    background-color: {tokens.components.scrollbar_thumb_hover or tokens.semantic.fg_secondary};"
         )
 
-        # Add hover image if specified (use border-image for 9-slice if slice is defined)
+        # Add hover image if specified
         if tokens.components.scrollbar_thumb_hover_image:
             hover_url = self._resolve_image_url(tokens.components.scrollbar_thumb_hover_image)
-            # Use hover-specific slice, or fall back to normal thumb slice
-            hover_slice = (
-                tokens.components.scrollbar_thumb_hover_border_slice
-                or tokens.components.scrollbar_thumb_border_slice
-            )
-            if hover_slice:
-                styles.append(f"    border-image: url({hover_url}) {hover_slice};")
-            else:
-                styles.append(f"    background-image: url({hover_url});")
-                styles.append("    background-repeat: repeat;")
+            styles.append(f"    background-image: url({hover_url});")
+            styles.append("    background-position: center;")
+            styles.append("    background-repeat: no-repeat;")
+            styles.append("    border: none;")
 
         styles.append("""
 }
@@ -764,16 +756,10 @@ QScrollBar::handle:pressed {""")
 
         if tokens.components.scrollbar_thumb_pressed_image:
             pressed_url = self._resolve_image_url(tokens.components.scrollbar_thumb_pressed_image)
-            # Use pressed-specific slice, or fall back to normal thumb slice
-            pressed_slice = (
-                tokens.components.scrollbar_thumb_pressed_border_slice
-                or tokens.components.scrollbar_thumb_border_slice
-            )
-            if pressed_slice:
-                styles.append(f"    border-image: url({pressed_url}) {pressed_slice};")
-            else:
-                styles.append(f"    background-image: url({pressed_url});")
-                styles.append("    background-repeat: repeat;")
+            styles.append(f"    background-image: url({pressed_url});")
+            styles.append("    background-position: center;")
+            styles.append("    background-repeat: no-repeat;")
+            styles.append("    border: none;")
 
         styles.append("""
 }
@@ -785,8 +771,6 @@ QScrollBar::add-line, QScrollBar::sub-line {""")
         if has_arrows:
             # Don't set background-color here - we'll use images as backgrounds
             styles.append("    border: none;")
-            styles.append(f"    width: {arrow_size}px;")
-            styles.append(f"    height: {arrow_size}px;")
         else:
             # Hide arrow buttons by default
             styles.append("    background: none;")
@@ -832,10 +816,13 @@ QScrollBar::add-line:horizontal {
 }""")
 
         # Add button background images (use full texture, not just arrow icon)
+        # Include sizing here to ensure proper application
         if tokens.components.scrollbar_up_arrow_image:
             up_arrow_url = self._resolve_image_url(tokens.components.scrollbar_up_arrow_image)
             styles.append(f"""
 QScrollBar::sub-line:vertical {{
+    width: {scrollbar_width}px;
+    height: {scrollbar_width}px;
     background-image: url({up_arrow_url});
     background-repeat: no-repeat;
     background-position: center;
@@ -845,6 +832,8 @@ QScrollBar::sub-line:vertical {{
             down_arrow_url = self._resolve_image_url(tokens.components.scrollbar_down_arrow_image)
             styles.append(f"""
 QScrollBar::add-line:vertical {{
+    width: {scrollbar_width}px;
+    height: {scrollbar_width}px;
     background-image: url({down_arrow_url});
     background-repeat: no-repeat;
     background-position: center;
@@ -854,6 +843,8 @@ QScrollBar::add-line:vertical {{
             left_arrow_url = self._resolve_image_url(tokens.components.scrollbar_left_arrow_image)
             styles.append(f"""
 QScrollBar::sub-line:horizontal {{
+    width: {scrollbar_height}px;
+    height: {scrollbar_height}px;
     background-image: url({left_arrow_url});
     background-repeat: no-repeat;
     background-position: center;
@@ -863,6 +854,8 @@ QScrollBar::sub-line:horizontal {{
             right_arrow_url = self._resolve_image_url(tokens.components.scrollbar_right_arrow_image)
             styles.append(f"""
 QScrollBar::add-line:horizontal {{
+    width: {scrollbar_height}px;
+    height: {scrollbar_height}px;
     background-image: url({right_arrow_url});
     background-repeat: no-repeat;
     background-position: center;
