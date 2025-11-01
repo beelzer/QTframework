@@ -177,6 +177,17 @@ class ComponentColors(BaseModel):
     input_border: str = Field(default="")
     input_placeholder: str = Field(default="")
 
+    # Dropdown/ComboBox
+    combobox_bg: str = Field(default="")  # Background color
+    combobox_fg: str = Field(default="")  # Text color
+    combobox_border: str = Field(default="")  # Border color
+    combobox_arrow_image: str = Field(default="")  # Dropdown arrow button (normal)
+    combobox_arrow_hover_image: str = Field(default="")  # Dropdown arrow button (hover)
+    combobox_arrow_pressed_image: str = Field(default="")  # Dropdown arrow button (pressed)
+    combobox_arrow_disabled_image: str = Field(default="")  # Dropdown arrow button (disabled)
+    combobox_arrow_width: int = Field(default=20)  # Width of arrow button
+    combobox_arrow_height: int = Field(default=20)  # Height of arrow button
+
     # Table
     table_header_bg: str = Field(default="")
     table_header_fg: str = Field(default="")
@@ -185,6 +196,14 @@ class ComponentColors(BaseModel):
     table_row_hover: str = Field(default="")
     table_row_selected: str = Field(default="")
     table_border: str = Field(default="")
+
+    # Tree/List branch indicators
+    tree_branch_closed_image: str = Field(default="")  # Tree branch indicator when closed (collapsed)
+    tree_branch_open_image: str = Field(default="")  # Tree branch indicator when open (expanded)
+    tree_branch_closed_hover_image: str = Field(default="")  # Tree branch indicator when closed and hovered
+    tree_branch_open_hover_image: str = Field(default="")  # Tree branch indicator when open and hovered
+    tree_branch_closed_pressed_image: str = Field(default="")  # Tree branch indicator when closed and pressed
+    tree_branch_open_pressed_image: str = Field(default="")  # Tree branch indicator when open and pressed
 
     # Menu
     menu_bg: str = Field(default="")

@@ -338,9 +338,9 @@ QSpinBox:disabled, QDoubleSpinBox:disabled {{
 
 /* ComboBox */
 QComboBox {{
-    background-color: {tokens.components.input_bg or tokens.semantic.bg_secondary};
-    color: {tokens.components.input_fg or tokens.semantic.fg_primary};
-    border: 1px solid {tokens.components.input_border or tokens.semantic.border_default};
+    background-color: {tokens.components.combobox_bg or tokens.components.input_bg or tokens.semantic.bg_secondary};
+    color: {tokens.components.combobox_fg or tokens.components.input_fg or tokens.semantic.fg_primary};
+    border: 1px solid {tokens.components.combobox_border or tokens.components.input_border or tokens.semantic.border_default};
     border-radius: {tokens.borders.radius_md}px;
     padding: {tokens.spacing.space_3}px {tokens.spacing.space_4}px;
     min-width: 120px;
@@ -356,13 +356,26 @@ QComboBox:focus {{
 
 QComboBox::drop-down {{
     border: none;
-    width: 24px;
+    width: {tokens.components.combobox_arrow_width}px;
+    background: transparent;
 }}
 
 QComboBox::down-arrow {{
-    {self._get_icon_style("dropdown-arrow.svg")}
-    width: 16px;
-    height: 16px;
+    {"image: url(" + self._resolve_image_url(tokens.components.combobox_arrow_image) + ");" if tokens.components.combobox_arrow_image else self._get_icon_style("dropdown-arrow.svg")}
+    width: {tokens.components.combobox_arrow_width}px;
+    height: {tokens.components.combobox_arrow_height}px;
+}}
+
+QComboBox::down-arrow:hover {{
+    {"image: url(" + self._resolve_image_url(tokens.components.combobox_arrow_hover_image) + ");" if tokens.components.combobox_arrow_hover_image else ""}
+}}
+
+QComboBox::down-arrow:pressed {{
+    {"image: url(" + self._resolve_image_url(tokens.components.combobox_arrow_pressed_image) + ");" if tokens.components.combobox_arrow_pressed_image else ""}
+}}
+
+QComboBox::down-arrow:disabled {{
+    {"image: url(" + self._resolve_image_url(tokens.components.combobox_arrow_disabled_image) + ");" if tokens.components.combobox_arrow_disabled_image else ""}
 }}
 
 QComboBox QAbstractItemView {{
@@ -574,13 +587,37 @@ QTreeWidget::branch:!has-children:!has-siblings:adjoins-item {{
 QTreeWidget::branch:has-children:!has-siblings:closed,
 QTreeWidget::branch:closed:has-children:has-siblings {{
     border-image: none;
-    image: none;
+    {"image: url(" + self._resolve_image_url(tokens.components.tree_branch_closed_image) + ");" if tokens.components.tree_branch_closed_image else "image: none;"}
 }}
 
 QTreeWidget::branch:open:has-children:!has-siblings,
 QTreeWidget::branch:open:has-children:has-siblings {{
     border-image: none;
-    image: none;
+    {"image: url(" + self._resolve_image_url(tokens.components.tree_branch_open_image) + ");" if tokens.components.tree_branch_open_image else "image: none;"}
+}}
+
+QTreeWidget::branch:has-children:!has-siblings:closed:hover,
+QTreeWidget::branch:closed:has-children:has-siblings:hover {{
+    border-image: none;
+    {"image: url(" + self._resolve_image_url(tokens.components.tree_branch_closed_hover_image) + ");" if tokens.components.tree_branch_closed_hover_image else ""}
+}}
+
+QTreeWidget::branch:open:has-children:!has-siblings:hover,
+QTreeWidget::branch:open:has-children:has-siblings:hover {{
+    border-image: none;
+    {"image: url(" + self._resolve_image_url(tokens.components.tree_branch_open_hover_image) + ");" if tokens.components.tree_branch_open_hover_image else ""}
+}}
+
+QTreeWidget::branch:has-children:!has-siblings:closed:pressed,
+QTreeWidget::branch:closed:has-children:has-siblings:pressed {{
+    border-image: none;
+    {"image: url(" + self._resolve_image_url(tokens.components.tree_branch_closed_pressed_image) + ");" if tokens.components.tree_branch_closed_pressed_image else ""}
+}}
+
+QTreeWidget::branch:open:has-children:!has-siblings:pressed,
+QTreeWidget::branch:open:has-children:has-siblings:pressed {{
+    border-image: none;
+    {"image: url(" + self._resolve_image_url(tokens.components.tree_branch_open_pressed_image) + ");" if tokens.components.tree_branch_open_pressed_image else ""}
 }}
 
 QHeaderView::section {{
