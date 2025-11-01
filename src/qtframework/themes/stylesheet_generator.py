@@ -707,19 +707,31 @@ QScrollBar:vertical {""")
 
 /* Scrollbar Handle (Thumb) */
 QScrollBar::handle {""")
-        styles.append(
-            f"    background-color: {tokens.components.scrollbar_thumb or tokens.semantic.fg_tertiary};"
-        )
 
-        # Add thumb image if specified - use background-image for simple scaling
+        # Add thumb image if specified
         if tokens.components.scrollbar_thumb_image:
             thumb_url = self._resolve_image_url(tokens.components.scrollbar_thumb_image)
-            styles.append(f"    background-image: url({thumb_url});")
-            styles.append("    background-position: center;")
-            styles.append("    background-repeat: no-repeat;")
-            styles.append("    border: none;")
+
+            # Use border-image for 9-slice if border_slice is defined
+            if tokens.components.scrollbar_thumb_border_slice:
+                # border-image fills the entire element, no background-color needed
+                # Qt requires border-width to be set for border-image to work correctly
+                slice_values = tokens.components.scrollbar_thumb_border_slice.split()
+                border_width = " ".join([f"{v}px" for v in slice_values])
+                styles.append(f"    border-width: {border_width};")
+                styles.append(f"    border-image: url({thumb_url}) {tokens.components.scrollbar_thumb_border_slice} fill stretch;")
+            else:
+                # Fallback to background-image for simple scaling
+                styles.append(f"    background-color: {tokens.components.scrollbar_thumb or tokens.semantic.fg_tertiary};")
+                styles.append(f"    background-image: url({thumb_url});")
+                styles.append("    background-position: center;")
+                styles.append("    background-repeat: no-repeat;")
+                styles.append("    border: none;")
         else:
-            # No image, apply border and border-radius for clean edges
+            # No image, use solid color with border and border-radius
+            styles.append(
+                f"    background-color: {tokens.components.scrollbar_thumb or tokens.semantic.fg_tertiary};"
+            )
             if tokens.components.scrollbar_thumb_border:
                 styles.append(f"    border: 1px solid {tokens.components.scrollbar_thumb_border};")
             styles.append(
@@ -731,35 +743,67 @@ QScrollBar::handle {""")
 }
 
 QScrollBar::handle:hover {""")
-        styles.append(
-            f"    background-color: {tokens.components.scrollbar_thumb_hover or tokens.semantic.fg_secondary};"
-        )
 
         # Add hover image if specified
         if tokens.components.scrollbar_thumb_hover_image:
             hover_url = self._resolve_image_url(tokens.components.scrollbar_thumb_hover_image)
-            styles.append(f"    background-image: url({hover_url});")
-            styles.append("    background-position: center;")
-            styles.append("    background-repeat: no-repeat;")
-            styles.append("    border: none;")
+
+            # Use border-image for 9-slice if border_slice is defined
+            # Inherit from normal state if hover-specific slice not defined
+            border_slice = tokens.components.scrollbar_thumb_hover_border_slice or tokens.components.scrollbar_thumb_border_slice
+            if border_slice:
+                # border-image fills the entire element, no background-color needed
+                slice_values = border_slice.split()
+                border_width = " ".join([f"{v}px" for v in slice_values])
+                styles.append(f"    border-width: {border_width};")
+                styles.append(f"    border-image: url({hover_url}) {border_slice} fill stretch;")
+            else:
+                # Fallback to background-image for simple scaling
+                styles.append(f"    background-color: {tokens.components.scrollbar_thumb_hover or tokens.semantic.fg_secondary};")
+                styles.append(f"    background-image: url({hover_url});")
+                styles.append("    background-position: center;")
+                styles.append("    background-repeat: no-repeat;")
+                styles.append("    border: none;")
+        else:
+            # No hover image, use solid color
+            styles.append(
+                f"    background-color: {tokens.components.scrollbar_thumb_hover or tokens.semantic.fg_secondary};"
+            )
 
         styles.append("""
 }
 
 QScrollBar::handle:pressed {""")
 
-        # Use pressed color/image if specified, otherwise use hover
-        if tokens.components.scrollbar_thumb_pressed:
-            styles.append(f"    background-color: {tokens.components.scrollbar_thumb_pressed};")
-        elif tokens.components.scrollbar_thumb_hover:
-            styles.append(f"    background-color: {tokens.components.scrollbar_thumb_hover};")
-
+        # Add pressed image if specified
         if tokens.components.scrollbar_thumb_pressed_image:
             pressed_url = self._resolve_image_url(tokens.components.scrollbar_thumb_pressed_image)
-            styles.append(f"    background-image: url({pressed_url});")
-            styles.append("    background-position: center;")
-            styles.append("    background-repeat: no-repeat;")
-            styles.append("    border: none;")
+
+            # Use border-image for 9-slice if border_slice is defined
+            # Inherit from normal state if pressed-specific slice not defined
+            border_slice = tokens.components.scrollbar_thumb_pressed_border_slice or tokens.components.scrollbar_thumb_border_slice
+            if border_slice:
+                # border-image fills the entire element, no background-color needed
+                slice_values = border_slice.split()
+                border_width = " ".join([f"{v}px" for v in slice_values])
+                styles.append(f"    border-width: {border_width};")
+                styles.append(f"    border-image: url({pressed_url}) {border_slice} fill stretch;")
+            else:
+                # Fallback to background-image for simple scaling
+                if tokens.components.scrollbar_thumb_pressed:
+                    styles.append(f"    background-color: {tokens.components.scrollbar_thumb_pressed};")
+                elif tokens.components.scrollbar_thumb_hover:
+                    styles.append(f"    background-color: {tokens.components.scrollbar_thumb_hover};")
+                styles.append(f"    background-image: url({pressed_url});")
+                styles.append("    background-position: center;")
+                styles.append("    background-repeat: no-repeat;")
+                styles.append("    border: none;")
+        else:
+            # No pressed image, use solid color (fallback to hover color if pressed not specified)
+            if tokens.components.scrollbar_thumb_pressed:
+                styles.append(f"    background-color: {tokens.components.scrollbar_thumb_pressed};")
+            elif tokens.components.scrollbar_thumb_hover:
+                styles.append(f"    background-color: {tokens.components.scrollbar_thumb_hover};")
 
         styles.append("""
 }
