@@ -160,6 +160,7 @@ QPushButton {""")
         if tokens.components.button_hover_image:
             hover_url = self._resolve_image_url(tokens.components.button_hover_image)
             if tokens.components.button_border_slice:
+                # Simple replacement: use composite texture with borders + highlight
                 styles.append(f"    border-image: url({hover_url}) {tokens.components.button_border_slice} fill stretch;")
             else:
                 styles.append(f"    background-image: url({hover_url});")
