@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import suppress
 from typing import TYPE_CHECKING
 
 
@@ -653,25 +654,24 @@ QTabBar::tab:!selected {{
         # Determine scrollbar dimensions
         scrollbar_width = tokens.components.scrollbar_width or 12
         scrollbar_height = tokens.components.scrollbar_height or 12
-        arrow_size = tokens.components.scrollbar_arrow_size or scrollbar_width
 
         # Check if arrow buttons will be visible
-        has_arrows = any(
-            [
-                tokens.components.scrollbar_up_arrow_image,
-                tokens.components.scrollbar_down_arrow_image,
-                tokens.components.scrollbar_left_arrow_image,
-                tokens.components.scrollbar_right_arrow_image,
-            ]
-        )
+        has_arrows = any([
+            tokens.components.scrollbar_up_arrow_image,
+            tokens.components.scrollbar_down_arrow_image,
+            tokens.components.scrollbar_left_arrow_image,
+            tokens.components.scrollbar_right_arrow_image,
+        ])
 
         # Base scrollbar styles
-        styles = [f"""
+        styles = [
+            f"""
 /* Scrollbar Styles */
 QScrollBar {{
     background-color: {tokens.components.scrollbar_bg or tokens.semantic.bg_secondary};
     border: none;
-    border-radius: {tokens.borders.radius_md}px;"""]
+    border-radius: {tokens.borders.radius_md}px;"""
+        ]
 
         # Add background image if specified (use border-image if slice is defined for 9-slice scaling)
         if tokens.components.scrollbar_bg_image:
@@ -1126,11 +1126,8 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover {{
         # Convert to absolute path if needed
         if not path.is_absolute():
             # Try to resolve relative to current working directory
-            try:
+            with suppress(Exception):
                 path = path.resolve()
-            except Exception:
-                # If resolution fails, use as-is
-                pass
 
         # Return path with forward slashes (works on all platforms for Qt)
         return path.as_posix()
