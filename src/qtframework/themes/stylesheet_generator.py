@@ -655,6 +655,11 @@ QTabBar::tab:!selected {{
         scrollbar_width = tokens.components.scrollbar_width or 12
         scrollbar_height = tokens.components.scrollbar_height or 12
 
+        # Arrow dimensions - support separate width/height or fall back to size
+        arrow_size = tokens.components.scrollbar_arrow_size or scrollbar_width
+        scrollbar_arrow_width = tokens.components.scrollbar_arrow_width or arrow_size
+        scrollbar_arrow_height = tokens.components.scrollbar_arrow_height or arrow_size
+
         # Check if arrow buttons will be visible
         has_arrows = any([
             tokens.components.scrollbar_up_arrow_image,
@@ -690,18 +695,18 @@ QScrollBar {{
 QScrollBar:horizontal {""")
         styles.append(f"    height: {scrollbar_height}px;")
         # Reserve space for left/right arrow buttons if they exist
-        # Margins must match button width (which is scrollbar_height for horizontal scrollbars)
+        # Margins must match button width (horizontal scrollbar uses arrow width)
         if has_arrows:
-            styles.append(f"    margin: 0px {scrollbar_height}px 0px {scrollbar_height}px;")
+            styles.append(f"    margin: 0px {scrollbar_arrow_width}px 0px {scrollbar_arrow_width}px;")
         styles.append("""
 }
 
 QScrollBar:vertical {""")
         styles.append(f"    width: {scrollbar_width}px;")
         # Reserve space for top/bottom arrow buttons if they exist
-        # Margins must match button height (which is scrollbar_width for vertical scrollbars)
+        # Margins must match button height (vertical scrollbar uses arrow height)
         if has_arrows:
-            styles.append(f"    margin: {scrollbar_width}px 0px {scrollbar_width}px 0px;")
+            styles.append(f"    margin: {scrollbar_arrow_height}px 0px {scrollbar_arrow_height}px 0px;")
         styles.append("""
 }
 
@@ -865,8 +870,8 @@ QScrollBar::add-line:horizontal {
             up_arrow_url = self._resolve_image_url(tokens.components.scrollbar_up_arrow_image)
             styles.append(f"""
 QScrollBar::sub-line:vertical {{
-    width: {scrollbar_width}px;
-    height: {scrollbar_width}px;
+    width: {scrollbar_arrow_width}px;
+    height: {scrollbar_arrow_height}px;
     background-image: url({up_arrow_url});
     background-repeat: no-repeat;
     background-position: center;
@@ -876,8 +881,8 @@ QScrollBar::sub-line:vertical {{
             down_arrow_url = self._resolve_image_url(tokens.components.scrollbar_down_arrow_image)
             styles.append(f"""
 QScrollBar::add-line:vertical {{
-    width: {scrollbar_width}px;
-    height: {scrollbar_width}px;
+    width: {scrollbar_arrow_width}px;
+    height: {scrollbar_arrow_height}px;
     background-image: url({down_arrow_url});
     background-repeat: no-repeat;
     background-position: center;
@@ -887,8 +892,8 @@ QScrollBar::add-line:vertical {{
             left_arrow_url = self._resolve_image_url(tokens.components.scrollbar_left_arrow_image)
             styles.append(f"""
 QScrollBar::sub-line:horizontal {{
-    width: {scrollbar_height}px;
-    height: {scrollbar_height}px;
+    width: {scrollbar_arrow_width}px;
+    height: {scrollbar_arrow_height}px;
     background-image: url({left_arrow_url});
     background-repeat: no-repeat;
     background-position: center;
@@ -898,8 +903,8 @@ QScrollBar::sub-line:horizontal {{
             right_arrow_url = self._resolve_image_url(tokens.components.scrollbar_right_arrow_image)
             styles.append(f"""
 QScrollBar::add-line:horizontal {{
-    width: {scrollbar_height}px;
-    height: {scrollbar_height}px;
+    width: {scrollbar_arrow_width}px;
+    height: {scrollbar_arrow_height}px;
     background-image: url({right_arrow_url});
     background-repeat: no-repeat;
     background-position: center;
