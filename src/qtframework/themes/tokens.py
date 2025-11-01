@@ -164,6 +164,13 @@ class ComponentColors(BaseModel):
     button_secondary_fg: str = Field(default="")
     button_secondary_border: str = Field(default="")
 
+    # Button textures (for image-based buttons with 9-slice)
+    button_image: str = Field(default="")  # Normal state button texture
+    button_hover_image: str = Field(default="")  # Hover/highlight state
+    button_pressed_image: str = Field(default="")  # Pressed/down state
+    button_disabled_image: str = Field(default="")  # Disabled state
+    button_border_slice: str = Field(default="")  # 9-slice values (e.g., "8 8 8 8")
+
     # Input
     input_bg: str = Field(default="")
     input_fg: str = Field(default="")

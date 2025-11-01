@@ -123,38 +123,89 @@ QTextEdit[codeblock="true"] {{
 
     def _generate_button_styles(self, tokens: DesignTokens) -> str:
         """Generate button styles."""
-        return f"""
+        styles = []
+
+        styles.append("""
 /* Button Styles */
-QPushButton {{
-    background-color: {tokens.components.button_secondary_bg or tokens.semantic.bg_secondary};
-    color: {tokens.components.button_secondary_fg or tokens.semantic.fg_primary};
-    border: 1px solid {tokens.components.button_secondary_border or tokens.semantic.border_default};
-    border-radius: {tokens.borders.radius_md}px;
-    padding: {tokens.spacing.space_3}px {tokens.spacing.space_8}px;
-    font-weight: {tokens.typography.font_weight_medium};
-    min-height: {tokens.spacing.space_16}px;
-}}
+QPushButton {""")
 
-QPushButton:hover {{
-    background-color: {tokens.semantic.state_hover};
-    border-color: {tokens.semantic.border_strong};
-}}
+        # Check if button textures are defined
+        if tokens.components.button_image:
+            # Use texture-based buttons with 9-slice
+            button_url = self._resolve_image_url(tokens.components.button_image)
+            if tokens.components.button_border_slice:
+                slice_values = tokens.components.button_border_slice.split()
+                border_width = " ".join([f"{v}px" for v in slice_values])
+                styles.append(f"    border-width: {border_width};")
+                styles.append(f"    border-image: url({button_url}) {tokens.components.button_border_slice} fill stretch;")
+            else:
+                styles.append(f"    background-image: url({button_url});")
+                styles.append("    background-position: center;")
+                styles.append("    background-repeat: no-repeat;")
+            styles.append(f"    color: {tokens.components.button_secondary_fg or tokens.semantic.fg_primary};")
+        else:
+            # Use solid color buttons (default)
+            styles.append(f"    background-color: {tokens.components.button_secondary_bg or tokens.semantic.bg_secondary};")
+            styles.append(f"    color: {tokens.components.button_secondary_fg or tokens.semantic.fg_primary};")
+            styles.append(f"    border: 1px solid {tokens.components.button_secondary_border or tokens.semantic.border_default};")
 
-QPushButton:pressed {{
-    background-color: {tokens.semantic.state_selected};
-}}
+        styles.append(f"    border-radius: {tokens.borders.radius_md}px;")
+        styles.append(f"    padding: {tokens.spacing.space_3}px {tokens.spacing.space_8}px;")
+        styles.append(f"    font-weight: {tokens.typography.font_weight_medium};")
+        styles.append(f"    min-height: {tokens.spacing.space_16}px;")
+        styles.append("}")
 
-QPushButton:disabled {{
-    background-color: {tokens.semantic.state_disabled};
-    color: {tokens.semantic.fg_tertiary};
-    border-color: {tokens.semantic.border_subtle};
-}}
+        # Hover state
+        styles.append("\nQPushButton:hover {")
+        if tokens.components.button_hover_image:
+            hover_url = self._resolve_image_url(tokens.components.button_hover_image)
+            if tokens.components.button_border_slice:
+                styles.append(f"    border-image: url({hover_url}) {tokens.components.button_border_slice} fill stretch;")
+            else:
+                styles.append(f"    background-image: url({hover_url});")
+        elif not tokens.components.button_image:
+            # Only use color hover if not using textures
+            styles.append(f"    background-color: {tokens.semantic.state_hover};")
+            styles.append(f"    border-color: {tokens.semantic.border_strong};")
+        styles.append("}")
 
+        # Pressed state
+        styles.append("\nQPushButton:pressed {")
+        if tokens.components.button_pressed_image:
+            pressed_url = self._resolve_image_url(tokens.components.button_pressed_image)
+            if tokens.components.button_border_slice:
+                styles.append(f"    border-image: url({pressed_url}) {tokens.components.button_border_slice} fill stretch;")
+            else:
+                styles.append(f"    background-image: url({pressed_url});")
+        elif not tokens.components.button_image:
+            # Only use color pressed if not using textures
+            styles.append(f"    background-color: {tokens.semantic.state_selected};")
+        styles.append("}")
+
+        # Disabled state
+        styles.append("\nQPushButton:disabled {")
+        if tokens.components.button_disabled_image:
+            disabled_url = self._resolve_image_url(tokens.components.button_disabled_image)
+            if tokens.components.button_border_slice:
+                styles.append(f"    border-image: url({disabled_url}) {tokens.components.button_border_slice} fill stretch;")
+            else:
+                styles.append(f"    background-image: url({disabled_url});")
+        elif not tokens.components.button_image:
+            # Only use color disabled if not using textures
+            styles.append(f"    background-color: {tokens.semantic.state_disabled};")
+            styles.append(f"    border-color: {tokens.semantic.border_subtle};")
+        styles.append(f"    color: {tokens.semantic.fg_tertiary};")
+        styles.append("}")
+
+        # Focus state
+        styles.append(f"""
 QPushButton:focus {{
     border-color: {tokens.semantic.border_focus};
     outline: none;
-}}
+}}""")
 
+        # Add variant styles (these override default button styles)
+        styles.append(f"""
 /* Primary Button */
 QPushButton[variant="primary"] {{
     background-color: {tokens.components.button_primary_bg or tokens.semantic.action_primary};
@@ -254,7 +305,9 @@ QToolButton:hover {{
 
 QToolButton:pressed {{
     background-color: {tokens.semantic.state_selected};
-}}"""
+}}""")
+
+        return "\n".join(styles)
 
     def _generate_input_styles(self, tokens: DesignTokens) -> str:
         """Generate input field styles."""
