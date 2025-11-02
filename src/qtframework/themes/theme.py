@@ -200,7 +200,8 @@ class Theme:
         theme = cls.from_dict(data)
 
         # Load custom fonts for this theme (if theme directory has fonts/)
-        theme_dir = path.parent / path.stem
+        # Since config.yaml is inside the theme directory, parent is the theme dir
+        theme_dir = path.parent
         cls._load_theme_fonts(theme_dir)
 
         return theme

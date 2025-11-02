@@ -198,15 +198,15 @@ class ThemeManager(QObject):
                 logger.debug(f"Themes directory does not exist: {themes_dir}")
                 continue
 
-            # Load YAML themes only
-            for theme_file in themes_dir.glob("*.yaml"):
+            # Load YAML themes only (looking for config.yaml in subdirectories)
+            for theme_file in themes_dir.glob("*/config.yaml"):
                 self._load_theme_file(theme_file)
 
     def _load_theme_file(self, theme_file: Path) -> None:
         """Load a theme from a YAML file.
 
         Args:
-            theme_file: Path to the theme file
+            theme_file: Path to the theme configuration file (config.yaml)
 
         Raises:
             ValueError: If theme file format is invalid
@@ -215,7 +215,7 @@ class ThemeManager(QObject):
         """
         try:
             if theme_file.suffix != ".yaml":
-                logger.warning("Theme files must use .yaml extension: %s", theme_file)
+                logger.warning("Theme configuration files must use .yaml extension: %s", theme_file)
                 return
 
             theme = Theme.from_yaml(theme_file)
@@ -232,9 +232,7 @@ class ThemeManager(QObject):
                     f"Custom theme '{theme.name}' from {theme_file} overrides built-in theme"
                 )
 
-            # Load custom fonts for this theme
-            theme_dir = theme_file.parent / theme_file.stem
-            self._load_theme_fonts(theme_dir)
+            # Note: Fonts are already loaded by Theme.from_yaml()
 
             # Inject resource manager into theme's stylesheet generator
             theme._stylesheet_generator = theme._stylesheet_generator.__class__(
