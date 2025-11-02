@@ -137,17 +137,27 @@ QPushButton {""")
                 slice_values = tokens.components.button_border_slice.split()
                 border_width = " ".join([f"{v}px" for v in slice_values])
                 styles.append(f"    border-width: {border_width};")
-                styles.append(f"    border-image: url({button_url}) {tokens.components.button_border_slice} fill stretch;")
+                styles.append(
+                    f"    border-image: url({button_url}) {tokens.components.button_border_slice} fill stretch;"
+                )
             else:
                 styles.append(f"    background-image: url({button_url});")
                 styles.append("    background-position: center;")
                 styles.append("    background-repeat: no-repeat;")
-            styles.append(f"    color: {tokens.components.button_secondary_fg or tokens.semantic.fg_primary};")
+            styles.append(
+                f"    color: {tokens.components.button_secondary_fg or tokens.semantic.fg_primary};"
+            )
         else:
             # Use solid color buttons (default)
-            styles.append(f"    background-color: {tokens.components.button_secondary_bg or tokens.semantic.bg_secondary};")
-            styles.append(f"    color: {tokens.components.button_secondary_fg or tokens.semantic.fg_primary};")
-            styles.append(f"    border: 1px solid {tokens.components.button_secondary_border or tokens.semantic.border_default};")
+            styles.append(
+                f"    background-color: {tokens.components.button_secondary_bg or tokens.semantic.bg_secondary};"
+            )
+            styles.append(
+                f"    color: {tokens.components.button_secondary_fg or tokens.semantic.fg_primary};"
+            )
+            styles.append(
+                f"    border: 1px solid {tokens.components.button_secondary_border or tokens.semantic.border_default};"
+            )
 
         styles.append(f"    border-radius: {tokens.borders.radius_md}px;")
         styles.append(f"    padding: {tokens.spacing.space_3}px {tokens.spacing.space_8}px;")
@@ -161,7 +171,9 @@ QPushButton {""")
             hover_url = self._resolve_image_url(tokens.components.button_hover_image)
             if tokens.components.button_border_slice:
                 # Simple replacement: use composite texture with borders + highlight
-                styles.append(f"    border-image: url({hover_url}) {tokens.components.button_border_slice} fill stretch;")
+                styles.append(
+                    f"    border-image: url({hover_url}) {tokens.components.button_border_slice} fill stretch;"
+                )
             else:
                 styles.append(f"    background-image: url({hover_url});")
         elif not tokens.components.button_image:
@@ -175,7 +187,9 @@ QPushButton {""")
         if tokens.components.button_pressed_image:
             pressed_url = self._resolve_image_url(tokens.components.button_pressed_image)
             if tokens.components.button_border_slice:
-                styles.append(f"    border-image: url({pressed_url}) {tokens.components.button_border_slice} fill stretch;")
+                styles.append(
+                    f"    border-image: url({pressed_url}) {tokens.components.button_border_slice} fill stretch;"
+                )
             else:
                 styles.append(f"    background-image: url({pressed_url});")
         elif not tokens.components.button_image:
@@ -188,7 +202,9 @@ QPushButton {""")
         if tokens.components.button_disabled_image:
             disabled_url = self._resolve_image_url(tokens.components.button_disabled_image)
             if tokens.components.button_border_slice:
-                styles.append(f"    border-image: url({disabled_url}) {tokens.components.button_border_slice} fill stretch;")
+                styles.append(
+                    f"    border-image: url({disabled_url}) {tokens.components.button_border_slice} fill stretch;"
+                )
             else:
                 styles.append(f"    background-image: url({disabled_url});")
         elif not tokens.components.button_image:
@@ -752,8 +768,12 @@ QTabBar::tab:!selected {{
         scrollbar_arrow_height = tokens.components.scrollbar_arrow_height or arrow_size
 
         # Horizontal arrow dimensions (can be different from vertical)
-        scrollbar_arrow_width_horizontal = tokens.components.scrollbar_arrow_width_horizontal or scrollbar_arrow_width
-        scrollbar_arrow_height_horizontal = tokens.components.scrollbar_arrow_height_horizontal or scrollbar_arrow_height
+        scrollbar_arrow_width_horizontal = (
+            tokens.components.scrollbar_arrow_width_horizontal or scrollbar_arrow_width
+        )
+        scrollbar_arrow_height_horizontal = (
+            tokens.components.scrollbar_arrow_height_horizontal or scrollbar_arrow_height
+        )
 
         # Check if arrow buttons will be visible
         has_arrows = any([
@@ -792,7 +812,9 @@ QScrollBar:horizontal {""")
         # Reserve space for left/right arrow buttons if they exist
         # Margins must match button width (horizontal scrollbar uses horizontal arrow width)
         if has_arrows:
-            styles.append(f"    margin: 0px {scrollbar_arrow_width_horizontal}px 0px {scrollbar_arrow_width_horizontal}px;")
+            styles.append(
+                f"    margin: 0px {scrollbar_arrow_width_horizontal}px 0px {scrollbar_arrow_width_horizontal}px;"
+            )
         styles.append("""
 }
 
@@ -801,7 +823,9 @@ QScrollBar:vertical {""")
         # Reserve space for top/bottom arrow buttons if they exist
         # Margins must match button height (vertical scrollbar uses arrow height)
         if has_arrows:
-            styles.append(f"    margin: {scrollbar_arrow_height}px 0px {scrollbar_arrow_height}px 0px;")
+            styles.append(
+                f"    margin: {scrollbar_arrow_height}px 0px {scrollbar_arrow_height}px 0px;"
+            )
         styles.append("""
 }
 
@@ -819,10 +843,14 @@ QScrollBar::handle {""")
                 slice_values = tokens.components.scrollbar_thumb_border_slice.split()
                 border_width = " ".join([f"{v}px" for v in slice_values])
                 styles.append(f"    border-width: {border_width};")
-                styles.append(f"    border-image: url({thumb_url}) {tokens.components.scrollbar_thumb_border_slice} fill stretch;")
+                styles.append(
+                    f"    border-image: url({thumb_url}) {tokens.components.scrollbar_thumb_border_slice} fill stretch;"
+                )
             else:
                 # Fallback to background-image for simple scaling
-                styles.append(f"    background-color: {tokens.components.scrollbar_thumb or tokens.semantic.fg_tertiary};")
+                styles.append(
+                    f"    background-color: {tokens.components.scrollbar_thumb or tokens.semantic.fg_tertiary};"
+                )
                 styles.append(f"    background-image: url({thumb_url});")
                 styles.append("    background-position: center;")
                 styles.append("    background-repeat: no-repeat;")
@@ -850,7 +878,10 @@ QScrollBar::handle:hover {""")
 
             # Use border-image for 9-slice if border_slice is defined
             # Inherit from normal state if hover-specific slice not defined
-            border_slice = tokens.components.scrollbar_thumb_hover_border_slice or tokens.components.scrollbar_thumb_border_slice
+            border_slice = (
+                tokens.components.scrollbar_thumb_hover_border_slice
+                or tokens.components.scrollbar_thumb_border_slice
+            )
             if border_slice:
                 # border-image fills the entire element, no background-color needed
                 slice_values = border_slice.split()
@@ -859,7 +890,9 @@ QScrollBar::handle:hover {""")
                 styles.append(f"    border-image: url({hover_url}) {border_slice} fill stretch;")
             else:
                 # Fallback to background-image for simple scaling
-                styles.append(f"    background-color: {tokens.components.scrollbar_thumb_hover or tokens.semantic.fg_secondary};")
+                styles.append(
+                    f"    background-color: {tokens.components.scrollbar_thumb_hover or tokens.semantic.fg_secondary};"
+                )
                 styles.append(f"    background-image: url({hover_url});")
                 styles.append("    background-position: center;")
                 styles.append("    background-repeat: no-repeat;")
@@ -881,7 +914,10 @@ QScrollBar::handle:pressed {""")
 
             # Use border-image for 9-slice if border_slice is defined
             # Inherit from normal state if pressed-specific slice not defined
-            border_slice = tokens.components.scrollbar_thumb_pressed_border_slice or tokens.components.scrollbar_thumb_border_slice
+            border_slice = (
+                tokens.components.scrollbar_thumb_pressed_border_slice
+                or tokens.components.scrollbar_thumb_border_slice
+            )
             if border_slice:
                 # border-image fills the entire element, no background-color needed
                 slice_values = border_slice.split()
@@ -891,19 +927,22 @@ QScrollBar::handle:pressed {""")
             else:
                 # Fallback to background-image for simple scaling
                 if tokens.components.scrollbar_thumb_pressed:
-                    styles.append(f"    background-color: {tokens.components.scrollbar_thumb_pressed};")
+                    styles.append(
+                        f"    background-color: {tokens.components.scrollbar_thumb_pressed};"
+                    )
                 elif tokens.components.scrollbar_thumb_hover:
-                    styles.append(f"    background-color: {tokens.components.scrollbar_thumb_hover};")
+                    styles.append(
+                        f"    background-color: {tokens.components.scrollbar_thumb_hover};"
+                    )
                 styles.append(f"    background-image: url({pressed_url});")
                 styles.append("    background-position: center;")
                 styles.append("    background-repeat: no-repeat;")
                 styles.append("    border: none;")
-        else:
-            # No pressed image, use solid color (fallback to hover color if pressed not specified)
-            if tokens.components.scrollbar_thumb_pressed:
-                styles.append(f"    background-color: {tokens.components.scrollbar_thumb_pressed};")
-            elif tokens.components.scrollbar_thumb_hover:
-                styles.append(f"    background-color: {tokens.components.scrollbar_thumb_hover};")
+        # No pressed image, use solid color (fallback to hover color if pressed not specified)
+        elif tokens.components.scrollbar_thumb_pressed:
+            styles.append(f"    background-color: {tokens.components.scrollbar_thumb_pressed};")
+        elif tokens.components.scrollbar_thumb_hover:
+            styles.append(f"    background-color: {tokens.components.scrollbar_thumb_hover};")
 
         styles.append("""
 }

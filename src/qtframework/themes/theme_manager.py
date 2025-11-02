@@ -261,10 +261,12 @@ class ThemeManager(QObject):
         try:
             loaded_fonts = FontLoader.load_theme_fonts(theme_dir)
             if loaded_fonts:
-                logger.info(f"Loaded {len(loaded_fonts)} custom fonts for theme in {theme_dir.name}")
+                logger.info(
+                    f"Loaded {len(loaded_fonts)} custom fonts for theme in {theme_dir.name}"
+                )
                 print(f"   [Success] Loaded {len(loaded_fonts)} custom fonts")
             else:
-                print(f"   [Info] No custom fonts found")
+                print("   [Info] No custom fonts found")
         except Exception as e:
             logger.warning(f"Failed to load fonts for theme {theme_dir.name}: {e}")
             print(f"   [Error] Error loading fonts: {e}")

@@ -198,12 +198,22 @@ class ComponentColors(BaseModel):
     table_border: str = Field(default="")
 
     # Tree/List branch indicators
-    tree_branch_closed_image: str = Field(default="")  # Tree branch indicator when closed (collapsed)
+    tree_branch_closed_image: str = Field(
+        default=""
+    )  # Tree branch indicator when closed (collapsed)
     tree_branch_open_image: str = Field(default="")  # Tree branch indicator when open (expanded)
-    tree_branch_closed_hover_image: str = Field(default="")  # Tree branch indicator when closed and hovered
-    tree_branch_open_hover_image: str = Field(default="")  # Tree branch indicator when open and hovered
-    tree_branch_closed_pressed_image: str = Field(default="")  # Tree branch indicator when closed and pressed
-    tree_branch_open_pressed_image: str = Field(default="")  # Tree branch indicator when open and pressed
+    tree_branch_closed_hover_image: str = Field(
+        default=""
+    )  # Tree branch indicator when closed and hovered
+    tree_branch_open_hover_image: str = Field(
+        default=""
+    )  # Tree branch indicator when open and hovered
+    tree_branch_closed_pressed_image: str = Field(
+        default=""
+    )  # Tree branch indicator when closed and pressed
+    tree_branch_open_pressed_image: str = Field(
+        default=""
+    )  # Tree branch indicator when open and pressed
 
     # Menu
     menu_bg: str = Field(default="")
@@ -244,10 +254,18 @@ class ComponentColors(BaseModel):
     scrollbar_left_arrow_image: str = Field(default="")
     scrollbar_right_arrow_image: str = Field(default="")
     scrollbar_arrow_size: int | None = Field(default=None)  # Size of arrow buttons (square)
-    scrollbar_arrow_width: int | None = Field(default=None)  # Width of vertical arrow buttons (overrides size)
-    scrollbar_arrow_height: int | None = Field(default=None)  # Height of vertical arrow buttons (overrides size)
-    scrollbar_arrow_width_horizontal: int | None = Field(default=None)  # Width of horizontal arrow buttons
-    scrollbar_arrow_height_horizontal: int | None = Field(default=None)  # Height of horizontal arrow buttons
+    scrollbar_arrow_width: int | None = Field(
+        default=None
+    )  # Width of vertical arrow buttons (overrides size)
+    scrollbar_arrow_height: int | None = Field(
+        default=None
+    )  # Height of vertical arrow buttons (overrides size)
+    scrollbar_arrow_width_horizontal: int | None = Field(
+        default=None
+    )  # Width of horizontal arrow buttons
+    scrollbar_arrow_height_horizontal: int | None = Field(
+        default=None
+    )  # Height of horizontal arrow buttons
 
     # Tab
     tab_bg: str = Field(default="")

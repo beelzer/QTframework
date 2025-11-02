@@ -233,7 +233,7 @@ class Theme:
             if loaded_fonts:
                 print(f"   [Success] Loaded {len(loaded_fonts)} custom fonts")
             else:
-                print(f"   [Info] No custom fonts found")
+                print("   [Info] No custom fonts found")
         except Exception as e:
             print(f"   [Error] Font loading failed: {e}")
 
