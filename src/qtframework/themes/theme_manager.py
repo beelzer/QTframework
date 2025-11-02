@@ -61,6 +61,7 @@ from PySide6.QtGui import QPalette
 from PySide6.QtWidgets import QApplication
 
 from qtframework.themes.builtin_themes import BUILTIN_THEMES
+from qtframework.themes.font_loader import FontLoader
 from qtframework.themes.theme import Theme
 from qtframework.utils.logger import get_logger
 from qtframework.utils.resources import ResourceManager
@@ -231,6 +232,10 @@ class ThemeManager(QObject):
                     f"Custom theme '{theme.name}' from {theme_file} overrides built-in theme"
                 )
 
+            # Load custom fonts for this theme
+            theme_dir = theme_file.parent / theme_file.stem
+            self._load_theme_fonts(theme_dir)
+
             # Inject resource manager into theme's stylesheet generator
             theme._stylesheet_generator = theme._stylesheet_generator.__class__(
                 self._resource_manager
@@ -241,6 +246,28 @@ class ThemeManager(QObject):
 
         except Exception as e:
             logger.exception("Failed to load theme from %s: %s", theme_file, e)
+
+    def _load_theme_fonts(self, theme_dir: Path) -> None:
+        """Load custom fonts for a theme.
+
+        Args:
+            theme_dir: Path to the theme directory (e.g., pserver_manager/themes/runescape)
+        """
+        print(f"\n[Font Loader] Checking for fonts in: {theme_dir}")
+        if not theme_dir.exists():
+            print(f"   [Warning] Directory does not exist: {theme_dir}")
+            return
+
+        try:
+            loaded_fonts = FontLoader.load_theme_fonts(theme_dir)
+            if loaded_fonts:
+                logger.info(f"Loaded {len(loaded_fonts)} custom fonts for theme in {theme_dir.name}")
+                print(f"   [Success] Loaded {len(loaded_fonts)} custom fonts")
+            else:
+                print(f"   [Info] No custom fonts found")
+        except Exception as e:
+            logger.warning(f"Failed to load fonts for theme {theme_dir.name}: {e}")
+            print(f"   [Error] Error loading fonts: {e}")
 
     def register_theme(self, theme: Theme, override: bool = True) -> bool:
         """Register a theme programmatically.

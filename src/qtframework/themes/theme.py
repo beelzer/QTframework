@@ -57,6 +57,7 @@ from typing import TYPE_CHECKING, Any
 
 import yaml
 
+from qtframework.themes.font_loader import FontLoader
 from qtframework.themes.stylesheet_generator import StylesheetGenerator
 from qtframework.themes.tokens import DesignTokens
 
@@ -194,7 +195,15 @@ class Theme:
         path = Path(yaml_path)
         with path.open("r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
-        return cls.from_dict(data)
+
+        # Create theme from YAML data
+        theme = cls.from_dict(data)
+
+        # Load custom fonts for this theme (if theme directory has fonts/)
+        theme_dir = path.parent / path.stem
+        cls._load_theme_fonts(theme_dir)
+
+        return theme
 
     def save_yaml(self, yaml_path: Path | str) -> None:
         """Save theme to YAML file.
@@ -206,6 +215,27 @@ class Theme:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w", encoding="utf-8") as f:
             yaml.dump(self.to_dict(), f, default_flow_style=False)
+
+    @staticmethod
+    def _load_theme_fonts(theme_dir: Path) -> None:
+        """Load custom fonts for a theme.
+
+        Args:
+            theme_dir: Path to the theme directory (e.g., pserver_manager/themes/runescape)
+        """
+        print(f"\n[Font Loader] Checking for fonts in: {theme_dir}")
+        if not theme_dir.exists():
+            print(f"   [Warning] Directory does not exist: {theme_dir}")
+            return
+
+        try:
+            loaded_fonts = FontLoader.load_theme_fonts(theme_dir)
+            if loaded_fonts:
+                print(f"   [Success] Loaded {len(loaded_fonts)} custom fonts")
+            else:
+                print(f"   [Info] No custom fonts found")
+        except Exception as e:
+            print(f"   [Error] Font loading failed: {e}")
 
     def __repr__(self) -> str:
         """String representation."""
