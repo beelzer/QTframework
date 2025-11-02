@@ -198,15 +198,22 @@ class ThemeManager(QObject):
                 logger.debug(f"Themes directory does not exist: {themes_dir}")
                 continue
 
-            # Load YAML themes only (looking for config.yaml in subdirectories)
+            # Load YAML themes only
+            # Support both old structure (*.yaml) and new structure (*/config.yaml)
+
+            # Load themes from subdirectories with config.yaml (new structure)
             for theme_file in themes_dir.glob("*/config.yaml"):
+                self._load_theme_file(theme_file)
+
+            # Load themes directly in themes directory (old structure, for backward compatibility)
+            for theme_file in themes_dir.glob("*.yaml"):
                 self._load_theme_file(theme_file)
 
     def _load_theme_file(self, theme_file: Path) -> None:
         """Load a theme from a YAML file.
 
         Args:
-            theme_file: Path to the theme configuration file (config.yaml)
+            theme_file: Path to the theme configuration file (*.yaml or config.yaml)
 
         Raises:
             ValueError: If theme file format is invalid
